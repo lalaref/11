@@ -877,6 +877,8 @@ window.addEventListener('DOMContentLoaded', function(){
 
   loadNames(); loadScores(); initScoreCols(); initBrackets(); initStandings(); colorCourts();
 
+  initKnockouts();
+
   if(new URLSearchParams(location.search).get('admin') === '1'){
 
     var pw = prompt('請輸入管理密碼：');
@@ -1182,7 +1184,7 @@ function renderGroupStandings(divId, prefix, label, container){
     h += '<td class="st-l">'+r.l+'</td>';
     h += '<td class="st-pts">'+(r.gp>0?(r.w*2+r.l):'-')+'</td>';
     h += '<td>'+(r.gp>0?r.gf:'-')+'</td>';
-    h += '<td>'+(r.gp>0?r.ga:'-')+'</td>';
+    h += '<td>-</td>';
     h += '<td class="'+diffCls+'">'+(r.gp>0?diffStr:'-')+'</td>';
     h += '</tr>';
   });
@@ -1214,35 +1216,160 @@ function initStandings(){
   });
 }
 
-function resolveSeedName(divId,seed){
-  var divNames=names[divId]||{};
-  var rankMap={'首':0,'次':1,'三':2,'四':3};
-  var m=seed.match(/^([A-D])(.)$/);
-  if(m&&rankMap[m[2]]!==undefined){
-    var st=calcGroupStandings(divId,m[1]);
-    var t=st&&st[rankMap[m[2]]];
-    return t?(divNames[t.code]||t.code):null;
-  }
-  var ordMap={'第一名':0,'第二名':1,'第三名':2,'第四名':3};
-  if(ordMap[seed]!==undefined){
-    var st=calcGroupStandings(divId,'A');
-    var t=st&&st[ordMap[seed]];
-    return t?(divNames[t.code]||t.code):null;
-  }
-  return null;
-}
-function refreshBrackets(divId){
-  var outer=document.querySelector('.bk-outer[data-bk-div="'+divId+'"]');
-  if(!outer) return;
-  outer.querySelectorAll('.bk-box[data-seed]').forEach(function(box){
-    var seed=box.getAttribute('data-seed');
-    var nm=resolveSeedName(divId,seed);
-    var desc=box.querySelector('.bk-box-desc');
-    if(!desc) return;
-    if(nm){ desc.textContent=nm; desc.style.color='#1a6635'; }
-    else{ desc.textContent=box.getAttribute('data-desc')||''; desc.style.color=''; }
-  });
-}
+function resolveSeedName(divId,seed){
+
+  var divNames=names[divId]||{};
+
+  var rankMap={'首':0,'次':1,'三':2,'四':3};
+
+  var m=seed.match(/^([A-D])(.)$/);
+
+  if(m&&rankMap[m[2]]!==undefined){
+
+    var st=calcGroupStandings(divId,m[1]);
+
+    var t=st&&st[rankMap[m[2]]];
+
+    return t?(divNames[t.code]||t.code):null;
+
+  }
+
+  var ordMap={'第一名':0,'第二名':1,'第三名':2,'第四名':3};
+
+  if(ordMap[seed]!==undefined){
+
+    var st=calcGroupStandings(divId,'A');
+
+    var t=st&&st[ordMap[seed]];
+
+    return t?(divNames[t.code]||t.code):null;
+
+  }
+
+  return null;
+
+}
+
+function initKnockouts(){
+
+  Object.keys(BRACKET_DEFS).forEach(function(divId){
+
+    var sec=document.getElementById(divId);
+
+    if(!sec) return;
+
+    var def=BRACKET_DEFS[divId];
+
+    if(!def||!def.brackets) return;
+
+    var tbds=sec.querySelectorAll('.td-match .tbd');
+
+    if(def.brackets[0].direct){
+
+      var bk=def.brackets[0];
+
+      tbds.forEach(function(tbd){
+
+        var t=tbd.textContent.trim();
+
+        var cell=tbd.closest('.td-match');
+
+        if(!cell) return;
+
+        if(t==='冠軍戰'){ cell.setAttribute('data-ko-div',divId); cell.setAttribute('data-ko-seeds',bk.seeds[0]+','+bk.seeds[1]); }
+
+        else if(t==='季軍戰'){ cell.setAttribute('data-ko-div',divId); cell.setAttribute('data-ko-seeds',bk.seeds[2]+','+bk.seeds[3]); }
+
+      });
+
+    } else {
+
+      var cnts={};
+
+      tbds.forEach(function(tbd){
+
+        var t=tbd.textContent.trim();
+
+        var cell=tbd.closest('.td-match');
+
+        if(!cell) return;
+
+        var m=t.match(/^D([123])[\s\u00a0]+(.+)$/);
+
+        if(!m) return;
+
+        var bidx=parseInt(m[1])-1;
+
+        var type=m[2];
+
+        var bk=def.brackets[bidx];
+
+        if(!bk||type!=='四強') return;
+
+        var key=m[1]+'-'+type;
+
+        var n=cnts[key]=(cnts[key]||0);
+
+        cnts[key]++;
+
+        var s1=bk.seeds[n*2], s2=bk.seeds[n*2+1];
+
+        if(s1&&s2){ cell.setAttribute('data-ko-div',divId); cell.setAttribute('data-ko-seeds',s1+','+s2); }
+
+      });
+
+    }
+
+    refreshKnockouts(divId);
+
+  });
+
+}
+
+function refreshKnockouts(divId){
+
+  document.querySelectorAll('.td-match[data-ko-div="'+divId+'"][data-ko-seeds]').forEach(function(cell){
+
+    var sp=cell.getAttribute('data-ko-seeds').split(',');
+
+    var s1=sp[0],s2=sp[1];
+
+    var n1=resolveSeedName(divId,s1),n2=resolveSeedName(divId,s2);
+
+    cell.innerHTML='<span class="tn-code">'+escHtml(s1)+'</span><span class="tn">'+escHtml(n1||s1)+'</span>'
+
+      +' <span class="vs">vs</span> '
+
+      +'<span class="tn-code">'+escHtml(s2)+'</span><span class="tn">'+escHtml(n2||s2)+'</span>';
+
+  });
+
+}
+
+function refreshBrackets(divId){
+
+  var outer=document.querySelector('.bk-outer[data-bk-div="'+divId+'"]');
+
+  if(!outer) return;
+
+  outer.querySelectorAll('.bk-box[data-seed]').forEach(function(box){
+
+    var seed=box.getAttribute('data-seed');
+
+    var nm=resolveSeedName(divId,seed);
+
+    var desc=box.querySelector('.bk-box-desc');
+
+    if(!desc) return;
+
+    if(nm){ desc.textContent=nm; desc.style.color='#1a6635'; }
+
+    else{ desc.textContent=box.getAttribute('data-desc')||''; desc.style.color=''; }
+
+  });
+
+}
+
 function refreshStandings(divId){
   document.querySelectorAll('.st-outer[data-st-div="'+divId+'"]').forEach(function(outer){
     var def = STANDINGS_DEFS[divId];
@@ -1253,8 +1380,11 @@ function refreshStandings(divId){
       renderGroupStandings(divId, g.prefix, g.label, gd);
     });
   });
-
-  refreshBrackets(divId);
+
+
+  refreshBrackets(divId);
+  refreshKnockouts(divId);
+
 }
 
 // ── Score Management ──
