@@ -81,7 +81,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sched-table thead th:nth-child(1),.td-time{order:1;width:90px;font-weight:700;color:#d4a574;white-space:nowrap}
 .sched-table thead th:nth-child(4),.td-match{order:2;flex:1 1 0;min-width:0;width:auto}
 .sched-table thead th:nth-child(5),.sc-cell{order:3;width:100px;text-align:center}
-.sched-table thead th:nth-child(2),.td-gno{order:4;width:52px;text-align:center;font-size:.8em;color:#9a8a7a;white-space:nowrap;font-weight:700}
+.sched-table thead th:nth-child(2),.td-gno{display:none}
 .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){order:5;width:80px}
 .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{order:6;flex-shrink:0}
 .td-court{background:rgba(255,255,255,.4);border-radius:8px;padding:3px 10px;font-size:.78em;font-weight:700;color:#5a4a3a;white-space:nowrap;display:inline-block}
@@ -166,6 +166,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .st-table td.td-name{text-align:left;font-weight:700;padding-left:4px;white-space:nowrap}
 .st-table tr:last-child td{border-bottom:none}
 .st-rank{font-size:.7em;color:#9a8a7a;font-weight:700;width:20px}
+.st-rank-ico{font-size:.95em;margin-right:3px;vertical-align:middle}
 .st-w{color:#1a6635;font-weight:900}
 .st-l{color:#c0392b;font-weight:700}
 .st-pts{color:#7a5a20;font-weight:900}
@@ -240,7 +241,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sched-table thead th{font-size:.72em}
   .sched-table thead th:nth-child(1),.td-time{width:52px}
   .sched-table thead th:nth-child(5),.sc-cell{width:80px}
-  .sched-table thead th:nth-child(2),.td-gno{width:28px;padding-left:2px;padding-right:2px}
+  .sched-table thead th:nth-child(2),.td-gno{display:none}
   .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:50px}
   /* Hide 類型 on mobile */
   .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{display:none}
@@ -1202,16 +1203,20 @@ function calcGroupStandings(divId, prefix){
 function renderGroupStandings(divId, prefix, label, container){
   var rows = calcGroupStandings(divId, prefix);
   var divNames = names[divId]||{};
+  var maxGP = rows.length > 1 ? rows.length - 1 : 1;
+  var finished = rows.length > 0 && rows.every(function(r){ return r.gp >= maxGP; });
+  var rankIco = ['🥇','🥈','🥉'];
   var h = label ? '<div class="st-group-lbl">'+escHtml(label)+'</div>' : '';
-  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="\u52dd">\u52dd</th><th title="\u8ca0">\u8ca0</th><th title="\u7a4d\u5206">\u7a4d\u5206</th><th>\u5f97\u5206</th><th>\u5931\u5206</th><th>\u5f97\u5931\u5dee</th></tr></thead><tbody>';
+  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="勝">勝</th><th title="負">負</th><th title="積分">積分</th><th>得分</th><th>失分</th><th>得失差</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
     var nm = escHtml(divNames[r.code]||r.code);
     var diff = r.gf-r.ga;
     var diffStr = diff>0 ? '+'+diff : String(diff);
     var diffCls = diff>0 ? 'st-pos' : (diff<0 ? 'st-neg' : '');
+    var ico = (finished && rankIco[i]) ? '<span class="st-rank-ico">'+rankIco[i]+'</span>' : '';
     h += '<tr>';
     h += '<td class="st-rank">'+(i+1)+'</td>';
-    h += '<td class="td-name"><span class="tn-code">'+escHtml(r.code)+'</span><span class="tn">'+nm+'</span></td>';
+    h += '<td class="td-name">'+ico+'<span class="tn-code">'+escHtml(r.code)+'</span><span class="tn">'+nm+'</span></td>';
     h += '<td class="st-w">'+r.w+'</td>';
     h += '<td class="st-l">'+r.l+'</td>';
     h += '<td class="st-pts">'+(r.gp>0?(r.w*2+r.l):'-')+'</td>';
