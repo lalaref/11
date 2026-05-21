@@ -105,7 +105,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sc-inp{width:38px;padding:3px 4px;border:2px solid #d4a574;border-radius:6px;font-size:.85em;text-align:center;font-family:inherit;color:#5a4a3a;-moz-appearance:textfield;background:#fff}
 .sc-inp::-webkit-outer-spin-button,.sc-inp::-webkit-inner-spin-button{-webkit-appearance:none}
 .sc-inp:focus{outline:none;border-color:#c89860;box-shadow:0 0 0 2px rgba(212,165,116,.2)}
-.sc-btn{padding:4px 8px;border:none;border-radius:6px;font-weight:700;font-size:.8em;cursor:pointer;font-family:inherit}
+.sc-btn{padding:4px 8px;border:none;border-radius:6px;font-weight:700;font-size:.8em;cursor:pointer;font-family:inherit}
+
 .admin-banner{background:#dc3545;color:#fff;text-align:center;padding:10px;border-radius:12px;margin-bottom:20px;font-weight:700;font-size:.9em}
 .sc-ok{background:linear-gradient(145deg,#d4a574,#c89860);color:#fff}
 .sc-ok:hover{opacity:.85}
@@ -872,13 +873,20 @@ function loadNames(){
   applyAllNames();
 }
 
-window.addEventListener('DOMContentLoaded', function(){
-  loadNames(); loadScores(); initScoreCols(); initBrackets(); initStandings(); colorCourts();
-  if(new URLSearchParams(location.search).get('admin') === '1'){
-    var pw = prompt('請輸入管理密碼：');
-    if(pw === ADMIN_PASSWORD){ document.body.classList.add('admin-mode'); initAdmin(); }
-    else if(pw !== null){ alert('密碼錯誤'); }
-  }
+window.addEventListener('DOMContentLoaded', function(){
+
+  loadNames(); loadScores(); initScoreCols(); initBrackets(); initStandings(); colorCourts();
+
+  if(new URLSearchParams(location.search).get('admin') === '1'){
+
+    var pw = prompt('請輸入管理密碼：');
+
+    if(pw === ADMIN_PASSWORD){ document.body.classList.add('admin-mode'); initAdmin(); }
+
+    else if(pw !== null){ alert('密碼錯誤'); }
+
+  }
+
 });
 function colorCourts(){
   document.querySelectorAll('.td-court').forEach(function(el){
@@ -991,7 +999,7 @@ function buildBracketHtml(bk){
   h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
   [[0,1],[2,3]].forEach(function(p){
     h+='<div class="bk-pair">';
-    p.forEach(function(i){h+='<div class="bk-box"><div class="bk-box-code">'+bk.seeds[i]+'</div><div class="bk-box-desc">'+bk.descs[i]+'</div></div>';});
+    p.forEach(function(i){h+='<div class="bk-box" data-seed="'+bk.seeds[i]+'" data-desc="'+bk.descs[i]+'"><div class="bk-box-code">'+bk.seeds[i]+'</div><div class="bk-box-desc">'+bk.descs[i]+'</div></div>';});
     h+='</div>';
   });
   h+='</div>';
@@ -1028,9 +1036,9 @@ function buildDirectFinalHtml(bk){
     h+='<div class="bk-direct-game">';
     h+='<div class="bk-direct-badge '+g.cls+'">'+g.badge+'</div>';
     h+='<div class="bk-direct-match">';
-    h+='<div class="bk-box"><div class="bk-box-code">'+bk.seeds[g.i0]+'</div><div class="bk-box-desc">'+bk.descs[g.i0]+'</div></div>';
+    h+='<div class="bk-box" data-seed="'+bk.seeds[g.i0]+'" data-desc="'+bk.descs[g.i0]+'"><div class="bk-box-code">'+bk.seeds[g.i0]+'</div><div class="bk-box-desc">'+bk.descs[g.i0]+'</div></div>';
     h+='<span class="bk-vs">VS</span>';
-    h+='<div class="bk-box"><div class="bk-box-code">'+bk.seeds[g.i1]+'</div><div class="bk-box-desc">'+bk.descs[g.i1]+'</div></div>';
+    h+='<div class="bk-box" data-seed="'+bk.seeds[g.i1]+'" data-desc="'+bk.descs[g.i1]+'"><div class="bk-box-code">'+bk.seeds[g.i1]+'</div><div class="bk-box-desc">'+bk.descs[g.i1]+'</div></div>';
     h+='</div></div>';
   });
   return h+'</div>';
@@ -1043,7 +1051,7 @@ function initBrackets(){
     var card=sec.querySelector('.card');
     if(!card) return;
     var outer=document.createElement('div');
-    outer.className='bk-outer';
+    outer.className='bk-outer'; outer.setAttribute('data-bk-div',secId);
     var title=document.createElement('div');
     title.className='bk-outer-title';
     title.innerHTML='🏆 晉級表';
@@ -1161,7 +1169,7 @@ function renderGroupStandings(divId, prefix, label, container){
   var rows = calcGroupStandings(divId, prefix);
   var divNames = names[divId]||{};
   var h = label ? '<div class="st-group-lbl">'+escHtml(label)+'</div>' : '';
-  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="\u52dd">\u52dd</th><th title="\u8ca0">\u8ca0</th><th title="\u7a4d\u5206">\u7a4d\u5206</th><th>\u5f97\u7403</th><th>\u5931\u7403</th><th>\u5f97\u5931\u5dee</th></tr></thead><tbody>';
+  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="\u52dd">\u52dd</th><th title="\u8ca0">\u8ca0</th><th title="\u7a4d\u5206">\u7a4d\u5206</th><th>\u5f97\u5206</th><th>\u5931\u5206</th><th>\u5f97\u5931\u5dee</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
     var nm = escHtml(divNames[r.code]||r.code);
     var diff = r.gf-r.ga;
@@ -1206,6 +1214,35 @@ function initStandings(){
   });
 }
 
+function resolveSeedName(divId,seed){
+  var divNames=names[divId]||{};
+  var rankMap={'首':0,'次':1,'三':2,'四':3};
+  var m=seed.match(/^([A-D])(.)$/);
+  if(m&&rankMap[m[2]]!==undefined){
+    var st=calcGroupStandings(divId,m[1]);
+    var t=st&&st[rankMap[m[2]]];
+    return t?(divNames[t.code]||t.code):null;
+  }
+  var ordMap={'第一名':0,'第二名':1,'第三名':2,'第四名':3};
+  if(ordMap[seed]!==undefined){
+    var st=calcGroupStandings(divId,'A');
+    var t=st&&st[ordMap[seed]];
+    return t?(divNames[t.code]||t.code):null;
+  }
+  return null;
+}
+function refreshBrackets(divId){
+  var outer=document.querySelector('.bk-outer[data-bk-div="'+divId+'"]');
+  if(!outer) return;
+  outer.querySelectorAll('.bk-box[data-seed]').forEach(function(box){
+    var seed=box.getAttribute('data-seed');
+    var nm=resolveSeedName(divId,seed);
+    var desc=box.querySelector('.bk-box-desc');
+    if(!desc) return;
+    if(nm){ desc.textContent=nm; desc.style.color='#1a6635'; }
+    else{ desc.textContent=box.getAttribute('data-desc')||''; desc.style.color=''; }
+  });
+}
 function refreshStandings(divId){
   document.querySelectorAll('.st-outer[data-st-div="'+divId+'"]').forEach(function(outer){
     var def = STANDINGS_DEFS[divId];
@@ -1216,11 +1253,15 @@ function refreshStandings(divId){
       renderGroupStandings(divId, g.prefix, g.label, gd);
     });
   });
+
+  refreshBrackets(divId);
 }
 
 // ── Score Management ──
-var ADMIN_PASSWORD = 'bkids2026';
-var isAdmin = false;
+var ADMIN_PASSWORD = 'bkids2026';
+
+var isAdmin = false;
+
 var SCORE_KEY = 'bkids2026_scores';
 var scores = {};
 
@@ -1258,24 +1299,42 @@ function initScoreCols(){
   });
 }
 
-function renderScore(td, gno){
-  var s = scores[gno];
-  var oc = isAdmin ? ' onclick="editScore(this)"' : '';
-  if(!s || (s.a === '' && s.b === '')){
-    td.innerHTML = isAdmin
-      ? '<span class="sc-empty" onclick="editScore(this)">+ 記分</span>'
-      : '<span style="color:#c8b8a8">–</span>';
-  } else {
-    var a = Number(s.a), b = Number(s.b);
-    var aW = a > b, bW = b > a;
-    td.innerHTML = '<span class="sc-display"' + oc + '>'
-      + '<span class="sc-num' + (aW ? ' win' : '') + '">' + s.a + '</span>'
-      + '<span class="sc-sep"> – </span>'
-      + '<span class="sc-num' + (bW ? ' win' : '') + '">' + s.b + '</span>'
-      + '</span>';
-  }
-}
-
+function renderScore(td, gno){
+
+  var s = scores[gno];
+
+  var oc = isAdmin ? ' onclick="editScore(this)"' : '';
+
+  if(!s || (s.a === '' && s.b === '')){
+
+    td.innerHTML = isAdmin
+
+      ? '<span class="sc-empty" onclick="editScore(this)">+ 記分</span>'
+
+      : '<span style="color:#c8b8a8">–</span>';
+
+  } else {
+
+    var a = Number(s.a), b = Number(s.b);
+
+    var aW = a > b, bW = b > a;
+
+    td.innerHTML = '<span class="sc-display"' + oc + '>'
+
+      + '<span class="sc-num' + (aW ? ' win' : '') + '">' + s.a + '</span>'
+
+      + '<span class="sc-sep"> – </span>'
+
+      + '<span class="sc-num' + (bW ? ' win' : '') + '">' + s.b + '</span>'
+
+      + '</span>';
+
+  }
+
+}
+
+
+
 function editScore(el){
   var td = el.closest('.sc-cell');
   var gno = td.getAttribute('data-game');
@@ -1321,18 +1380,30 @@ function scKey(e, gno, sid){
     if(e.target === a && !e.shiftKey){ e.preventDefault(); if(b) b.focus(); }
   }
 }
-function initAdmin(){
-  isAdmin = true;
-  document.querySelectorAll('.sc-cell').forEach(function(td){
-    var gno = td.getAttribute('data-game');
-    if(gno) renderScore(td, gno);
-  });
-  var banner = document.createElement('div');
-  banner.className = 'admin-banner';
-  banner.innerHTML = '🔧 管理模式 — 點擊「+ 記分」或比分更新結果';
-  var ct = document.querySelector('.ct');
-  if(ct) ct.prepend(banner);
-}
+function initAdmin(){
+
+  isAdmin = true;
+
+  document.querySelectorAll('.sc-cell').forEach(function(td){
+
+    var gno = td.getAttribute('data-game');
+
+    if(gno) renderScore(td, gno);
+
+  });
+
+  var banner = document.createElement('div');
+
+  banner.className = 'admin-banner';
+
+  banner.innerHTML = '🔧 管理模式 — 點擊「+ 記分」或比分更新結果';
+
+  var ct = document.querySelector('.ct');
+
+  if(ct) ct.prepend(banner);
+
+}
+
 </script>
 </body>
 </html>
