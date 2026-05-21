@@ -100,7 +100,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .tn{color:#1a6635;font-weight:900}
 
 /* ── Score Column ── */
-.sc-cell{white-space:nowrap;text-align:center;padding:6px 10px !important;vertical-align:middle}
+.sc-cell{white-space:nowrap;text-align:center;padding:6px 10px !important;position:relative;z-index:2;overflow:visible}
 .sc-empty{font-size:.8em;color:#c8b8a8;cursor:pointer;padding:3px 9px;border-radius:8px;border:1px dashed #d4c4b4;transition:all .2s;user-select:none}
 .sc-empty:hover{background:rgba(212,165,116,.15);border-color:#d4a574;color:#9a8a7a}
 .sc-display{cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:.88em;padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.5);transition:background .2s;user-select:none}
@@ -139,6 +139,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .bk-final{padding:10px 12px;background:linear-gradient(145deg,rgba(212,165,116,.2),rgba(200,152,96,.1));border:2px solid rgba(212,165,116,.55);border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;min-width:68px;text-align:center}
 .bk-final-ico{font-size:1.3em}
 .bk-final-lbl{font-size:.68em;font-weight:700;color:#d4a574}
+.bk-final-winner{font-size:.7em;font-weight:700;color:#1a6635;margin-top:3px;max-width:100px;word-break:break-word;text-align:center;line-height:1.2}
 .bk-final.bk-bronze{background:linear-gradient(145deg,rgba(180,180,180,.2),rgba(160,160,160,.1));border-color:rgba(160,160,160,.55)}
 .bk-final.bk-bronze .bk-final-lbl{color:#9a9a9a}
 .bk-notes-bar{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -257,6 +258,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .td-match .vs::after{content:'';display:block;width:100%;height:0}
 
   /* Standings — tighter on mobile */
+  .st-groups{gap:10px}
+  .st-group{flex:0 0 100%;overflow-x:auto}
   .st-table{font-size:.74em}
   .st-table th,.st-table td{padding:5px 5px}
   .st-table th.th-name,.st-table td.td-name{padding-left:3px}
@@ -768,7 +771,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 </div><!-- end .ct -->
 
 
-<button class="jnb" id="jnb" onclick="document.getElementById('divnav').scrollIntoView({behavior:'smooth',block:'start'})" aria-label="返回組別選擇"><span class="jnb-ico">☰</span><span class="jnb-lbl">選組</span></button>
+<button class="jnb" id="jnb" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="返回頂部"><span class="jnb-ico" style="font-style:normal">↑</span><span class="jnb-lbl">TOP</span></button>
 <a href="https://wa.me/85284828484?text=你好！我想查詢球證/裁判服務" class="wf" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><svg viewBox="0 0 32 32" width="28" height="28" fill="white"><path d="M16 0C7.164 0 0 7.164 0 16c0 2.825.738 5.488 2.031 7.813L.281 30.594l7.031-1.844A15.923 15.923 0 0016 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm0 29.25c-2.406 0-4.719-.656-6.719-1.875l-.469-.281-4.875 1.281 1.313-4.781-.313-.5A13.173 13.173 0 012.75 16C2.75 8.681 8.681 2.75 16 2.75S29.25 8.681 29.25 16 23.319 29.25 16 29.25zm7.25-9.906c-.406-.188-2.375-1.156-2.75-1.281-.375-.125-.656-.188-.938.188-.281.375-1.063 1.281-1.313 1.563-.25.281-.5.313-.906.125-.406-.188-1.719-.625-3.281-2-.219-.188-2.031-1.781-2.281-2.156-.25-.375-.031-.594.156-.781.156-.156.406-.406.594-.594.188-.188.25-.313.375-.531.125-.219.063-.406-.031-.594-.094-.188-.938-2.219-1.281-3.031-.344-.781-.688-.656-.938-.656-.25 0-.531-.031-.813-.031s-.75.094-1.125.469c-.375.375-1.438 1.406-1.438 3.438s1.469 3.969 1.656 4.25c.188.281 2.625 4 6.375 5.625.906.375 1.594.594 2.125.781.875.281 1.688.25 2.313.156.719-.094 2.188-.875 2.5-1.719.313-.844.313-1.563.219-1.719-.094-.156-.375-.25-.781-.438z"/></svg></a>
 
 <footer class="ft"><div class="fc">
@@ -884,6 +887,7 @@ window.addEventListener('DOMContentLoaded', function(){
   loadNames(); loadScores(); initScoreCols(); initBrackets(); initStandings(); colorCourts();
 
   initKnockouts();
+  syncMatchColWidth();
   setInterval(loadScores, 30000);
 
   if(new URLSearchParams(location.search).get('admin') === '1'){
@@ -1287,12 +1291,24 @@ function initKnockouts(){
     var tbds=sec.querySelectorAll('.td-match .tbd');
     if(def.brackets[0].direct||def.brackets[0].directBracket){
       var bk=def.brackets[0];
+      var bkFinals=sec.querySelectorAll('.bk-final');
+      var champBox=bkFinals[0]||null, bronzeBox=bkFinals[1]||null;
       tbds.forEach(function(tbd){
         var t=tbd.textContent.trim();
         var cell=tbd.closest('.td-match');
         if(!cell) return;
-        if(t==='冠軍戰'){ cell.setAttribute('data-ko-div',divId); cell.setAttribute('data-ko-seeds',bk.seeds[0]+','+bk.seeds[1]); }
-        else if(t==='季軍戰'){ cell.setAttribute('data-ko-div',divId); cell.setAttribute('data-ko-seeds',bk.seeds[2]+','+bk.seeds[3]); }
+        var row=cell.closest('tr');
+        var gnoCell=row?row.querySelector('.td-gno'):null;
+        var gno=gnoCell?gnoCell.textContent.trim().replace(/^#/,''):null;
+        if(t==='冠軍戰'){
+          cell.setAttribute('data-ko-div',divId);
+          cell.setAttribute('data-ko-seeds',bk.seeds[0]+','+bk.seeds[1]);
+          if(champBox&&gno){ champBox.setAttribute('data-gno',gno); champBox.setAttribute('data-bk-div',divId); champBox.setAttribute('data-seeds',bk.seeds[0]+','+bk.seeds[1]); }
+        } else if(t==='季軍戰'){
+          cell.setAttribute('data-ko-div',divId);
+          cell.setAttribute('data-ko-seeds',bk.seeds[2]+','+bk.seeds[3]);
+          if(bronzeBox&&gno){ bronzeBox.setAttribute('data-gno',gno); bronzeBox.setAttribute('data-bk-div',divId); bronzeBox.setAttribute('data-seeds',bk.seeds[2]+','+bk.seeds[3]); }
+        }
       });
     } else {
       var cnts={};
@@ -1376,21 +1392,32 @@ function refreshBrackets(divId){
   if(!outer) return;
 
   outer.querySelectorAll('.bk-box[data-seed]').forEach(function(box){
-
     var seed=box.getAttribute('data-seed');
-
     var nm=resolveSeedName(divId,seed);
-
     var desc=box.querySelector('.bk-box-desc');
-
     if(!desc) return;
-
     if(nm){ desc.textContent=nm; desc.style.color='#1a6635'; }
-
     else{ desc.textContent=box.getAttribute('data-desc')||''; desc.style.color=''; }
-
   });
-
+  outer.querySelectorAll('.bk-final[data-gno]').forEach(function(box){
+    var gno=box.getAttribute('data-gno');
+    var divIdB=box.getAttribute('data-bk-div');
+    var seeds=box.getAttribute('data-seeds');
+    if(!gno||!seeds||!divIdB) return;
+    var sp=seeds.split(',');
+    var sc=scores[gno];
+    var winEl=box.querySelector('.bk-final-winner');
+    if(!winEl){winEl=document.createElement('div');winEl.className='bk-final-winner';box.appendChild(winEl);}
+    if(sc&&sc.a!==''&&sc.b!==''&&Number(sc.a)!==Number(sc.b)){
+      var a=Number(sc.a),b=Number(sc.b);
+      var ws=a>b?sp[0]:sp[1];
+      var wname=resolveSeedName(divIdB,ws)||ws;
+      winEl.textContent='🏅 '+wname;
+      winEl.style.color='#1a6635';
+    } else {
+      winEl.textContent='';
+    }
+  });
 }
 
 function refreshStandings(divId){
@@ -1432,8 +1459,22 @@ function loadScores(){
         renderScore(td, td.getAttribute('data-game'));
       });
       Object.keys(STANDINGS_DEFS).forEach(function(divId){ refreshStandings(divId); });
+      syncMatchColWidth();
     })
     .catch(function(e){ console.log('Score fetch failed:', e); });
+}
+function syncMatchColWidth(){
+  document.querySelectorAll('.sched-table').forEach(function(tbl){
+    var cells=Array.from(tbl.querySelectorAll('.td-match'));
+    var th=tbl.querySelector('thead th:nth-child(4)');
+    cells.forEach(function(c){c.style.flex='0 0 auto';c.style.width='auto';});
+    if(th){th.style.flex='0 0 auto';th.style.width='auto';}
+    var mx=th?th.scrollWidth:40;
+    cells.forEach(function(c){if(c.scrollWidth>mx)mx=c.scrollWidth;});
+    var wPx=mx+'px';
+    cells.forEach(function(c){c.style.flex='0 0 '+wPx;c.style.width=wPx;});
+    if(th){th.style.flex='0 0 '+wPx;th.style.width=wPx;}
+  });
 }
 function saveScores(){}
 function pushScoreToApi(gno, a, b){
