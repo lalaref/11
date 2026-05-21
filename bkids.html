@@ -82,8 +82,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sched-table thead th:nth-child(4),.td-match{order:2;flex:1 1 0;min-width:0;width:auto}
 .sched-table thead th:nth-child(5),.sc-cell{order:3;width:100px;text-align:center}
 .sched-table thead th:nth-child(2),.td-gno{display:none}
-.sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){order:5;width:80px}
-.sched-table thead th:nth-child(6),.sched-table tbody td:last-child{order:6;flex-shrink:0}
+.sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){order:5;width:80px;text-align:center}
+.sched-table thead th:nth-child(6),.sched-table tbody td:last-child{order:6;flex-shrink:0;text-align:center}
 .td-court{background:rgba(255,255,255,.4);border-radius:8px;padding:3px 10px;font-size:.78em;font-weight:700;color:#5a4a3a;white-space:nowrap;display:inline-block}
 .td-court[data-court="1"]{background:rgba(52,152,219,.15);color:#154360;border:1px solid rgba(52,152,219,.45)}
 .td-court[data-court="2"]{background:rgba(39,174,96,.15);color:#145a32;border:1px solid rgba(39,174,96,.45)}
@@ -1203,9 +1203,6 @@ function calcGroupStandings(divId, prefix){
 function renderGroupStandings(divId, prefix, label, container){
   var rows = calcGroupStandings(divId, prefix);
   var divNames = names[divId]||{};
-  var maxGP = rows.length > 1 ? rows.length - 1 : 1;
-  var finished = rows.length > 0 && rows.every(function(r){ return r.gp >= maxGP; });
-  var rankIco = ['🥇','🥈','🥉'];
   var h = label ? '<div class="st-group-lbl">'+escHtml(label)+'</div>' : '';
   h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="勝">勝</th><th title="負">負</th><th title="積分">積分</th><th>得分</th><th>失分</th><th>得失差</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
@@ -1213,10 +1210,9 @@ function renderGroupStandings(divId, prefix, label, container){
     var diff = r.gf-r.ga;
     var diffStr = diff>0 ? '+'+diff : String(diff);
     var diffCls = diff>0 ? 'st-pos' : (diff<0 ? 'st-neg' : '');
-    var ico = (finished && rankIco[i]) ? '<span class="st-rank-ico">'+rankIco[i]+'</span>' : '';
     h += '<tr>';
     h += '<td class="st-rank">'+(i+1)+'</td>';
-    h += '<td class="td-name">'+ico+'<span class="tn-code">'+escHtml(r.code)+'</span><span class="tn">'+nm+'</span></td>';
+    h += '<td class="td-name"><span class="tn-code">'+escHtml(r.code)+'</span><span class="tn">'+nm+'</span></td>';
     h += '<td class="st-w">'+r.w+'</td>';
     h += '<td class="st-l">'+r.l+'</td>';
     h += '<td class="st-pts">'+(r.gp>0?(r.w*2+r.l):'-')+'</td>';
