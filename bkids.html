@@ -1299,7 +1299,7 @@ function initKnockouts(){
         if(!cell) return;
         var row=cell.closest('tr');
         var gnoCell=row?row.querySelector('.td-gno'):null;
-        var gno=gnoCell?gnoCell.textContent.trim().replace(/^#/,''):null;
+        var gno=gnoCell?gnoCell.textContent.trim():null;
         if(t==='冠軍戰'){
           cell.setAttribute('data-ko-div',divId);
           cell.setAttribute('data-ko-seeds',bk.seeds[0]+','+bk.seeds[1]);
