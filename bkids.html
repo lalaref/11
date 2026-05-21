@@ -66,17 +66,24 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 
 /* ── Schedule Table ── */
 .sched-wrap{overflow-x:auto;border-radius:16px}
-.sched-table{width:100%;border-collapse:collapse;font-size:.9em;min-width:480px}
-.sched-table thead tr{background:linear-gradient(145deg,#d4a574,#c89860);color:#fff}
-.sched-table thead th{padding:10px 14px;font-weight:700;font-size:.8em;text-transform:uppercase;letter-spacing:.5px;text-align:left;white-space:nowrap}
-.sched-table tbody tr{border-bottom:1px solid rgba(212,165,116,.15);transition:background .2s}
+/* Flex-based table — works on desktop and mobile */
+.sched-table,.sched-table thead,.sched-table tbody{display:block;width:100%}
+.sched-table{font-size:.9em}
+.sched-table thead tr{display:flex;align-items:center;background:linear-gradient(145deg,#d4a574,#c89860);color:#fff;width:100%}
+.sched-table thead th{display:block;box-sizing:border-box;padding:10px 14px;font-weight:700;font-size:.8em;text-transform:uppercase;letter-spacing:.5px;text-align:left;white-space:nowrap;flex-shrink:0}
+.sched-table tbody tr{display:flex;align-items:center;width:100%;border-bottom:1px solid rgba(212,165,116,.15);transition:background .2s}
 .sched-table tbody tr:last-child{border-bottom:none}
 .sched-table tbody tr:hover{background:rgba(255,255,255,.35)}
-.sched-table tbody tr.phase-break{background:rgba(212,165,116,.12)}
+.sched-table tbody tr.phase-break{display:block;background:rgba(212,165,116,.12)}
 .sched-table tbody tr.phase-break td{padding:6px 14px;font-size:.78em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.5px}
-.sched-table td{padding:9px 14px;color:#5a4a3a;vertical-align:middle}
-.td-time{font-weight:700;color:#d4a574;white-space:nowrap;min-width:90px}
-.td-gno{font-size:.8em;color:#9a8a7a;white-space:nowrap;font-weight:700}
+.sched-table td{display:block;box-sizing:border-box;padding:9px 14px;color:#5a4a3a;flex-shrink:0}
+/* Global column order: 時間 | 對陣 | 結果 | 場次 | 場區 | 類型 */
+.sched-table thead th:nth-child(1),.td-time{order:1;width:90px;font-weight:700;color:#d4a574;white-space:nowrap}
+.sched-table thead th:nth-child(4),.td-match{order:2;flex:1 1 0;min-width:0;width:auto}
+.sched-table thead th:nth-child(5),.sc-cell{order:3;width:100px;text-align:center}
+.sched-table thead th:nth-child(2),.td-gno{order:4;width:52px;text-align:center;font-size:.8em;color:#9a8a7a;white-space:nowrap;font-weight:700}
+.sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){order:5;width:80px}
+.sched-table thead th:nth-child(6),.sched-table tbody td:last-child{order:6;flex-shrink:0}
 .td-court{background:rgba(255,255,255,.4);border-radius:8px;padding:3px 10px;font-size:.78em;font-weight:700;color:#5a4a3a;white-space:nowrap;display:inline-block}
 .td-court[data-court="1"]{background:rgba(52,152,219,.15);color:#154360;border:1px solid rgba(52,152,219,.45)}
 .td-court[data-court="2"]{background:rgba(39,174,96,.15);color:#145a32;border:1px solid rgba(39,174,96,.45)}
@@ -225,26 +232,16 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .div-meta{gap:6px}
   .div-tag{font-size:.74em;padding:3px 10px}
 
-  /* Schedule table — flex column reorder on mobile */
+  /* Schedule table — mobile size overrides (order set globally) */
   .sched-wrap{border-radius:12px}
-  .sched-table,.sched-table thead,.sched-table tbody{display:block}
-  .sched-table{font-size:.82em;min-width:0 !important;width:100%}
-  .sched-table thead tr,.sched-table tbody tr:not(.phase-break){display:flex;align-items:center;width:100%;border-bottom:1px solid rgba(212,165,116,.15)}
-  .sched-table tbody tr:last-child{border-bottom:none}
-  .sched-table tbody tr.phase-break{display:block}
-  .sched-table thead th,.sched-table tbody td{display:block;box-sizing:border-box;padding:7px 8px}
-  .sched-table thead th{padding:8px 8px;font-size:.74em;white-space:nowrap}
-  /* col 1 — 時間 */
-  .sched-table thead th:nth-child(1),.td-time{order:1;width:56px;flex-shrink:0;min-width:0 !important}
-  /* col 2 — 對陣 (flex-grow for width) */
-  .sched-table thead th:nth-child(4),.td-match{order:2;flex:1 1 0;min-width:0;width:auto}
-  /* col 3 — 場次 */
-  .sched-table thead th:nth-child(2),.td-gno{order:3;width:30px;flex-shrink:0;text-align:center;padding-left:3px;padding-right:3px;min-width:0 !important}
-  /* col 4 — 場區 */
-  .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){order:4;width:56px;flex-shrink:0}
-  /* col 5 — 結果 */
-  .sched-table thead th:nth-child(5),.sc-cell{order:5;width:82px;flex-shrink:0}
-  /* col 6 — 類型: hidden on mobile, phase-break shows context */
+  .sched-table{font-size:.8em}
+  .sched-table thead th,.sched-table tbody td{padding:6px 6px}
+  .sched-table thead th{font-size:.72em}
+  .sched-table thead th:nth-child(1),.td-time{width:52px}
+  .sched-table thead th:nth-child(5),.sc-cell{width:80px}
+  .sched-table thead th:nth-child(2),.td-gno{width:28px;padding-left:2px;padding-right:2px}
+  .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:50px}
+  /* Hide 類型 on mobile */
   .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{display:none}
   /* phase-break full width */
   .sched-table tbody tr.phase-break td{width:100% !important;white-space:normal;font-size:.74em;padding:5px 8px}
@@ -255,8 +252,15 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sc-inp{width:42px;padding:5px 4px;font-size:.9em}
   .sc-btn{padding:6px 10px;font-size:.82em}
 
-  /* Standings */
-  .st-table{font-size:.78em}
+  /* Match cell — two-line layout: "Team1 vs" / "Team2" */
+  .td-match{display:flex;flex-wrap:wrap;align-items:center;white-space:normal}
+  .td-match .vs::after{content:'';display:block;width:100%;height:0}
+
+  /* Standings — tighter on mobile */
+  .st-table{font-size:.74em}
+  .st-table th,.st-table td{padding:5px 5px}
+  .st-table th.th-name,.st-table td.td-name{padding-left:3px}
+  .st-rank{width:14px}
 
   /* Bracket */
   .bk-box{min-width:95px;height:42px;padding:0 8px}
@@ -1275,99 +1279,94 @@ function resolveSeedName(divId,seed){
 }
 
 function initKnockouts(){
-
   Object.keys(BRACKET_DEFS).forEach(function(divId){
-
     var sec=document.getElementById(divId);
-
     if(!sec) return;
-
     var def=BRACKET_DEFS[divId];
-
     if(!def||!def.brackets) return;
-
     var tbds=sec.querySelectorAll('.td-match .tbd');
-
     if(def.brackets[0].direct||def.brackets[0].directBracket){
-
       var bk=def.brackets[0];
-
       tbds.forEach(function(tbd){
-
         var t=tbd.textContent.trim();
-
         var cell=tbd.closest('.td-match');
-
         if(!cell) return;
-
         if(t==='冠軍戰'){ cell.setAttribute('data-ko-div',divId); cell.setAttribute('data-ko-seeds',bk.seeds[0]+','+bk.seeds[1]); }
-
         else if(t==='季軍戰'){ cell.setAttribute('data-ko-div',divId); cell.setAttribute('data-ko-seeds',bk.seeds[2]+','+bk.seeds[3]); }
-
       });
-
     } else {
-
       var cnts={};
-
+      var sfGnoMap={};
       tbds.forEach(function(tbd){
-
         var t=tbd.textContent.trim();
-
         var cell=tbd.closest('.td-match');
-
         if(!cell) return;
-
         var m=t.match(/^D([123])[\s\u00a0]+(.+)$/);
-
         if(!m) return;
-
-        var bidx=parseInt(m[1])-1;
-
+        var div=m[1];
+        var bidx=parseInt(div)-1;
         var type=m[2];
-
         var bk=def.brackets[bidx];
-
-        if(!bk||type!=='四強') return;
-
-        var key=m[1]+'-'+type;
-
-        var n=cnts[key]=(cnts[key]||0);
-
-        cnts[key]++;
-
-        var s1=bk.seeds[n*2], s2=bk.seeds[n*2+1];
-
-        if(s1&&s2){ cell.setAttribute('data-ko-div',divId); cell.setAttribute('data-ko-seeds',s1+','+s2); }
-
+        if(!bk) return;
+        var row=cell.closest('tr');
+        var gnoCell=row?row.querySelector('.td-gno'):null;
+        var gno=gnoCell?gnoCell.textContent.trim():null;
+        if(type==='四強'){
+          var key=div+'-四強';
+          var n=cnts[key]=(cnts[key]||0);
+          cnts[key]++;
+          var s1=bk.seeds[n*2],s2=bk.seeds[n*2+1];
+          if(s1&&s2){
+            cell.setAttribute('data-ko-div',divId);
+            cell.setAttribute('data-ko-seeds',s1+','+s2);
+            if(!sfGnoMap[div]) sfGnoMap[div]=[];
+            sfGnoMap[div].push({gno:gno,seeds:[s1,s2]});
+          }
+        } else if(type==='冠軍戰'){
+          var sf=sfGnoMap[div]||[];
+          if(sf.length>=2&&sf[0].gno&&sf[1].gno){
+            cell.setAttribute('data-ko-div',divId);
+            cell.setAttribute('data-ko-sources',sf[0].gno+'|'+sf[1].gno);
+            cell.setAttribute('data-ko-source-seeds',sf[0].seeds.join(',')+'|'+sf[1].seeds.join(','));
+          }
+        }
       });
-
     }
-
     refreshKnockouts(divId);
-
   });
-
 }
 
 function refreshKnockouts(divId){
-
   document.querySelectorAll('.td-match[data-ko-div="'+divId+'"][data-ko-seeds]').forEach(function(cell){
-
     var sp=cell.getAttribute('data-ko-seeds').split(',');
-
     var s1=sp[0],s2=sp[1];
-
     var n1=resolveSeedName(divId,s1),n2=resolveSeedName(divId,s2);
-
     cell.innerHTML='<span class="tn-code">'+escHtml(s1)+'</span><span class="tn">'+escHtml(n1||s1)+'</span>'
-
       +' <span class="vs">vs</span> '
-
       +'<span class="tn-code">'+escHtml(s2)+'</span><span class="tn">'+escHtml(n2||s2)+'</span>';
-
   });
-
+  document.querySelectorAll('.td-match[data-ko-div="'+divId+'"][data-ko-sources]').forEach(function(cell){
+    var srcs=cell.getAttribute('data-ko-sources').split('|');
+    var seedPairs=cell.getAttribute('data-ko-source-seeds').split('|');
+    function winner(gno,pair){
+      var ss=pair.split(',');
+      var sc=scores[gno];
+      if(!sc||sc.a===''||sc.b==='') return null;
+      var a=Number(sc.a),b=Number(sc.b);
+      if(a===b) return null;
+      var ws=a>b?ss[0]:ss[1];
+      return {seed:ws,name:resolveSeedName(divId,ws)||ws};
+    }
+    var w1=winner(srcs[0],seedPairs[0]),w2=winner(srcs[1],seedPairs[1]);
+    var ss1=seedPairs[0].split(','),ss2=seedPairs[1].split(',');
+    var p1seed=w1?w1.seed:'勝①';
+    var p1name=w1?w1.name:((resolveSeedName(divId,ss1[0])||ss1[0])+' / '+(resolveSeedName(divId,ss1[1])||ss1[1]));
+    var p2seed=w2?w2.seed:'勝②';
+    var p2name=w2?w2.name:((resolveSeedName(divId,ss2[0])||ss2[0])+' / '+(resolveSeedName(divId,ss2[1])||ss2[1]));
+    cell.innerHTML='<span class="tn-code">'+escHtml(p1seed)+'</span><span class="tn">'+escHtml(p1name)+'</span>'
+      +' <span class="vs">vs</span> '
+      +'<span class="tn-code">'+escHtml(p2seed)+'</span><span class="tn">'+escHtml(p2name)+'</span>';
+  });
 }
 
 function refreshBrackets(divId){
@@ -1414,15 +1413,11 @@ function refreshStandings(divId){
 // ── Score Management ──
 var ADMIN_PASSWORD = 'bkids2026';
 var isAdmin = false;
-var SCORE_KEY = 'bkids2026_scores';
 var scores = {};
 var SHEET_NAME = 'bkids2026';
 var API_URL = 'https://script.google.com/macros/s/AKfycbz91UrGglg8QMaw2MuqjoOcM0o1lNbPVdXcj74Qx8CvIm5K2jlqZE8yIgisOFPiwvCa6g/exec';
 
 function loadScores(){
-  // Load from localStorage first (instant)
-  try{ scores = JSON.parse(localStorage.getItem(SCORE_KEY) || '{}'); } catch(e){ scores = {}; }
-  // Then fetch from Google Sheet (cross-device sync)
   fetch(API_URL + '?action=getAll&sheet=' + SHEET_NAME)
     .then(function(r){ return r.json(); })
     .then(function(res){
@@ -1433,7 +1428,6 @@ function loadScores(){
         var d = data[key];
         scores[key] = { a: String(d.scoreA !== undefined ? d.scoreA : ''), b: String(d.scoreB !== undefined ? d.scoreB : '') };
       });
-      localStorage.setItem(SCORE_KEY, JSON.stringify(scores));
       document.querySelectorAll('.sc-cell[data-game]').forEach(function(td){
         renderScore(td, td.getAttribute('data-game'));
       });
@@ -1441,9 +1435,7 @@ function loadScores(){
     })
     .catch(function(e){ console.log('Score fetch failed:', e); });
 }
-function saveScores(){
-  localStorage.setItem(SCORE_KEY, JSON.stringify(scores));
-}
+function saveScores(){}
 function pushScoreToApi(gno, a, b){
   var params = new URLSearchParams({
     action: 'update',
