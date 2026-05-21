@@ -78,6 +78,10 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .td-time{font-weight:700;color:#d4a574;white-space:nowrap;min-width:90px}
 .td-gno{font-size:.8em;color:#9a8a7a;white-space:nowrap;font-weight:700}
 .td-court{background:rgba(255,255,255,.4);border-radius:8px;padding:3px 10px;font-size:.78em;font-weight:700;color:#5a4a3a;white-space:nowrap;display:inline-block}
+.td-court[data-court="1"]{background:rgba(52,152,219,.15);color:#154360;border:1px solid rgba(52,152,219,.45)}
+.td-court[data-court="2"]{background:rgba(39,174,96,.15);color:#145a32;border:1px solid rgba(39,174,96,.45)}
+.td-court[data-court="3"]{background:rgba(231,76,60,.15);color:#7b241c;border:1px solid rgba(231,76,60,.45)}
+.td-court[data-court="4"]{background:rgba(142,68,173,.15);color:#512e5f;border:1px solid rgba(142,68,173,.45)}
 .td-match{font-weight:700}
 .td-match .vs{color:#9a8a7a;margin:0 6px;font-weight:400}
 .td-match .tbd{color:#b0a090;font-style:italic;font-weight:400}
@@ -101,7 +105,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sc-inp{width:38px;padding:3px 4px;border:2px solid #d4a574;border-radius:6px;font-size:.85em;text-align:center;font-family:inherit;color:#5a4a3a;-moz-appearance:textfield;background:#fff}
 .sc-inp::-webkit-outer-spin-button,.sc-inp::-webkit-inner-spin-button{-webkit-appearance:none}
 .sc-inp:focus{outline:none;border-color:#c89860;box-shadow:0 0 0 2px rgba(212,165,116,.2)}
-.sc-btn{padding:4px 8px;border:none;border-radius:6px;font-weight:700;font-size:.8em;cursor:pointer;font-family:inherit}
+.sc-btn{padding:4px 8px;border:none;border-radius:6px;font-weight:700;font-size:.8em;cursor:pointer;font-family:inherit}
+.admin-banner{background:#dc3545;color:#fff;text-align:center;padding:10px;border-radius:12px;margin-bottom:20px;font-weight:700;font-size:.9em}
 .sc-ok{background:linear-gradient(145deg,#d4a574,#c89860);color:#fff}
 .sc-ok:hover{opacity:.85}
 .sc-cancel{background:rgba(0,0,0,.07);color:#9a8a7a;margin-left:1px}
@@ -129,26 +134,34 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .bk-notes-bar{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .bk-note-pill{font-size:.72em;color:#9a8a7a;padding:3px 10px;background:rgba(255,255,255,.6);border-radius:20px}
 .bk-fifth-bar{margin-top:8px;padding:6px 12px;background:#fff3cd;border-radius:8px;font-size:.78em;color:#856404;font-weight:700}
+.bk-direct{display:flex;flex-direction:column;gap:14px}
+.bk-direct-game{background:rgba(255,255,255,.4);border-radius:14px;padding:12px 14px}
+.bk-direct-badge{font-size:.75em;font-weight:700;margin-bottom:8px;padding:3px 10px;border-radius:8px;display:inline-block}
+.bk-direct-champ{background:rgba(212,165,116,.2);color:#8a5a20}
+.bk-direct-bronze{background:rgba(180,180,180,.2);color:#6a6a6a}
+.bk-direct-match{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bk-vs{font-size:.82em;font-weight:900;color:#9a8a7a;padding:0 4px}
 
 /* ── Standings ── */
 .st-outer{margin-top:16px;padding:14px 16px;background:rgba(255,255,255,.35);border-radius:14px}
 .st-title{font-size:.8em;font-weight:700;color:#d4a574;margin-bottom:10px}
 .st-groups{display:flex;flex-wrap:wrap;gap:14px}
-.st-group{flex:1;min-width:190px}
+.st-group{flex:0 0 calc(50% - 7px);min-width:0;overflow-x:auto}
 .st-group-lbl{font-size:.72em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;padding:2px 8px;background:rgba(212,165,116,.12);border-radius:8px;display:inline-block}
 .st-table{width:100%;border-collapse:collapse;font-size:.82em}
 .st-table th{padding:5px 8px;font-size:.72em;font-weight:700;color:#9a8a7a;text-align:center;border-bottom:1.5px solid rgba(212,165,116,.25);white-space:nowrap}
 .st-table th.th-name{text-align:left;padding-left:4px}
 .st-table td{padding:6px 8px;text-align:center;color:#5a4a3a;border-bottom:1px solid rgba(212,165,116,.1)}
-.st-table td.td-name{text-align:left;font-weight:700;padding-left:4px}
+.st-table td.td-name{text-align:left;font-weight:700;padding-left:4px;white-space:nowrap}
 .st-table tr:last-child td{border-bottom:none}
 .st-rank{font-size:.7em;color:#9a8a7a;font-weight:700;width:20px}
 .st-w{color:#1a6635;font-weight:900}
 .st-l{color:#c0392b;font-weight:700}
+.st-pts{color:#7a5a20;font-weight:900}
 .st-pos{color:#1a6635;font-weight:700}
 .st-neg{color:#c0392b;font-weight:700}
 .st-table tr:first-child td{border-top:none}
-.st-rule{font-size:.68em;color:#b0a090;margin-top:5px;padding:2px 4px;font-style:italic}
+.st-rule{font-size:.68em;color:#b0a090;margin-top:8px;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.3);line-height:1.6}
 .tn-code{display:inline-block;font-size:.72em;font-weight:700;color:#9a7a55;background:rgba(180,140,80,.15);border-radius:4px;padding:1px 5px;margin-right:5px;letter-spacing:.03em;font-family:monospace}
 #g8f .tn-code,#g10f .tn-code,#g12f .tn-code,#g14f .tn-code{color:#c2185b;background:rgba(233,30,99,.1);border:1px solid rgba(233,30,99,.25)}
 #m8 .tn-code,#m10 .tn-code,#m12 .tn-code,#g14m .tn-code{color:#0d47a1;background:rgba(33,150,243,.1);border:1px solid rgba(33,150,243,.25)}
@@ -169,6 +182,11 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .ft .fb{text-align:center;padding-top:15px;border-top:1px solid rgba(255,255,255,.3);font-size:.85em;color:rgba(255,255,255,.8)}
 .wf{position:fixed;width:60px;height:60px;bottom:25px;right:25px;background:linear-gradient(145deg,#25d366,#20b358);color:#fff;border-radius:50%;box-shadow:10px 10px 20px rgba(0,0,0,.2);z-index:1000;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .3s}
 .wf:hover{transform:translateY(-5px) scale(1.05)}
+.jnb{position:fixed;bottom:95px;right:25px;width:50px;height:50px;background:linear-gradient(145deg,#d4a574,#c89860);color:#fff;border:none;border-radius:50%;box-shadow:6px 6px 14px rgba(0,0,0,.2),-4px -4px 10px rgba(255,255,255,.35);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;transition:opacity .3s,transform .3s;opacity:0;pointer-events:none;transform:translateY(12px)}
+.jnb.jnb-on{opacity:1;pointer-events:auto;transform:translateY(0)}
+.jnb:hover{transform:translateY(-3px) scale(1.06);box-shadow:8px 8px 18px rgba(0,0,0,.25)}
+.jnb-ico{font-size:1.15em;line-height:1}
+.jnb-lbl{font-size:.48em;font-weight:700;letter-spacing:.3px;margin-top:1px}
 
 @media(max-width:768px){
   /* Nav */
@@ -204,13 +222,29 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .div-meta{gap:6px}
   .div-tag{font-size:.74em;padding:3px 10px}
 
-  /* Schedule table */
+  /* Schedule table — flex column reorder on mobile */
   .sched-wrap{border-radius:12px}
-  .sched-table{font-size:.82em}
-  .sched-table thead th{padding:8px 10px;font-size:.74em}
-  .sched-table td{padding:7px 10px}
-  .td-time{min-width:70px}
-  .sched-table tbody tr.phase-break td{white-space:normal;font-size:.74em;padding:5px 10px}
+  .sched-table,.sched-table thead,.sched-table tbody{display:block}
+  .sched-table{font-size:.82em;min-width:0 !important;width:100%}
+  .sched-table thead tr,.sched-table tbody tr:not(.phase-break){display:flex;align-items:center;width:100%;border-bottom:1px solid rgba(212,165,116,.15)}
+  .sched-table tbody tr:last-child{border-bottom:none}
+  .sched-table tbody tr.phase-break{display:block}
+  .sched-table thead th,.sched-table tbody td{display:block;box-sizing:border-box;padding:7px 8px}
+  .sched-table thead th{padding:8px 8px;font-size:.74em;white-space:nowrap}
+  /* col 1 — 時間 */
+  .sched-table thead th:nth-child(1),.td-time{order:1;width:56px;flex-shrink:0;min-width:0 !important}
+  /* col 2 — 對陣 (flex-grow for width) */
+  .sched-table thead th:nth-child(4),.td-match{order:2;flex:1 1 0;min-width:0;width:auto}
+  /* col 3 — 場次 */
+  .sched-table thead th:nth-child(2),.td-gno{order:3;width:30px;flex-shrink:0;text-align:center;padding-left:3px;padding-right:3px;min-width:0 !important}
+  /* col 4 — 場區 */
+  .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){order:4;width:56px;flex-shrink:0}
+  /* col 5 — 結果 */
+  .sched-table thead th:nth-child(5),.sc-cell{order:5;width:82px;flex-shrink:0}
+  /* col 6 — 類型: hidden on mobile, phase-break shows context */
+  .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{display:none}
+  /* phase-break full width */
+  .sched-table tbody tr.phase-break td{width:100% !important;white-space:normal;font-size:.74em;padding:5px 8px}
 
   /* Score cells — touch friendly */
   .sc-empty{padding:5px 10px;font-size:.82em}
@@ -219,8 +253,6 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sc-btn{padding:6px 10px;font-size:.82em}
 
   /* Standings */
-  .st-groups{gap:10px}
-  .st-group{min-width:160px}
   .st-table{font-size:.78em}
 
   /* Bracket */
@@ -231,6 +263,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .ft{padding:28px 18px 20px;border-radius:28px 28px 0 0;margin:28px 8px 0}
   .ft .fc{grid-template-columns:1fr;gap:16px}
   .wf{width:52px;height:52px;bottom:18px;right:18px}
+  .jnb{width:44px;height:44px;bottom:80px;right:18px}
 }
 
 @media(max-width:420px){
@@ -245,16 +278,18 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .overview-grid{grid-template-columns:1fr}
   .div-nav-btns{gap:5px}
   .div-btn{padding:6px 9px;font-size:.74em}
-  .sched-table{font-size:.78em;min-width:380px}
-  .sched-table thead th{padding:7px 8px}
-  .sched-table td{padding:6px 8px}
-  .td-time{min-width:56px}
-  .td-gno{min-width:30px}
+  .sched-table{font-size:.78em}
+  .sched-table thead th,.sched-table td{padding:6px 4px}
+  .sched-table thead th:nth-child(1),.td-time{width:44px;white-space:nowrap}
+  .sched-table thead th:nth-child(2),.td-gno{width:20px;padding-left:2px;padding-right:2px}
+  .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:42px}
+  .sched-table thead th:nth-child(5),.sc-cell{width:64px}
   .sc-inp{width:38px}
   .sc-btn{padding:5px 8px}
-  .st-group{min-width:140px}
+  .st-table{font-size:.75em}
   .bk-box{min-width:82px}
   .wf{width:48px;height:48px;bottom:14px;right:14px}
+  .jnb{width:40px;height:40px;bottom:72px;right:14px}
 }
 </style>
 </head>
@@ -288,7 +323,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 </div>
 
 <!-- ═══════════ DIVISION NAV BUTTONS ═══════════ -->
-<div class="div-nav">
+<div class="div-nav" id="divnav">
   <div class="div-nav-title">快速跳轉 — 選擇組別</div>
   <div class="div-nav-btns">
     <button class="div-btn girls" onclick="jumpTo('g8f')">女子 G8</button>
@@ -726,6 +761,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 </div><!-- end .ct -->
 
 
+<button class="jnb" id="jnb" onclick="document.getElementById('divnav').scrollIntoView({behavior:'smooth',block:'start'})" aria-label="返回組別選擇"><span class="jnb-ico">☰</span><span class="jnb-lbl">選組</span></button>
 <a href="https://wa.me/85284828484?text=你好！我想查詢球證/裁判服務" class="wf" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><svg viewBox="0 0 32 32" width="28" height="28" fill="white"><path d="M16 0C7.164 0 0 7.164 0 16c0 2.825.738 5.488 2.031 7.813L.281 30.594l7.031-1.844A15.923 15.923 0 0016 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm0 29.25c-2.406 0-4.719-.656-6.719-1.875l-.469-.281-4.875 1.281 1.313-4.781-.313-.5A13.173 13.173 0 012.75 16C2.75 8.681 8.681 2.75 16 2.75S29.25 8.681 29.25 16 23.319 29.25 16 29.25zm7.25-9.906c-.406-.188-2.375-1.156-2.75-1.281-.375-.125-.656-.188-.938.188-.281.375-1.063 1.281-1.313 1.563-.25.281-.5.313-.906.125-.406-.188-1.719-.625-3.281-2-.219-.188-2.031-1.781-2.281-2.156-.25-.375-.031-.594.156-.781.156-.156.406-.406.594-.594.188-.188.25-.313.375-.531.125-.219.063-.406-.031-.594-.094-.188-.938-2.219-1.281-3.031-.344-.781-.688-.656-.938-.656-.25 0-.531-.031-.813-.031s-.75.094-1.125.469c-.375.375-1.438 1.406-1.438 3.438s1.469 3.969 1.656 4.25c.188.281 2.625 4 6.375 5.625.906.375 1.594.594 2.125.781.875.281 1.688.25 2.313.156.719-.094 2.188-.875 2.5-1.719.313-.844.313-1.563.219-1.719-.094-.156-.375-.25-.781-.438z"/></svg></a>
 
 <footer class="ft"><div class="fc">
@@ -836,32 +872,116 @@ function loadNames(){
   applyAllNames();
 }
 
-window.addEventListener('DOMContentLoaded', function(){ loadNames(); loadScores(); initScoreCols(); initBrackets(); initStandings(); });
+window.addEventListener('DOMContentLoaded', function(){
+  loadNames(); loadScores(); initScoreCols(); initBrackets(); initStandings(); colorCourts();
+  if(new URLSearchParams(location.search).get('admin') === '1'){
+    var pw = prompt('請輸入管理密碼：');
+    if(pw === ADMIN_PASSWORD){ document.body.classList.add('admin-mode'); initAdmin(); }
+    else if(pw !== null){ alert('密碼錯誤'); }
+  }
+});
+function colorCourts(){
+  document.querySelectorAll('.td-court').forEach(function(el){
+    var m=el.textContent.trim().match(/(\d)$/);
+    if(m) el.setAttribute('data-court',m[1]);
+  });
+}
+
+// ── Jump-to-nav button show/hide ──
+(function(){
+  var btn = document.getElementById('jnb');
+  var nav = document.getElementById('divnav');
+  if(!btn || !nav) return;
+  window.addEventListener('scroll', function(){
+    var navBottom = nav.getBoundingClientRect().bottom;
+    btn.classList.toggle('jnb-on', navBottom < 0);
+  }, {passive:true});
+})();
 
 // ── Knockout Brackets ──
 var BRACKET_DEFS = {
-  'g12f': { brackets:[{ seeds:['A首','B次','B首','A次'],
-                         descs:['A組第一','B組第二','B組第一','A組第二'],
-                         notes:['四強負方為雙季軍','A/B組出線後交叉對決'],
-                         fifth:'C首 vs D首（第五名決定賽）' }] },
-  'g10f': { brackets:[{ seeds:['A首','B次','B首','A次'],
-                         descs:['A組第一','B組第二','B組第一','A組第二'],
-                         notes:['四強負方為雙季軍','A/B組出線後交叉對決'],
-                         fifth:'C首 vs D首（第五名決定賽）' }] },
-  'g14f': { brackets:[{ seeds:['第一名','第四名','第二名','第三名'],
-                         descs:['循環賽第一','循環賽第四','循環賽第二','循環賽第三'],
-                         notes:['四強負方爭季軍','循環賽積分決定出線排名'] }] },
-  'm8':   { brackets:[{ seeds:['A首','B次','B首','A次'],
-                         descs:['A組第一','B組第二','B組第一','A組第二'],
-                         notes:['四強負方為雙季軍','A/B組出線後交叉對決'],
-                         fifth:'C首 vs D首（第五名決定賽）' }] },
-  'm10':  { brackets:[{ seeds:['A首','B次','B首','A次'],
-                         descs:['A組第一','B組第二','B組第一','A組第二'],
-                         notes:['四強負方為雙季軍','A/B組出線後交叉對決'],
-                         fifth:'C首 vs D首（第五名決定賽）' }] },
-  'a6':   { brackets:[{ seeds:['第一名','第四名','第二名','第三名'],
-                         descs:['循環賽第一','循環賽第四','循環賽第二','循環賽第三'],
-                         notes:['四強負方為雙季軍','循環賽前四名晉級'] }] }
+  'g8f':  { brackets:[{ direct:true,
+                         seeds:['第一名','第二名','第三名','第四名'],
+                         descs:['循環賽第一','循環賽第二','循環賽第三','循環賽第四'],
+                         notes:['循環賽積分決定排名'] }] },
+  'g12f': { brackets:[
+    { subLabel:'Division 1 — 各組首名',
+      seeds:['A首','D首','B首','C首'],
+      descs:['A組第一','D組第一','B組第一','C組第一'],
+      notes:['四強負方為雙季軍','爭奪D1冠、亞、季軍'] },
+    { subLabel:'Division 2 — 各組次名',
+      seeds:['A次','D次','B次','C次'],
+      descs:['A組第二','D組第二','B組第二','C組第二'],
+      notes:['四強負方為雙季軍','爭奪D2冠、亞、季軍'] },
+    { subLabel:'Division 3 — 各組第三名',
+      seeds:['A三','D三','B三','C三'],
+      descs:['A組第三','D組第三','B組第三','C組第三'],
+      notes:['四強負方為雙季軍','爭奪D3冠、亞、季軍'] }
+  ]},
+  'g10f': { brackets:[
+    { subLabel:'Division 1 — 各組首名',
+      seeds:['A首','D首','B首','C首'],
+      descs:['A組第一','D組第一','B組第一','C組第一'],
+      notes:['四強負方為雙季軍','爭奪D1冠、亞、季軍'] },
+    { subLabel:'Division 2 — 各組次名',
+      seeds:['A次','D次','B次','C次'],
+      descs:['A組第二','D組第二','B組第二','C組第二'],
+      notes:['四強負方為雙季軍','爭奪D2冠、亞、季軍'] },
+    { subLabel:'Division 3 — 各組第三名',
+      seeds:['A三','D三','B三','C三'],
+      descs:['A組第三','D組第三','B組第三','C組第三'],
+      notes:['四強負方為雙季軍','爭奪D3冠、亞、季軍'] }
+  ]},
+  'g14f': { brackets:[{ direct:true,
+                         seeds:['第一名','第二名','第三名','第四名'],
+                         descs:['循環賽第一','循環賽第二','循環賽第三','循環賽第四'],
+                         notes:['循環賽積分決定出線排名'] }] },
+  'm8':   { brackets:[
+    { subLabel:'Division 1 — 各組首名',
+      seeds:['A首','D首','B首','C首'],
+      descs:['A組第一','D組第一','B組第一','C組第一'],
+      notes:['四強負方為雙季軍','爭奪D1冠、亞、季軍'] },
+    { subLabel:'Division 2 — 各組次名',
+      seeds:['A次','D次','B次','C次'],
+      descs:['A組第二','D組第二','B組第二','C組第二'],
+      notes:['四強負方為雙季軍','爭奪D2冠、亞、季軍'] },
+    { subLabel:'Division 3 — 各組第三名',
+      seeds:['A三','D三','B三','C三'],
+      descs:['A組第三','D組第三','B組第三','C組第三'],
+      notes:['四強負方為雙季軍','爭奪D3冠、亞、季軍'] }
+  ]},
+  'm10':  { brackets:[
+    { subLabel:'Division 1 — 各組首名',
+      seeds:['A首','D首','B首','C首'],
+      descs:['A組第一','D組第一','B組第一','C組第一'],
+      notes:['四強負方為雙季軍','爭奪D1冠、亞、季軍'] },
+    { subLabel:'Division 2 — 各組次名',
+      seeds:['A次','D次','B次','C次'],
+      descs:['A組第二','D組第二','B組第二','C組第二'],
+      notes:['四強負方為雙季軍','爭奪D2冠、亞、季軍'] },
+    { subLabel:'Division 3 — 各組第三名',
+      seeds:['A三','D三','B三','C三'],
+      descs:['A組第三','D組第三','B組第三','C組第三'],
+      notes:['四強負方為雙季軍','爭奪D3冠、亞、季軍'] }
+  ]},
+  'g14m': { brackets:[
+    { subLabel:'Division 1 — 各組首名',
+      seeds:['A首','D首','B首','C首'],
+      descs:['A組第一','D組第一','B組第一','C組第一'],
+      notes:['四強負方為雙季軍','爭奪D1冠、亞、季軍'] },
+    { subLabel:'Division 2 — 各組次名',
+      seeds:['A次','D次','B次','C次'],
+      descs:['A組第二','D組第二','B組第二','C組第二'],
+      notes:['四強負方為雙季軍','爭奪D2冠、亞、季軍'] },
+    { subLabel:'Division 3 — 各組第三名',
+      seeds:['A三','D三','B三','C三'],
+      descs:['A組第三','D組第三','B組第三','C組第三'],
+      notes:['四強負方為雙季軍','爭奪D3冠、亞、季軍'] }
+  ]},
+  'a6':   { brackets:[{ direct:true,
+                         seeds:['第一名','第二名','第三名','第四名'],
+                         descs:['循環賽第一','循環賽第二','循環賽第三','循環賽第四'],
+                         notes:['循環賽前四名晋級'] }] }
 };
 
 function buildBracketHtml(bk){
@@ -902,6 +1022,20 @@ function buildBracketHtml(bk){
   return h;
 }
 
+function buildDirectFinalHtml(bk){
+  var h='<div class="bk-direct">';
+  [{badge:'\uD83C\uDFC6 \u51A0\u8ECD\u8CFD',cls:'bk-direct-champ',i0:0,i1:1},{badge:'\uD83E\uDD49 \u5B63\u8ECD\u8CFD',cls:'bk-direct-bronze',i0:2,i1:3}].forEach(function(g){
+    h+='<div class="bk-direct-game">';
+    h+='<div class="bk-direct-badge '+g.cls+'">'+g.badge+'</div>';
+    h+='<div class="bk-direct-match">';
+    h+='<div class="bk-box"><div class="bk-box-code">'+bk.seeds[g.i0]+'</div><div class="bk-box-desc">'+bk.descs[g.i0]+'</div></div>';
+    h+='<span class="bk-vs">VS</span>';
+    h+='<div class="bk-box"><div class="bk-box-code">'+bk.seeds[g.i1]+'</div><div class="bk-box-desc">'+bk.descs[g.i1]+'</div></div>';
+    h+='</div></div>';
+  });
+  return h+'</div>';
+}
+
 function initBrackets(){
   Object.keys(BRACKET_DEFS).forEach(function(secId){
     var sec=document.getElementById(secId);
@@ -918,7 +1052,7 @@ function initBrackets(){
       if(idx>0){var sp=document.createElement('div');sp.style.height='14px';outer.appendChild(sp);}
       if(bk.subLabel){var sl=document.createElement('div');sl.className='bk-sub-label';sl.textContent=bk.subLabel;outer.appendChild(sl);}
       var tmp=document.createElement('div');
-      tmp.innerHTML=buildBracketHtml(bk);
+      tmp.innerHTML=bk.direct?buildDirectFinalHtml(bk):buildBracketHtml(bk);
       outer.appendChild(tmp.firstElementChild);
       if(bk.notes&&bk.notes.length){
         var nb=document.createElement('div');nb.className='bk-notes-bar';
@@ -1027,7 +1161,7 @@ function renderGroupStandings(divId, prefix, label, container){
   var rows = calcGroupStandings(divId, prefix);
   var divNames = names[divId]||{};
   var h = label ? '<div class="st-group-lbl">'+escHtml(label)+'</div>' : '';
-  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="\u52dd">\u52dd</th><th title="\u8ca0">\u8ca0</th><th>\u5f97\u5206</th><th>\u5931\u5206</th><th>\u5f97\u5931\u5dee</th></tr></thead><tbody>';
+  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="\u52dd">\u52dd</th><th title="\u8ca0">\u8ca0</th><th title="\u7a4d\u5206">\u7a4d\u5206</th><th>\u5f97\u7403</th><th>\u5931\u7403</th><th>\u5f97\u5931\u5dee</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
     var nm = escHtml(divNames[r.code]||r.code);
     var diff = r.gf-r.ga;
@@ -1038,13 +1172,13 @@ function renderGroupStandings(divId, prefix, label, container){
     h += '<td class="td-name"><span class="tn-code">'+escHtml(r.code)+'</span><span class="tn">'+nm+'</span></td>';
     h += '<td class="st-w">'+r.w+'</td>';
     h += '<td class="st-l">'+r.l+'</td>';
+    h += '<td class="st-pts">'+(r.gp>0?(r.w*2+r.l):'-')+'</td>';
     h += '<td>'+(r.gp>0?r.gf:'-')+'</td>';
     h += '<td>'+(r.gp>0?r.ga:'-')+'</td>';
     h += '<td class="'+diffCls+'">'+(r.gp>0?diffStr:'-')+'</td>';
     h += '</tr>';
   });
   h += '</tbody></table>';
-  h += '<div class="st-rule">排名準則：勝場 › 互勝關係 › 互勝得失差 › 全場得失差 › 得分</div>';
   container.innerHTML = h;
 }
 
@@ -1064,6 +1198,10 @@ function initStandings(){
       renderGroupStandings(divId, g.prefix, g.label, gd);
     });
     var lastWrap = tables[tables.length-1].closest('.sched-wrap');
+    var rule = document.createElement('div');
+    rule.className = 'st-rule';
+    rule.innerHTML = '📌 積分制度：勝1場得<b>2分</b>，負1場得<b>1分</b>（含違規判負），喪失資格得<b>0分</b>。<br>同積分排名：① 互相比賽得失分差 › ② 互相比賽得分總和 › ③ 黃金罰球';
+    outer.appendChild(rule);
     if(lastWrap) lastWrap.parentNode.insertBefore(outer, lastWrap.nextSibling);
   });
 }
@@ -1081,6 +1219,8 @@ function refreshStandings(divId){
 }
 
 // ── Score Management ──
+var ADMIN_PASSWORD = 'bkids2026';
+var isAdmin = false;
 var SCORE_KEY = 'bkids2026_scores';
 var scores = {};
 
@@ -1118,21 +1258,24 @@ function initScoreCols(){
   });
 }
 
-function renderScore(td, gno){
-  var s = scores[gno];
-  if(!s || (s.a === '' && s.b === '')){
-    td.innerHTML = '<span class="sc-empty" onclick="editScore(this)">+ 記分</span>';
-  } else {
-    var a = Number(s.a), b = Number(s.b);
-    var aW = a > b, bW = b > a;
-    td.innerHTML = '<span class="sc-display" onclick="editScore(this)">' +
-      '<span class="sc-num' + (aW ? ' win' : '') + '">' + s.a + '</span>' +
-      '<span class="sc-sep"> – </span>' +
-      '<span class="sc-num' + (bW ? ' win' : '') + '">' + s.b + '</span>' +
-      '</span>';
-  }
-}
-
+function renderScore(td, gno){
+  var s = scores[gno];
+  var oc = isAdmin ? ' onclick="editScore(this)"' : '';
+  if(!s || (s.a === '' && s.b === '')){
+    td.innerHTML = isAdmin
+      ? '<span class="sc-empty" onclick="editScore(this)">+ 記分</span>'
+      : '<span style="color:#c8b8a8">–</span>';
+  } else {
+    var a = Number(s.a), b = Number(s.b);
+    var aW = a > b, bW = b > a;
+    td.innerHTML = '<span class="sc-display"' + oc + '>'
+      + '<span class="sc-num' + (aW ? ' win' : '') + '">' + s.a + '</span>'
+      + '<span class="sc-sep"> – </span>'
+      + '<span class="sc-num' + (bW ? ' win' : '') + '">' + s.b + '</span>'
+      + '</span>';
+  }
+}
+
 function editScore(el){
   var td = el.closest('.sc-cell');
   var gno = td.getAttribute('data-game');
@@ -1178,6 +1321,18 @@ function scKey(e, gno, sid){
     if(e.target === a && !e.shiftKey){ e.preventDefault(); if(b) b.focus(); }
   }
 }
+function initAdmin(){
+  isAdmin = true;
+  document.querySelectorAll('.sc-cell').forEach(function(td){
+    var gno = td.getAttribute('data-game');
+    if(gno) renderScore(td, gno);
+  });
+  var banner = document.createElement('div');
+  banner.className = 'admin-banner';
+  banner.innerHTML = '🔧 管理模式 — 點擊「+ 記分」或比分更新結果';
+  var ct = document.querySelector('.ct');
+  if(ct) ct.prepend(banner);
+}
 </script>
 </body>
 </html>
