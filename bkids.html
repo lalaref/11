@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>2026赤子復活節三人籃球賽 | LaLaRef 急單王</title>
-<meta name="description" content="2026赤子復活節三人籃球賽 — 小西灣體育館 25/5 賽程、各組別時間表及比賽規則 | LaLaRef 急單王">
+<title>2026赤子佛誕假期三人籃球賽 | LaLaRef 急單王</title>
+<meta name="description" content="2026赤子佛誕假期三人籃球賽 — 小西灣體育館 25/5 賽程、各組別時間表及比賽規則 | LaLaRef 急單王">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-L1YNR24WBC"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-L1YNR24WBC');</script>
 <link rel="icon" type="image/jpeg" href="lalaref2.jpg">
@@ -79,6 +79,72 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .tag-final{background:#cfe2ff;color:#084298}
 .tag-3rd{background:#f8d7da;color:#842029}
 .tn{color:#1a6635;font-weight:900}
+
+/* ── Score Column ── */
+.sc-cell{white-space:nowrap;text-align:center;padding:6px 10px !important;vertical-align:middle}
+.sc-empty{font-size:.8em;color:#c8b8a8;cursor:pointer;padding:3px 9px;border-radius:8px;border:1px dashed #d4c4b4;transition:all .2s;user-select:none}
+.sc-empty:hover{background:rgba(212,165,116,.15);border-color:#d4a574;color:#9a8a7a}
+.sc-display{cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:.88em;padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.5);transition:background .2s;user-select:none}
+.sc-display:hover{background:rgba(255,255,255,.85)}
+.sc-num{font-weight:900;color:#9a8a7a;min-width:20px;text-align:center;transition:color .2s}
+.sc-num.win{color:#1a6635}
+.sc-sep{color:#c0b0a0;font-size:.8em}
+.sc-edit{display:inline-flex;align-items:center;gap:4px}
+.sc-inp{width:38px;padding:3px 4px;border:2px solid #d4a574;border-radius:6px;font-size:.85em;text-align:center;font-family:inherit;color:#5a4a3a;-moz-appearance:textfield;background:#fff}
+.sc-inp::-webkit-outer-spin-button,.sc-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.sc-inp:focus{outline:none;border-color:#c89860;box-shadow:0 0 0 2px rgba(212,165,116,.2)}
+.sc-btn{padding:4px 8px;border:none;border-radius:6px;font-weight:700;font-size:.8em;cursor:pointer;font-family:inherit}
+.sc-ok{background:linear-gradient(145deg,#d4a574,#c89860);color:#fff}
+.sc-ok:hover{opacity:.85}
+.sc-cancel{background:rgba(0,0,0,.07);color:#9a8a7a;margin-left:1px}
+.sc-cancel:hover{background:rgba(0,0,0,.12)}
+
+/* ── Knockout Bracket ── */
+.bk-outer{margin-top:18px;padding:14px 16px;background:rgba(255,255,255,.35);border-radius:14px}
+.bk-outer-title{font-size:.8em;font-weight:700;color:#d4a574;margin-bottom:12px}
+.bk-sub-label{font-size:.72em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;padding:3px 10px;background:rgba(212,165,116,.12);border-radius:8px;display:inline-block}
+.bk{display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:4px}
+.bk-box{height:46px;padding:0 12px;background:#fff;border:1.5px solid rgba(212,165,116,.4);border-radius:8px;display:flex;flex-direction:column;justify-content:center;min-width:110px;flex-shrink:0}
+.bk-box-code{font-size:.68em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.2px}
+.bk-box-desc{font-size:.78em;font-weight:700;color:#5a4a3a}
+.bk-pair{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.bk-conn{width:16px;flex-shrink:0;display:flex;flex-direction:column}
+.bk-ct{flex:1;border-top:2px solid rgba(212,165,116,.55);border-right:2px solid rgba(212,165,116,.55);border-top-right-radius:3px}
+.bk-cb{flex:1;border-bottom:2px solid rgba(212,165,116,.55);border-right:2px solid rgba(212,165,116,.55);border-bottom-right-radius:3px}
+.bk-conn-h{width:12px;height:2px;background:rgba(212,165,116,.55);flex-shrink:0}
+.bk-sf{height:46px;padding:0 10px;background:rgba(212,165,116,.1);border:1.5px solid rgba(212,165,116,.4);border-radius:8px;display:flex;flex-direction:column;justify-content:center;min-width:72px;flex-shrink:0;text-align:center}
+.bk-sf-lbl{font-size:.64em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.2px}
+.bk-sf-sub{font-size:.7em;color:#7a6a5a;margin-top:1px}
+.bk-final{padding:10px 12px;background:linear-gradient(145deg,rgba(212,165,116,.2),rgba(200,152,96,.1));border:2px solid rgba(212,165,116,.55);border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;min-width:68px;text-align:center}
+.bk-final-ico{font-size:1.3em}
+.bk-final-lbl{font-size:.68em;font-weight:700;color:#d4a574}
+.bk-notes-bar{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.bk-note-pill{font-size:.72em;color:#9a8a7a;padding:3px 10px;background:rgba(255,255,255,.6);border-radius:20px}
+.bk-fifth-bar{margin-top:8px;padding:6px 12px;background:#fff3cd;border-radius:8px;font-size:.78em;color:#856404;font-weight:700}
+
+/* ── Standings ── */
+.st-outer{margin-top:16px;padding:14px 16px;background:rgba(255,255,255,.35);border-radius:14px}
+.st-title{font-size:.8em;font-weight:700;color:#d4a574;margin-bottom:10px}
+.st-groups{display:flex;flex-wrap:wrap;gap:14px}
+.st-group{flex:1;min-width:190px}
+.st-group-lbl{font-size:.72em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;padding:2px 8px;background:rgba(212,165,116,.12);border-radius:8px;display:inline-block}
+.st-table{width:100%;border-collapse:collapse;font-size:.82em}
+.st-table th{padding:5px 8px;font-size:.72em;font-weight:700;color:#9a8a7a;text-align:center;border-bottom:1.5px solid rgba(212,165,116,.25);white-space:nowrap}
+.st-table th.th-name{text-align:left;padding-left:4px}
+.st-table td{padding:6px 8px;text-align:center;color:#5a4a3a;border-bottom:1px solid rgba(212,165,116,.1)}
+.st-table td.td-name{text-align:left;font-weight:700;padding-left:4px}
+.st-table tr:last-child td{border-bottom:none}
+.st-rank{font-size:.7em;color:#9a8a7a;font-weight:700;width:20px}
+.st-w{color:#1a6635;font-weight:900}
+.st-l{color:#c0392b;font-weight:700}
+.st-pos{color:#1a6635;font-weight:700}
+.st-neg{color:#c0392b;font-weight:700}
+.st-table tr:first-child td{border-top:none}
+.st-rule{font-size:.68em;color:#b0a090;margin-top:5px;padding:2px 4px;font-style:italic}
+.tn-code{display:inline-block;font-size:.72em;font-weight:700;color:#9a7a55;background:rgba(180,140,80,.15);border-radius:4px;padding:1px 5px;margin-right:5px;letter-spacing:.03em;font-family:monospace}
+#g8f .tn-code,#g10f .tn-code,#g12f .tn-code,#g14f .tn-code{color:#c2185b;background:rgba(233,30,99,.1);border:1px solid rgba(233,30,99,.25)}
+#m8 .tn-code,#m10 .tn-code,#m12 .tn-code,#g14m .tn-code{color:#0d47a1;background:rgba(33,150,243,.1);border:1px solid rgba(33,150,243,.25)}
+#a6 .tn-code{color:#1b5e20;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.25)}
 
 
 /* ── Full Day Overview ── */
@@ -194,7 +260,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
     <button class="div-btn boys" onclick="jumpTo('m8')">男子 M8</button>
     <button class="div-btn boys" onclick="jumpTo('m10')">男子 M10</button>
     <button class="div-btn boys" onclick="jumpTo('m12')">男子 M12</button>
-    <button class="div-btn boys" onclick="jumpTo('g14m')">男子 G14</button>
+    <button class="div-btn boys" onclick="jumpTo('g14m')">男子 M14</button>
     <button class="div-btn mixed" onclick="jumpTo('a6')">混合 A6</button>
   </div>
 </div>
@@ -207,32 +273,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
     <div class="div-header">
       <span class="div-badge girls">女子 G8 組</span>
       <div class="div-meta">
-        <span class="div-tag">📍 場區1 · 場區2</span>
-        <span class="div-tag">🕘 09:00 – 11:00</span>
-        <span class="div-tag">👧 4隊 × 2組</span>
+        <span class="div-tag">📍 場區2</span>
+        <span class="div-tag">🕘 09:12 – 10:48</span>
+        <span class="div-tag">👧 4隊全循環</span>
       </div>
     </div>
-    <div style="font-size:.82em;font-weight:700;color:#d4a574;margin-bottom:8px">場區1 — 第一組</div>
-    <div class="sched-wrap" style="margin-bottom:18px">
-    <table class="sched-table" data-div="g8f-p1">
-      <thead><tr><th>時間</th><th>場次</th><th>場區</th><th>對陣</th><th>類型</th></tr></thead>
-      <tbody>
-        <tr class="phase-break"><td colspan="5">▸ 小組循環賽</td></tr>
-        <tr><td class="td-time">09:12</td><td class="td-gno">#4</td><td><span class="td-court">場區1</span></td><td class="td-match">A1 <span class="vs">vs</span> A2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">09:24</td><td class="td-gno">#8</td><td><span class="td-court">場區1</span></td><td class="td-match">A3 <span class="vs">vs</span> A4</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">09:36</td><td class="td-gno">#12</td><td><span class="td-court">場區1</span></td><td class="td-match">A1 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">09:48</td><td class="td-gno">#16</td><td><span class="td-court">場區1</span></td><td class="td-match">A2 <span class="vs">vs</span> A4</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">10:00</td><td class="td-gno">#20</td><td><span class="td-court">場區1</span></td><td class="td-match">A1 <span class="vs">vs</span> A4</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">10:12</td><td class="td-gno">#24</td><td><span class="td-court">場區1</span></td><td class="td-match">A2 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr class="phase-break"><td colspan="5">▸ 決賽階段</td></tr>
-        <tr><td class="td-time">10:24</td><td class="td-gno">#28</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">季軍戰</span></td><td><span class="tag-ko tag-3rd">季軍</span></td></tr>
-        <tr><td class="td-time">10:36</td><td class="td-gno">#32</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
-      </tbody>
-    </table>
-    </div>
-    <div style="font-size:.82em;font-weight:700;color:#d4a574;margin-bottom:8px">場區2 — 第二組</div>
     <div class="sched-wrap">
-    <table class="sched-table" data-div="g8f-p2">
+    <table class="sched-table" data-div="g8f">
       <thead><tr><th>時間</th><th>場次</th><th>場區</th><th>對陣</th><th>類型</th></tr></thead>
       <tbody>
         <tr class="phase-break"><td colspan="5">▸ 小組循環賽</td></tr>
@@ -305,29 +352,25 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
     <div class="div-header">
       <span class="div-badge mixed">混合 A6 組</span>
       <div class="div-meta">
-        <span class="div-tag">📍 場區5 · 場區6</span>
-        <span class="div-tag">🕘 09:12 – 11:36</span>
-        <span class="div-tag">👦👧 6隊全循環</span>
+        <span class="div-tag">📍 場區1</span>
+        <span class="div-tag">🕘 09:12 – 10:48</span>
+        <span class="div-tag">👦👧 4隊全循環</span>
       </div>
     </div>
     <div class="sched-wrap">
     <table class="sched-table">
       <thead><tr><th>時間</th><th>場次</th><th>場區</th><th>對陣</th><th>類型</th></tr></thead>
       <tbody>
-        <tr class="phase-break"><td colspan="5">▸ 小組循環賽（6隊全循環，共15場）</td></tr>
-        <tr><td class="td-time">09:12</td><td class="td-gno">#3</td><td><span class="td-court">場區5</span></td><td class="td-match">A1 <span class="vs">vs</span> A2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">09:24</td><td class="td-gno">#7</td><td><span class="td-court">場區5</span></td><td class="td-match">A3 <span class="vs">vs</span> A4</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">09:36</td><td class="td-gno">#11</td><td><span class="td-court">場區5</span></td><td class="td-match">A5 <span class="vs">vs</span> A6</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">09:48</td><td class="td-gno">#15</td><td><span class="td-court">場區5</span></td><td class="td-match">A1 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">10:00</td><td class="td-gno">#19</td><td><span class="td-court">場區5</span></td><td class="td-match">A2 <span class="vs">vs</span> A4</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">10:12</td><td class="td-gno">#23</td><td><span class="td-court">場區5</span></td><td class="td-match">A1 <span class="vs">vs</span> A5</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">10:24</td><td class="td-gno">#27</td><td><span class="td-court">場區5</span></td><td class="td-match">A3 <span class="vs">vs</span> A6</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">10:36</td><td class="td-gno">#31</td><td><span class="td-court">場區5</span></td><td class="td-match">A2 <span class="vs">vs</span> A5</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">11:00</td><td class="td-gno">#37</td><td><span class="td-court">場區5</span></td><td class="td-match">A4 <span class="vs">vs</span> A6</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">11:12</td><td class="td-gno">#40</td><td><span class="td-court">場區5</span></td><td class="td-match">A1 <span class="vs">vs</span> A6</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">11:24</td><td class="td-gno">#42</td><td><span class="td-court">場區5</span></td><td class="td-match">A2 <span class="vs">vs</span> A6 / A3 <span class="vs">vs</span> A5 / A4 <span class="vs">vs</span> A6</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr class="phase-break"><td colspan="5">▸ 小組循環賽（4隊全循環，共6場）</td></tr>
+        <tr><td class="td-time">09:12</td><td class="td-gno">#3</td><td><span class="td-court">場區1</span></td><td class="td-match">A1 <span class="vs">vs</span> A2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">09:24</td><td class="td-gno">#7</td><td><span class="td-court">場區1</span></td><td class="td-match">A3 <span class="vs">vs</span> A4</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">09:36</td><td class="td-gno">#11</td><td><span class="td-court">場區1</span></td><td class="td-match">A1 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">09:48</td><td class="td-gno">#15</td><td><span class="td-court">場區1</span></td><td class="td-match">A2 <span class="vs">vs</span> A4</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">10:00</td><td class="td-gno">#19</td><td><span class="td-court">場區1</span></td><td class="td-match">A1 <span class="vs">vs</span> A4</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">10:12</td><td class="td-gno">#23</td><td><span class="td-court">場區1</span></td><td class="td-match">A2 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
         <tr class="phase-break"><td colspan="5">▸ 決賽階段</td></tr>
-        <tr><td class="td-time">11:36</td><td class="td-gno">決賽</td><td><span class="td-court">場區5</span></td><td class="td-match"><span class="tbd">季軍戰 / 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
+        <tr><td class="td-time">10:24</td><td class="td-gno">#27</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">季軍戰</span></td><td><span class="tag-ko tag-3rd">季軍</span></td></tr>
+        <tr><td class="td-time">10:36</td><td class="td-gno">#31</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
       </tbody>
     </table>
     </div>
@@ -389,7 +432,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
       <span class="div-badge boys">男子 M8 組</span>
       <div class="div-meta">
         <span class="div-tag">📍 場區1 · 場區2</span>
-        <span class="div-tag">🕐 11:12 – 13:36</span>
+        <span class="div-tag">🕐 11:00 – 13:12</span>
         <span class="div-tag">👦 12隊（A·B·C·D組各3隊）</span>
       </div>
     </div>
@@ -398,28 +441,28 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
       <thead><tr><th>時間</th><th>場次</th><th>場區</th><th>對陣</th><th>類型</th></tr></thead>
       <tbody>
         <tr class="phase-break"><td colspan="5">▸ 小組循環賽　場區1：A組 / B組　場區2：C組 / D組</td></tr>
-        <tr><td class="td-time">11:12</td><td class="td-gno">#37</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A1 <span class="vs">vs</span> A2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">11:24</td><td class="td-gno">#38</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C1 <span class="vs">vs</span> C2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">11:36</td><td class="td-gno">#41</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D1 <span class="vs">vs</span> D2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">11:36</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B1 <span class="vs">vs</span> B2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">11:48</td><td class="td-gno">#43</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C1 <span class="vs">vs</span> C3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">11:48</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A1 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">12:00</td><td class="td-gno">#47</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D1 <span class="vs">vs</span> D3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">12:00</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B1 <span class="vs">vs</span> B3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">12:12</td><td class="td-gno">#51</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C2 <span class="vs">vs</span> C3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">12:12</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A2 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">12:24</td><td class="td-gno">#55</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D2 <span class="vs">vs</span> D3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">12:24</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B2 <span class="vs">vs</span> B3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">11:00</td><td class="td-gno">#37</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A1 <span class="vs">vs</span> A2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">11:00</td><td class="td-gno">#38</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C1 <span class="vs">vs</span> C2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">11:12</td><td class="td-gno">#40</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B1 <span class="vs">vs</span> B2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">11:12</td><td class="td-gno">#41</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D1 <span class="vs">vs</span> D2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">11:24</td><td class="td-gno">#42</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A1 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">11:24</td><td class="td-gno">#43</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C1 <span class="vs">vs</span> C3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">11:36</td><td class="td-gno">#46</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B1 <span class="vs">vs</span> B3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">11:36</td><td class="td-gno">#47</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D1 <span class="vs">vs</span> D3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">11:48</td><td class="td-gno">#50</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A2 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">11:48</td><td class="td-gno">#51</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C2 <span class="vs">vs</span> C3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">12:00</td><td class="td-gno">#54</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B2 <span class="vs">vs</span> B3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">12:00</td><td class="td-gno">#55</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D2 <span class="vs">vs</span> D3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
         <tr class="phase-break"><td colspan="5">▸ 晉級賽（D1 甲組 / D2 乙組 / D3 丙組 各自決賽）</td></tr>
-        <tr><td class="td-time">12:36</td><td class="td-gno">#59</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D3 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">12:36</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D3 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">12:48</td><td class="td-gno">#63</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D2 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">12:48</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D2 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">13:00</td><td class="td-gno">#67</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D1 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">13:00</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D1 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">13:12</td><td class="td-gno">#71</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D2 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
-        <tr><td class="td-time">13:12</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D3 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
-        <tr><td class="td-time">13:24</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D1 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
+        <tr><td class="td-time">12:12</td><td class="td-gno">#58</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D3 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">12:12</td><td class="td-gno">#59</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D3 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">12:24</td><td class="td-gno">#62</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D2 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">12:24</td><td class="td-gno">#63</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D2 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">12:36</td><td class="td-gno">#66</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D1 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">12:36</td><td class="td-gno">#67</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D1 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">12:48</td><td class="td-gno">#70</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D3 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
+        <tr><td class="td-time">12:48</td><td class="td-gno">#71</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D2 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
+        <tr><td class="td-time">13:00</td><td class="td-gno">#74</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D1 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
       </tbody>
     </table>
     </div>
@@ -434,8 +477,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
     <div class="div-header">
       <span class="div-badge boys">男子 M10 組</span>
       <div class="div-meta">
-        <span class="div-tag">📍 場區5 · 場區6</span>
-        <span class="div-tag">🕑 14:00 – 15:24</span>
+        <span class="div-tag">📍 場區1 · 場區2</span>
+        <span class="div-tag">🕑 13:24 – 15:24</span>
         <span class="div-tag">👦 12隊（A·B·C·D組各3隊）</span>
       </div>
     </div>
@@ -444,27 +487,28 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
       <thead><tr><th>時間</th><th>場次</th><th>場區</th><th>對陣</th><th>類型</th></tr></thead>
       <tbody>
         <tr class="phase-break"><td colspan="5">▸ 小組循環賽　場區1：A組 / B組　場區2：C組 / D組</td></tr>
-        <tr><td class="td-time">14:00</td><td class="td-gno">#80</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A1 <span class="vs">vs</span> A2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">14:00</td><td class="td-gno">#89</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C1 <span class="vs">vs</span> C2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">14:12</td><td class="td-gno">#83</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B1 <span class="vs">vs</span> B2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">14:12</td><td class="td-gno">#93</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D1 <span class="vs">vs</span> D2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">14:24</td><td class="td-gno">#86</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A1 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">14:24</td><td class="td-gno">#97</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C1 <span class="vs">vs</span> C3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">14:36</td><td class="td-gno">#90</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B1 <span class="vs">vs</span> B3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">14:36</td><td class="td-gno">#101</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D1 <span class="vs">vs</span> D3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">14:48</td><td class="td-gno">#94</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A2 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">14:48</td><td class="td-gno">#105</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C2 <span class="vs">vs</span> C3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">15:00</td><td class="td-gno">#98</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B2 <span class="vs">vs</span> B3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">15:00</td><td class="td-gno">#109</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D2 <span class="vs">vs</span> D3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">13:24</td><td class="td-gno">#79</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A1 <span class="vs">vs</span> A2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">13:24</td><td class="td-gno">#80</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C1 <span class="vs">vs</span> C2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">13:36</td><td class="td-gno">#82</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B1 <span class="vs">vs</span> B2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">13:36</td><td class="td-gno">#83</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D1 <span class="vs">vs</span> D2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">13:48</td><td class="td-gno">#85</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A1 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">13:48</td><td class="td-gno">#86</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C1 <span class="vs">vs</span> C3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">14:00</td><td class="td-gno">#89</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B1 <span class="vs">vs</span> B3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">14:00</td><td class="td-gno">#90</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D1 <span class="vs">vs</span> D3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">14:12</td><td class="td-gno">#93</td><td><span class="td-court">場區1</span></td><td class="td-match">A組：A2 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">14:12</td><td class="td-gno">#94</td><td><span class="td-court">場區2</span></td><td class="td-match">C組：C2 <span class="vs">vs</span> C3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">14:24</td><td class="td-gno">#97</td><td><span class="td-court">場區1</span></td><td class="td-match">B組：B2 <span class="vs">vs</span> B3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
+        <tr><td class="td-time">14:24</td><td class="td-gno">#98</td><td><span class="td-court">場區2</span></td><td class="td-match">D組：D2 <span class="vs">vs</span> D3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
         <tr class="phase-break"><td colspan="5">▸ 晉級賽（D1 甲組 / D2 乙組 / D3 丙組 各自決賽）</td></tr>
-        <tr><td class="td-time">15:00</td><td class="td-gno">#102</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D3 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">15:00</td><td class="td-gno">#113</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D3 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">15:12</td><td class="td-gno">#106</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D2 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">15:12</td><td class="td-gno">#116</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D2 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">15:24</td><td class="td-gno">#110</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D1 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">15:36</td><td class="td-gno">#114</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D2 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
-        <tr><td class="td-time">15:36</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D3 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
-        <tr><td class="td-time">15:48</td><td class="td-gno">-</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D1 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
+        <tr><td class="td-time">14:36</td><td class="td-gno">#101</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D3 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">14:36</td><td class="td-gno">#102</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D3 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">14:48</td><td class="td-gno">#105</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D2 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">14:48</td><td class="td-gno">#106</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D2 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">15:00</td><td class="td-gno">#109</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D1 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">15:00</td><td class="td-gno">#110</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D1 四強</span></td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">15:12</td><td class="td-gno">#113</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D3 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
+        <tr><td class="td-time">15:12</td><td class="td-gno">#114</td><td><span class="td-court">場區2</span></td><td class="td-match"><span class="tbd">D2 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
+        <tr><td class="td-time">15:24</td><td class="td-gno">#116</td><td><span class="td-court">場區1</span></td><td class="td-match"><span class="tbd">D1 冠軍戰</span></td><td><span class="tag-ko tag-final">冠軍</span></td></tr>
       </tbody>
     </table>
     </div>
@@ -505,12 +549,12 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 </div>
 
 <!-- ═══════════════════════════════════════════
-     DIVISION: 男子G14組
+     DIVISION: 男子M14組
 ═══════════════════════════════════════════ -->
 <div class="div-section" id="g14m">
   <div class="card">
     <div class="div-header">
-      <span class="div-badge boys">男子 G14 組</span>
+      <span class="div-badge boys">男子 M14 組</span>
       <div class="div-meta">
         <span class="div-tag">📍 場區3</span>
         <span class="div-tag">🕑 14:00 – 16:12</span>
@@ -551,31 +595,31 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
       <div class="div-meta">
         <span class="div-tag">📍 場區3 · 場區4</span>
         <span class="div-tag">🕓 15:36 – 17:36</span>
-        <span class="div-tag">👦 5隊全循環 + D1/D2/D3 決賽</span>
+        <span class="div-tag">👦 男子M12 5隊全循環 · 男子M14 D1/D2/D3 決賽</span>
       </div>
     </div>
     <div class="sched-wrap">
     <table class="sched-table">
       <thead><tr><th>時間</th><th>場次</th><th>場區</th><th>對陣</th><th>類型</th></tr></thead>
       <tbody>
-        <tr class="phase-break"><td colspan="5">▸ 前段循環賽（場區4）</td></tr>
+        <tr class="phase-break"><td colspan="5">▸ 男子M12 前段循環賽（場區4）</td></tr>
         <tr><td class="td-time">15:36</td><td class="td-gno">#118</td><td><span class="td-court">場區4</span></td><td class="td-match">A1 <span class="vs">vs</span> A2</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
         <tr><td class="td-time">15:48</td><td class="td-gno">#120</td><td><span class="td-court">場區4</span></td><td class="td-match">A3 <span class="vs">vs</span> A4</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
         <tr><td class="td-time">16:00</td><td class="td-gno">#122</td><td><span class="td-court">場區4</span></td><td class="td-match">A1 <span class="vs">vs</span> A5</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr class="phase-break"><td colspan="5">▸ 主循環賽（場區4）及 D1/D2/D3 決賽（場區3）</td></tr>
-        <tr><td class="td-time">16:12</td><td class="td-gno">#123</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">D1 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
+        <tr class="phase-break"><td colspan="5">▸ 男子M12 主循環賽（場區4）／ 男子M14 D1/D2/D3 決賽（場區3）</td></tr>
+        <tr><td class="td-time">16:12</td><td class="td-gno">#123</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">M14 D1 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
         <tr><td class="td-time">16:12</td><td class="td-gno">#124</td><td><span class="td-court">場區4</span></td><td class="td-match">A2 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">16:24</td><td class="td-gno">#125</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">D3 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
+        <tr><td class="td-time">16:24</td><td class="td-gno">#125</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">M14 D3 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
         <tr><td class="td-time">16:24</td><td class="td-gno">#126</td><td><span class="td-court">場區4</span></td><td class="td-match">A4 <span class="vs">vs</span> A5</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">16:36</td><td class="td-gno">#127</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">D2 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
+        <tr><td class="td-time">16:36</td><td class="td-gno">#127</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">M14 D2 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
         <tr><td class="td-time">16:36</td><td class="td-gno">#128</td><td><span class="td-court">場區4</span></td><td class="td-match">A1 <span class="vs">vs</span> A3</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">16:48</td><td class="td-gno">#129</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">D1 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
+        <tr><td class="td-time">16:48</td><td class="td-gno">#129</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">M14 D1 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
         <tr><td class="td-time">16:48</td><td class="td-gno">#130</td><td><span class="td-court">場區4</span></td><td class="td-match">A2 <span class="vs">vs</span> A5</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">17:00</td><td class="td-gno">#131</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">D3 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
+        <tr><td class="td-time">17:00</td><td class="td-gno">#131</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">M14 D3 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
         <tr><td class="td-time">17:00</td><td class="td-gno">#132</td><td><span class="td-court">場區4</span></td><td class="td-match">A1 <span class="vs">vs</span> A4</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">17:12</td><td class="td-gno">#133</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">D2 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
+        <tr><td class="td-time">17:12</td><td class="td-gno">#133</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">M14 D2 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
         <tr><td class="td-time">17:12</td><td class="td-gno">#134</td><td><span class="td-court">場區4</span></td><td class="td-match">A3 <span class="vs">vs</span> A5</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
-        <tr><td class="td-time">17:24</td><td class="td-gno">#135</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">D1 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
+        <tr><td class="td-time">17:24</td><td class="td-gno">#135</td><td><span class="td-court">場區3</span></td><td class="td-match"><span class="tbd">M14 D1 決賽</span></td><td><span class="tag-ko tag-final">決賽</span></td></tr>
         <tr><td class="td-time">17:24</td><td class="td-gno">#136</td><td><span class="td-court">場區4</span></td><td class="td-match">A2 <span class="vs">vs</span> A4</td><td><span class="tag-ko tag-rr">循環</span></td></tr>
       </tbody>
     </table>
@@ -593,7 +637,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
     <div class="ov-slot"><div class="ov-time">11:12 – 13:36</div><div class="ov-div">男子M8組</div><div class="ov-court">場區1 · 場區2</div></div>
     <div class="ov-slot"><div class="ov-time">11:36 – 13:48</div><div class="ov-div">女子G10組</div><div class="ov-court">場區3 · 場區4</div></div>
     <div class="ov-slot"><div class="ov-time">13:48 – 15:12</div><div class="ov-div">女子G14組</div><div class="ov-court">場區4</div></div>
-    <div class="ov-slot"><div class="ov-time">14:00 – 16:12</div><div class="ov-div">男子G14組</div><div class="ov-court">場區3</div></div>
+    <div class="ov-slot"><div class="ov-time">14:00 – 16:12</div><div class="ov-div">男子M14組</div><div class="ov-court">場區3</div></div>
     <div class="ov-slot"><div class="ov-time">14:00 – 15:24</div><div class="ov-div">男子M10組</div><div class="ov-court">場區5 · 場區6</div></div>
     <div class="ov-slot"><div class="ov-time">15:36 – 17:36</div><div class="ov-div">男子M12組</div><div class="ov-court">場區3 · 場區4</div></div>
   </div>
@@ -720,7 +764,7 @@ function applyAllNames(){
         var name = divNames[code];
         if(!name) return;
         var re = new RegExp('\\b' + code.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'g');
-        html = html.replace(re, '<span class="tn">' + escHtml(name) + '</span>');
+        html = html.replace(re, '<span class="tn-code">' + escHtml(code) + '</span><span class="tn">' + escHtml(name) + '</span>');
       });
       cell.innerHTML = html;
     });
@@ -739,7 +783,349 @@ function loadNames(){
   applyAllNames();
 }
 
-window.addEventListener('DOMContentLoaded', function(){ loadNames(); });
+window.addEventListener('DOMContentLoaded', function(){ loadNames(); loadScores(); initScoreCols(); initBrackets(); initStandings(); });
+
+// ── Knockout Brackets ──
+var BRACKET_DEFS = {
+  'g12f': { brackets:[{ seeds:['A首','B次','B首','A次'],
+                         descs:['A組第一','B組第二','B組第一','A組第二'],
+                         notes:['四強負方為雙季軍','A/B組出線後交叉對決'],
+                         fifth:'C首 vs D首（第五名決定賽）' }] },
+  'g10f': { brackets:[{ seeds:['A首','B次','B首','A次'],
+                         descs:['A組第一','B組第二','B組第一','A組第二'],
+                         notes:['四強負方為雙季軍','A/B組出線後交叉對決'],
+                         fifth:'C首 vs D首（第五名決定賽）' }] },
+  'g14f': { brackets:[{ seeds:['第一名','第四名','第二名','第三名'],
+                         descs:['循環賽第一','循環賽第四','循環賽第二','循環賽第三'],
+                         notes:['四強負方爭季軍','循環賽積分決定出線排名'] }] },
+  'm8':   { brackets:[{ seeds:['A首','B次','B首','A次'],
+                         descs:['A組第一','B組第二','B組第一','A組第二'],
+                         notes:['四強負方為雙季軍','A/B組出線後交叉對決'],
+                         fifth:'C首 vs D首（第五名決定賽）' }] },
+  'm10':  { brackets:[{ seeds:['A首','B次','B首','A次'],
+                         descs:['A組第一','B組第二','B組第一','A組第二'],
+                         notes:['四強負方為雙季軍','A/B組出線後交叉對決'],
+                         fifth:'C首 vs D首（第五名決定賽）' }] },
+  'a6':   { brackets:[{ seeds:['第一名','第四名','第二名','第三名'],
+                         descs:['循環賽第一','循環賽第四','循環賽第二','循環賽第三'],
+                         notes:['四強負方為雙季軍','循環賽前四名晉級'] }] }
+};
+
+function buildBracketHtml(bk){
+  var PAIR=98,BGAP=16,TOTAL=212;
+  var h='<div class="bk">';
+  // Seeds
+  h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
+  [[0,1],[2,3]].forEach(function(p){
+    h+='<div class="bk-pair">';
+    p.forEach(function(i){h+='<div class="bk-box"><div class="bk-box-code">'+bk.seeds[i]+'</div><div class="bk-box-desc">'+bk.descs[i]+'</div></div>';});
+    h+='</div>';
+  });
+  h+='</div>';
+  // Pair connectors
+  h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
+  h+='<div class="bk-conn" style="height:'+PAIR+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>';
+  h+='<div class="bk-conn" style="height:'+PAIR+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>';
+  h+='</div>';
+  // H-lines + SF boxes
+  h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
+  ['①','②'].forEach(function(n){
+    h+='<div style="height:'+PAIR+'px;display:flex;align-items:center">';
+    h+='<div class="bk-conn-h"></div>';
+    h+='<div class="bk-sf"><div class="bk-sf-lbl">半決賽'+n+'</div><div class="bk-sf-sub">勝方晉級</div></div>';
+    h+='</div>';
+  });
+  h+='</div>';
+  // Final connector
+  h+='<div style="flex-shrink:0">';
+  h+='<div class="bk-conn" style="height:'+TOTAL+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>';
+  h+='</div>';
+  // H-line + final
+  h+='<div style="height:'+TOTAL+'px;display:flex;align-items:center;flex-shrink:0">';
+  h+='<div class="bk-conn-h"></div>';
+  h+='<div class="bk-final"><div class="bk-final-ico">🏆</div><div class="bk-final-lbl">冠軍戰</div></div>';
+  h+='</div>';
+  h+='</div>';
+  return h;
+}
+
+function initBrackets(){
+  Object.keys(BRACKET_DEFS).forEach(function(secId){
+    var sec=document.getElementById(secId);
+    if(!sec) return;
+    var card=sec.querySelector('.card');
+    if(!card) return;
+    var outer=document.createElement('div');
+    outer.className='bk-outer';
+    var title=document.createElement('div');
+    title.className='bk-outer-title';
+    title.innerHTML='🏆 晉級表';
+    outer.appendChild(title);
+    BRACKET_DEFS[secId].brackets.forEach(function(bk,idx){
+      if(idx>0){var sp=document.createElement('div');sp.style.height='14px';outer.appendChild(sp);}
+      if(bk.subLabel){var sl=document.createElement('div');sl.className='bk-sub-label';sl.textContent=bk.subLabel;outer.appendChild(sl);}
+      var tmp=document.createElement('div');
+      tmp.innerHTML=buildBracketHtml(bk);
+      outer.appendChild(tmp.firstElementChild);
+      if(bk.notes&&bk.notes.length){
+        var nb=document.createElement('div');nb.className='bk-notes-bar';
+        bk.notes.forEach(function(n){nb.innerHTML+='<span class="bk-note-pill">✦ '+n+'</span>';});
+        outer.appendChild(nb);
+      }
+      if(bk.fifth){var fb=document.createElement('div');fb.className='bk-fifth-bar';fb.innerHTML='🎯 '+bk.fifth;outer.appendChild(fb);}
+    });
+    card.appendChild(outer);
+  });
+}
+
+// ── Standings ──
+var STANDINGS_DEFS = {
+  'g8f-p1': [{prefix:'A',label:''}],
+  'g8f-p2': [{prefix:'A',label:''}],
+  'g12f':   [{prefix:'A',label:'A 組'},{prefix:'B',label:'B 組'},{prefix:'C',label:'C 組'},{prefix:'D',label:'D 組'}],
+  'a6':     [{prefix:'A',label:''}],
+  'g10f':   [{prefix:'A',label:'A 組'},{prefix:'B',label:'B 組'},{prefix:'C',label:'C 組'},{prefix:'D',label:'D 組'}],
+  'm8':     [{prefix:'A',label:'A 組'},{prefix:'B',label:'B 組'},{prefix:'C',label:'C 組'},{prefix:'D',label:'D 組'}],
+  'm10':    [{prefix:'A',label:'A 組'},{prefix:'B',label:'B 組'},{prefix:'C',label:'C 組'},{prefix:'D',label:'D 組'}],
+  'g14f':   [{prefix:'A',label:''}],
+  'g14m':   [{prefix:'A',label:'A 組'},{prefix:'B',label:'B 組'},{prefix:'C',label:'C 組'}],
+  'm12':    [{prefix:'A',label:''}]
+};
+
+function parseMatchCodes(origHtml){
+  var text = origHtml.replace(/<[^>]+>/g,' ');
+  var m = text.match(/\b([A-D]\d)\b/g);
+  return m && m.length >= 2 ? [m[0],m[1]] : null;
+}
+
+function collectGames(divId, prefix){
+  var games = [];
+  document.querySelectorAll('.sched-table[data-div="'+divId+'"]').forEach(function(table){
+    table.querySelectorAll('tbody tr').forEach(function(row){
+      if(row.classList.contains('phase-break')) return;
+      var mc = row.querySelector('.td-match');
+      if(!mc || mc.querySelector('.tbd')) return;
+      var orig = mc.getAttribute('data-orig');
+      if(!orig) return;
+      var codes = parseMatchCodes(orig);
+      if(!codes) return;
+      if(codes[0].charAt(0)!==prefix || codes[1].charAt(0)!==prefix) return;
+      var gnoCell = row.querySelector('.td-gno');
+      var gno = gnoCell ? gnoCell.textContent.trim() : '';
+      var s = scores[gno];
+      if(!s || s.a==='' || s.b==='') return;
+      var a=parseInt(s.a), b=parseInt(s.b);
+      if(isNaN(a)||isNaN(b)) return;
+      games.push({cA:codes[0], cB:codes[1], sA:a, sB:b});
+    });
+  });
+  return games;
+}
+
+function calcGroupStandings(divId, prefix){
+  var divNames = names[divId] || {};
+  var stats = {};
+  Object.keys(divNames).filter(function(k){ return k.charAt(0)===prefix; }).forEach(function(code){
+    stats[code] = {code:code,w:0,l:0,gf:0,ga:0,gp:0};
+  });
+  var games = collectGames(divId, prefix);
+  games.forEach(function(g){
+    var cA=g.cA, cB=g.cB;
+    if(!stats[cA]) stats[cA]={code:cA,w:0,l:0,gf:0,ga:0,gp:0};
+    if(!stats[cB]) stats[cB]={code:cB,w:0,l:0,gf:0,ga:0,gp:0};
+    stats[cA].gf+=g.sA; stats[cA].ga+=g.sB; stats[cA].gp++;
+    stats[cB].gf+=g.sB; stats[cB].ga+=g.sA; stats[cB].gp++;
+    if(g.sA>g.sB){stats[cA].w++;stats[cB].l++;}
+    else if(g.sB>g.sA){stats[cB].w++;stats[cA].l++;}
+  });
+  // Sort: wins → head-to-head (W then diff) → overall diff → overall GF
+  var arr = Object.values(stats);
+  arr.sort(function(a,b){ return b.w-a.w; });
+  var result=[], i=0;
+  while(i<arr.length){
+    var wv=arr[i].w, grp=[];
+    while(i<arr.length && arr[i].w===wv) grp.push(arr[i++]);
+    if(grp.length>1){
+      var gc=grp.map(function(t){return t.code;});
+      var h2h={};
+      gc.forEach(function(c){h2h[c]={w:0,gf:0,ga:0};});
+      games.forEach(function(g){
+        if(gc.indexOf(g.cA)<0||gc.indexOf(g.cB)<0) return;
+        h2h[g.cA].gf+=g.sA; h2h[g.cA].ga+=g.sB;
+        h2h[g.cB].gf+=g.sB; h2h[g.cB].ga+=g.sA;
+        if(g.sA>g.sB) h2h[g.cA].w++;
+        else if(g.sB>g.sA) h2h[g.cB].w++;
+      });
+      grp.sort(function(x,y){
+        var hx=h2h[x.code],hy=h2h[y.code];
+        if(hy.w!==hx.w) return hy.w-hx.w;
+        var hdx=hx.gf-hx.ga,hdy=hy.gf-hy.ga;
+        if(hdy!==hdx) return hdy-hdx;
+        var dx=x.gf-x.ga,dy=y.gf-y.ga;
+        if(dy!==dx) return dy-dx;
+        return y.gf-x.gf;
+      });
+    }
+    result=result.concat(grp);
+  }
+  return result;
+}
+
+function renderGroupStandings(divId, prefix, label, container){
+  var rows = calcGroupStandings(divId, prefix);
+  var divNames = names[divId]||{};
+  var h = label ? '<div class="st-group-lbl">'+escHtml(label)+'</div>' : '';
+  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="\u52dd">\u52dd</th><th title="\u8ca0">\u8ca0</th><th>\u5f97\u5206</th><th>\u5931\u5206</th><th>\u5f97\u5931\u5dee</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){
+    var nm = escHtml(divNames[r.code]||r.code);
+    var diff = r.gf-r.ga;
+    var diffStr = diff>0 ? '+'+diff : String(diff);
+    var diffCls = diff>0 ? 'st-pos' : (diff<0 ? 'st-neg' : '');
+    h += '<tr>';
+    h += '<td class="st-rank">'+(i+1)+'</td>';
+    h += '<td class="td-name"><span class="tn-code">'+escHtml(r.code)+'</span><span class="tn">'+nm+'</span></td>';
+    h += '<td class="st-w">'+r.w+'</td>';
+    h += '<td class="st-l">'+r.l+'</td>';
+    h += '<td>'+(r.gp>0?r.gf:'-')+'</td>';
+    h += '<td>'+(r.gp>0?r.ga:'-')+'</td>';
+    h += '<td class="'+diffCls+'">'+(r.gp>0?diffStr:'-')+'</td>';
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  h += '<div class="st-rule">排名準則：勝場 › 互勝關係 › 互勝得失差 › 全場得失差 › 得分</div>';
+  container.innerHTML = h;
+}
+
+function initStandings(){
+  Object.keys(STANDINGS_DEFS).forEach(function(divId){
+    var tables = document.querySelectorAll('.sched-table[data-div="'+divId+'"]');
+    if(!tables.length) return;
+    var outer = document.createElement('div');
+    outer.className = 'st-outer';
+    outer.setAttribute('data-st-div', divId);
+    outer.innerHTML = '<div class="st-title">\ud83d\udcca \u7a4d\u5206\u8868</div><div class="st-groups"></div>';
+    var grpsDiv = outer.querySelector('.st-groups');
+    STANDINGS_DEFS[divId].forEach(function(g){
+      var gd = document.createElement('div');
+      gd.className = 'st-group';
+      grpsDiv.appendChild(gd);
+      renderGroupStandings(divId, g.prefix, g.label, gd);
+    });
+    var lastWrap = tables[tables.length-1].closest('.sched-wrap');
+    if(lastWrap) lastWrap.parentNode.insertBefore(outer, lastWrap.nextSibling);
+  });
+}
+
+function refreshStandings(divId){
+  document.querySelectorAll('.st-outer[data-st-div="'+divId+'"]').forEach(function(outer){
+    var def = STANDINGS_DEFS[divId];
+    if(!def) return;
+    outer.querySelectorAll('.st-group').forEach(function(gd, i){
+      var g = def[i];
+      if(!g) return;
+      renderGroupStandings(divId, g.prefix, g.label, gd);
+    });
+  });
+}
+
+// ── Score Management ──
+var SCORE_KEY = 'bkids2026_scores';
+var scores = {};
+
+function loadScores(){
+  try{ scores = JSON.parse(localStorage.getItem(SCORE_KEY) || '{}'); } catch(e){ scores = {}; }
+}
+function saveScores(){ localStorage.setItem(SCORE_KEY, JSON.stringify(scores)); }
+
+function initScoreCols(){
+  document.querySelectorAll('.sched-table').forEach(function(table){
+    // Header
+    var hRow = table.querySelector('thead tr');
+    if(hRow){
+      var th = document.createElement('th');
+      th.textContent = '結果';
+      th.style.cssText = 'text-align:center;min-width:90px';
+      hRow.insertBefore(th, hRow.lastElementChild);
+    }
+    // Body rows
+    table.querySelectorAll('tbody tr').forEach(function(row){
+      if(row.classList.contains('phase-break')){
+        var cell = row.querySelector('[colspan]');
+        if(cell) cell.setAttribute('colspan', parseInt(cell.getAttribute('colspan')) + 1);
+        return;
+      }
+      var gnoCell = row.querySelector('.td-gno');
+      var td = document.createElement('td');
+      td.className = 'sc-cell';
+      if(!gnoCell){ row.appendChild(td); return; }
+      var gno = gnoCell.textContent.trim();
+      td.setAttribute('data-game', gno);
+      renderScore(td, gno);
+      row.insertBefore(td, row.lastElementChild);
+    });
+  });
+}
+
+function renderScore(td, gno){
+  var s = scores[gno];
+  if(!s || (s.a === '' && s.b === '')){
+    td.innerHTML = '<span class="sc-empty" onclick="editScore(this)">+ 記分</span>';
+  } else {
+    var a = Number(s.a), b = Number(s.b);
+    var aW = a > b, bW = b > a;
+    td.innerHTML = '<span class="sc-display" onclick="editScore(this)">' +
+      '<span class="sc-num' + (aW ? ' win' : '') + '">' + s.a + '</span>' +
+      '<span class="sc-sep"> – </span>' +
+      '<span class="sc-num' + (bW ? ' win' : '') + '">' + s.b + '</span>' +
+      '</span>';
+  }
+}
+
+function editScore(el){
+  var td = el.closest('.sc-cell');
+  var gno = td.getAttribute('data-game');
+  var s = scores[gno] || {a:'',b:''};
+  var sid = gno.replace('#','g');
+  td.innerHTML =
+    '<div class="sc-edit">' +
+    '<input class="sc-inp" type="number" min="0" max="99" value="' + s.a + '" id="sa-' + sid + '" onkeydown="scKey(event,\'' + gno + '\',\'' + sid + '\')">' +
+    '<span class="sc-sep">–</span>' +
+    '<input class="sc-inp" type="number" min="0" max="99" value="' + s.b + '" id="sb-' + sid + '" onkeydown="scKey(event,\'' + gno + '\',\'' + sid + '\')">' +
+    '<button class="sc-btn sc-ok"  onclick="saveScore(\'' + gno + '\',\'' + sid + '\')">✓</button>' +
+    '<button class="sc-btn sc-cancel" onclick="cancelScore(\'' + gno + '\')">✕</button>' +
+    '</div>';
+  var inp = document.getElementById('sa-' + sid);
+  if(inp){ inp.select(); }
+}
+
+function saveScore(gno, sid){
+  var a = document.getElementById('sa-' + sid);
+  var b = document.getElementById('sb-' + sid);
+  if(!a || !b) return;
+  scores[gno] = { a: a.value.trim(), b: b.value.trim() };
+  saveScores();
+  var td = a.closest('.sc-cell');
+  var tbl = td ? td.closest('.sched-table') : null;
+  var divId = tbl ? tbl.getAttribute('data-div') : null;
+  if(td) renderScore(td, gno);
+  if(divId) refreshStandings(divId);
+}
+
+function cancelScore(gno){
+  var td = document.querySelector('.sc-cell[data-game="' + gno + '"]');
+  if(td) renderScore(td, gno);
+}
+
+function scKey(e, gno, sid){
+  if(e.key === 'Enter') saveScore(gno, sid);
+  if(e.key === 'Escape') cancelScore(gno);
+  if(e.key === 'Tab'){
+    // Tab from first input to second without triggering default
+    var a = document.getElementById('sa-' + sid);
+    var b = document.getElementById('sb-' + sid);
+    if(e.target === a && !e.shiftKey){ e.preventDefault(); if(b) b.focus(); }
+  }
+}
 </script>
 </body>
 </html>
