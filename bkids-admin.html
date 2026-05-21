@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>管理員 — 隊名設定 | 2026赤子佛誕假期三人籃球賽</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei','PingFang TC',sans-serif;background:linear-gradient(135deg,#f5e6d3,#e8d4b8);min-height:100vh;color:#5a4a3a}
+
+/* ── Top bar ── */
+.topbar{background:linear-gradient(145deg,#5c6bc0,#3949ab);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.2);position:sticky;top:0;z-index:100}
+.topbar-title{color:#fff;font-size:1.1em;font-weight:900}
+.topbar-sub{color:rgba(255,255,255,.75);font-size:.8em;margin-top:2px}
+.back-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;color:#fff;text-decoration:none;font-size:.85em;font-weight:700;transition:all .2s}
+.back-btn:hover{background:rgba(255,255,255,.25)}
+
+/* ── Layout ── */
+.wrap{max-width:900px;margin:0 auto;padding:24px 20px}
+
+/* ── Division tabs ── */
+.div-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:0}
+.div-tab{padding:8px 14px;border:none;border-radius:14px 14px 0 0;font-size:.82em;font-weight:700;cursor:pointer;background:rgba(255,255,255,.4);color:#7a6a5a;font-family:inherit;transition:all .2s;border-bottom:3px solid transparent}
+.div-tab:hover{background:rgba(255,255,255,.6)}
+.div-tab.active{background:linear-gradient(145deg,#f0dcc8,#e8d4b8);color:#5a4a3a;border-bottom:3px solid #d4a574;box-shadow:4px 0 12px rgba(0,0,0,.08),-4px 0 12px rgba(255,255,255,.5)}
+.div-tab.girls{border-top:3px solid #e91e8c}
+.div-tab.boys{border-top:3px solid #1976d2}
+.div-tab.mixed{border-top:3px solid #388e3c}
+
+/* ── Panel ── */
+.panel{display:none;background:linear-gradient(145deg,#f0dcc8,#e8d4b8);border-radius:0 16px 16px 16px;padding:24px;box-shadow:8px 8px 20px rgba(0,0,0,.1),-8px -8px 20px rgba(255,255,255,.6)}
+.panel.active{display:block}
+.panel-title{font-size:1em;font-weight:900;color:#d4a574;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid rgba(212,165,116,.3)}
+.group-block{margin-bottom:20px}
+.group-label{font-size:.75em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.group-label::after{content:'';flex:1;height:1px;background:rgba(212,165,116,.3)}
+.inputs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.inp-wrap{display:flex;flex-direction:column;gap:4px}
+.inp-wrap label{font-size:.72em;font-weight:700;color:#b0a090;text-transform:uppercase;letter-spacing:.3px}
+.inp-wrap input{padding:8px 12px;border:2px solid #e8d4b8;border-radius:10px;font-size:.9em;font-family:inherit;color:#5a4a3a;background:#fff;transition:border-color .2s}
+.inp-wrap input:focus{outline:none;border-color:#d4a574;box-shadow:0 0 0 3px rgba(212,165,116,.15)}
+.inp-wrap input.changed{border-color:#5c6bc0}
+
+/* ── Action bar ── */
+.action-bar{position:sticky;bottom:0;background:linear-gradient(180deg,transparent,rgba(245,230,211,.95) 30%);padding:16px 0 24px;display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
+.btn-save{padding:12px 28px;border:none;border-radius:14px;background:linear-gradient(145deg,#d4a574,#c89860);color:#fff;font-weight:700;font-size:.95em;cursor:pointer;font-family:inherit;box-shadow:4px 4px 10px rgba(0,0,0,.15);transition:all .2s}
+.btn-save:hover{opacity:.9;transform:translateY(-1px)}
+.btn-save:active{transform:translateY(0)}
+.btn-reset{padding:12px 20px;border:2px solid #e8d4b8;border-radius:14px;background:#fff;color:#9a8a7a;font-weight:700;font-size:.95em;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-reset:hover{background:#faf0e8;border-color:#d4a574;color:#7a6a5a}
+.btn-clear{padding:12px 20px;border:2px solid #f8d7da;border-radius:14px;background:#fff;color:#c0525a;font-weight:700;font-size:.95em;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-clear:hover{background:#fdf0f1;border-color:#c0525a}
+
+/* ── Status toast ── */
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:#333;color:#fff;padding:10px 22px;border-radius:30px;font-size:.88em;font-weight:700;opacity:0;transition:all .35s;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{background:#1a6635}
+.toast.err{background:#c0525a}
+
+@media(max-width:600px){.inputs-grid{grid-template-columns:1fr 1fr}.action-bar{flex-wrap:wrap}.btn-save,.btn-reset,.btn-clear{flex:1}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-title">⚙ 管理員 — 隊名設定</div>
+    <div class="topbar-sub">2026赤子佛誕假期三人籃球賽 · 小西灣體育館 25/5</div>
+  </div>
+  <a href="bkids.html" class="back-btn">← 返回賽程</a>
+</div>
+
+<div class="wrap">
+  <div class="div-tabs" id="divTabs"></div>
+  <div id="panels"></div>
+  <div class="action-bar">
+    <button class="btn-clear" onclick="clearAll()">🗑 清除全部</button>
+    <button class="btn-reset" onclick="resetDefaults()">🔄 還原預設</button>
+    <button class="btn-save" onclick="saveAll()">💾 儲存套用</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var STORAGE_KEY = 'bkids2026_names';
+
+var DIVISIONS = [
+  { id:'g8f-p1', label:'女子G8 — 場區1', type:'girls',
+    groups:{ '第一組':['A1','A2','A3','A4'] } },
+  { id:'g8f-p2', label:'女子G8 — 場區2', type:'girls',
+    groups:{ '第二組':['A1','A2','A3','A4'] } },
+  { id:'g12f',   label:'女子G12', type:'girls',
+    groups:{ 'A組':['A1','A2','A3'],'B組':['B1','B2','B3'],'C組':['C1','C2','C3'],'D組':['D1','D2','D3'] } },
+  { id:'g10f',   label:'女子G10', type:'girls',
+    groups:{ 'A組':['A1','A2','A3'],'B組':['B1','B2','B3'],'C組':['C1','C2','C3'],'D組':['D1','D2','D3'] } },
+  { id:'g14f',   label:'女子G14', type:'girls',
+    groups:{ '':['A1','A2','A3','A4'] } },
+  { id:'m8',     label:'男子M8',  type:'boys',
+    groups:{ 'A組':['A1','A2','A3'],'B組':['B1','B2','B3'],'C組':['C1','C2','C3'],'D組':['D1','D2','D3'] } },
+  { id:'m10',    label:'男子M10', type:'boys',
+    groups:{ 'A組':['A1','A2','A3'],'B組':['B1','B2','B3'],'C組':['C1','C2','C3'],'D組':['D1','D2','D3'] } },
+  { id:'m12',    label:'男子M12', type:'boys',
+    groups:{ '':['A1','A2','A3','A4','A5'] } },
+  { id:'g14m',   label:'男子M14', type:'boys',
+    groups:{ 'A組':['A1','A2','A3'],'B組':['B1','B2','B3'],'C組':['C1','C2','C3'] } },
+  { id:'a6',     label:'混合A6',  type:'mixed',
+    groups:{ '':['A1','A2','A3','A4','A5','A6'] } }
+];
+
+var DEFAULT_NAMES = {
+  'g8f-p1': {A1:'3AD',        A2:'CHOI',       A3:'HL Jupiter', A4:'HL Venus'},
+  'g8f-p2': {A1:'3AD',        A2:'CHOI',       A3:'HL Jupiter', A4:'HL Venus'},
+  'g12f':   {A1:'TP girls1',  A2:'SPS G12A',   A3:'可立 G12B',
+             B1:'可立 G12A',  B2:'SPS G12B',   B3:'柴米油鹽B',
+             C1:'SPS G12E',   C2:'柴米油鹽A',  C3:'SPS G12C',
+             D1:'TP girls2',  D2:'SPS G12D',   D3:'TT G12'},
+  'g10f':   {A1:'TT G10',      A2:'FINISHER G10',A3:'SPS G10B',
+             B1:'Alpha Girls', B2:'SPS G10A',   B3:'FINISHER 3',
+             C1:'FINISHER 2',  C2:'可立 G10A',  C3:'SPS G10E',
+             D1:'SPS G10C',   D2:'可立 G10B',  D3:'SPS G10D'},
+  'g14f':   {A1:'Monster',    A2:'青出於籃',   A3:'SBC',        A4:'PBSS'},
+  'm8':     {A1:'TT M8',      A2:'SBC A',      A3:'Starbuds',
+             B1:'Magic Kids', B2:'傑豆體育',   B3:'SBC B',
+             C1:'MiniGOATs',  C2:'赤馬刺',     C3:'Kidult',
+             D1:'RAL',        D2:'Brave U8',   D3:'曉青 U8'},
+  'm10':    {A1:'OKB',        A2:'TT M10',     A3:'VBA',
+             B1:'Topspeed',   B2:'TDBA',       B3:'SBC',
+             C1:'Energetic M10',C2:'傑豆體育', C3:'Topspeed A',
+             D1:'Kidult',     D2:'赤靈芝',     D3:'Lighting'},
+  'm12':    {A1:'雷霆小子',   A2:'HKEH',       A3:'Kidult Sports', A4:'雷霆小子-B', A5:'赤火龍'},
+  'g14m':   {A1:'無敵高射炮', A2:'VBA',        A3:'赤火箭',
+             B1:'LUAC',       B2:'赤馬刺',     B3:'Kidult Sports',
+             C1:'SBC',        C2:'曉青曉飛',   C3:'赤雷霆'},
+  'a6':     {A1:'wework',     A2:'赤兔馬',     A3:'Kidult',     A4:'赤小豆'}
+};
+
+// Working copy — start with defaults, overlay localStorage
+var current = JSON.parse(JSON.stringify(DEFAULT_NAMES));
+(function loadStored(){
+  try{
+    var stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    Object.keys(stored).forEach(function(d){
+      if(!current[d]) current[d] = {};
+      Object.keys(stored[d]).forEach(function(c){ current[d][c] = stored[d][c]; });
+    });
+  } catch(e){}
+})();
+
+var activeId = DIVISIONS[0].id;
+
+// ── Build UI ──
+function buildUI(){
+  var tabsEl = document.getElementById('divTabs');
+  var panelsEl = document.getElementById('panels');
+  DIVISIONS.forEach(function(div){
+    var tab = document.createElement('button');
+    tab.className = 'div-tab ' + div.type + (div.id === activeId ? ' active' : '');
+    tab.textContent = div.label;
+    tab.onclick = function(){ switchDiv(div.id); };
+    tab.id = 'tab-' + div.id;
+    tabsEl.appendChild(tab);
+
+    var panel = document.createElement('div');
+    panel.className = 'panel' + (div.id === activeId ? ' active' : '');
+    panel.id = 'panel-' + div.id;
+
+    var title = document.createElement('div');
+    title.className = 'panel-title';
+    title.textContent = div.label + ' — 隊名設定';
+    panel.appendChild(title);
+
+    Object.keys(div.groups).forEach(function(grpLabel){
+      var codes = div.groups[grpLabel];
+      var block = document.createElement('div');
+      block.className = 'group-block';
+      if(grpLabel){
+        var lbl = document.createElement('div');
+        lbl.className = 'group-label';
+        lbl.textContent = grpLabel;
+        block.appendChild(lbl);
+      }
+      var grid = document.createElement('div');
+      grid.className = 'inputs-grid';
+      codes.forEach(function(code){
+        var wrap = document.createElement('div');
+        wrap.className = 'inp-wrap';
+        var label = document.createElement('label');
+        label.textContent = code;
+        label.setAttribute('for', 'i-' + div.id + '-' + code);
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.id = 'i-' + div.id + '-' + code;
+        inp.placeholder = code;
+        inp.maxLength = 30;
+        var def = DEFAULT_NAMES[div.id] && DEFAULT_NAMES[div.id][code] || '';
+        var val = current[div.id] && current[div.id][code] || '';
+        inp.value = val;
+        inp.setAttribute('data-default', def);
+        if(val !== def) inp.classList.add('changed');
+        inp.addEventListener('input', function(){
+          this.classList.toggle('changed', this.value.trim() !== this.getAttribute('data-default'));
+        });
+        wrap.appendChild(label);
+        wrap.appendChild(inp);
+        grid.appendChild(wrap);
+      });
+      block.appendChild(grid);
+      panel.appendChild(block);
+    });
+    panelsEl.appendChild(panel);
+  });
+}
+
+function switchDiv(id){
+  activeId = id;
+  document.querySelectorAll('.div-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('tab-' + id).classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+// ── Collect inputs ──
+function collectCurrent(){
+  var data = {};
+  DIVISIONS.forEach(function(div){
+    data[div.id] = {};
+    Object.keys(div.groups).forEach(function(grp){
+      div.groups[grp].forEach(function(code){
+        var inp = document.getElementById('i-' + div.id + '-' + code);
+        if(inp) data[div.id][code] = inp.value.trim();
+      });
+    });
+  });
+  return data;
+}
+
+// ── Actions ──
+function saveAll(){
+  var data = collectCurrent();
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    showToast('✅ 已儲存！重新整理賽程頁面即可顯示新隊名', 'ok');
+  } catch(e){
+    showToast('⚠ 儲存失敗: ' + e.message, 'err');
+  }
+}
+
+function resetDefaults(){
+  if(!confirm('還原所有組別至預設隊名（Excel分組表）？')) return;
+  DIVISIONS.forEach(function(div){
+    Object.keys(div.groups).forEach(function(grp){
+      div.groups[grp].forEach(function(code){
+        var inp = document.getElementById('i-' + div.id + '-' + code);
+        if(!inp) return;
+        var def = DEFAULT_NAMES[div.id] && DEFAULT_NAMES[div.id][code] || '';
+        inp.value = def;
+        inp.classList.remove('changed');
+      });
+    });
+  });
+  showToast('🔄 已還原預設值（記得按儲存套用）', 'ok');
+}
+
+function clearAll(){
+  if(!confirm('清除所有隊名（全部留空）？')) return;
+  DIVISIONS.forEach(function(div){
+    Object.keys(div.groups).forEach(function(grp){
+      div.groups[grp].forEach(function(code){
+        var inp = document.getElementById('i-' + div.id + '-' + code);
+        if(!inp) return;
+        inp.value = '';
+        var def = inp.getAttribute('data-default');
+        inp.classList.toggle('changed', '' !== def);
+      });
+    });
+  });
+  showToast('🗑 已清空（記得按儲存套用）', 'ok');
+}
+
+// ── Toast ──
+var toastTimer;
+function showToast(msg, type){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.className = 'toast'; }, 3000);
+}
+
+buildUI();
+</script>
+</body>
+</html>
