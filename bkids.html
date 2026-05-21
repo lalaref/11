@@ -81,7 +81,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sched-table thead th:nth-child(1),.td-time{order:1;width:90px;font-weight:700;color:#d4a574;white-space:nowrap}
 .sched-table thead th:nth-child(4),.td-match{order:2;flex:1 1 0;min-width:0;width:auto}
 .sched-table thead th:nth-child(5),.sc-cell{order:3;width:100px;text-align:left}
-.sched-table thead th:nth-child(2),.td-gno{display:none}
+.sched-table thead th:nth-child(2),.sched-table .td-gno{display:none}
 .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){order:5;width:80px;text-align:left}
 .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{order:6;flex-shrink:0;text-align:left}
 .td-court{background:rgba(255,255,255,.4);border-radius:8px;padding:3px 10px;font-size:.78em;font-weight:700;color:#5a4a3a;white-space:nowrap;display:inline-block}
@@ -139,6 +139,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .bk-final{padding:10px 12px;background:linear-gradient(145deg,rgba(212,165,116,.2),rgba(200,152,96,.1));border:2px solid rgba(212,165,116,.55);border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;min-width:68px;text-align:center}
 .bk-final-ico{font-size:1.3em}
 .bk-final-lbl{font-size:.68em;font-weight:700;color:#d4a574}
+.bk-sf-winner{font-size:.65em;font-weight:700;margin-top:3px;max-width:110px;word-break:break-word;line-height:1.2}
 .bk-final-winner{font-size:.7em;font-weight:700;color:#1a6635;margin-top:3px;max-width:100px;word-break:break-word;text-align:center;line-height:1.2}
 .bk-final.bk-bronze{background:linear-gradient(145deg,rgba(180,180,180,.2),rgba(160,160,160,.1));border-color:rgba(160,160,160,.55)}
 .bk-final.bk-bronze .bk-final-lbl{color:#9a9a9a}
@@ -241,7 +242,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sched-table thead th{font-size:.72em}
   .sched-table thead th:nth-child(1),.td-time{width:52px}
   .sched-table thead th:nth-child(5),.sc-cell{width:64px;padding:6px 4px !important}
-  .sched-table thead th:nth-child(2),.td-gno{display:none}
+  .sched-table thead th:nth-child(2),.sched-table .td-gno{display:none}
   .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:44px;padding:6px 2px}
   /* Hide 類型 on mobile */
   .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{display:none}
@@ -292,7 +293,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sched-table{font-size:.78em}
   .sched-table thead th,.sched-table td{padding:6px 4px}
   .sched-table thead th:nth-child(1),.td-time{width:44px;white-space:nowrap}
-  .sched-table thead th:nth-child(2),.td-gno{width:20px;padding-left:2px;padding-right:2px}
+  .sched-table thead th:nth-child(2),.sched-table .td-gno{width:20px;padding-left:2px;padding-right:2px}
   .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:42px}
   .sched-table thead th:nth-child(5),.sc-cell{width:64px}
   .sc-inp{width:38px}
@@ -1006,9 +1007,9 @@ var BRACKET_DEFS = {
                          notes:['循環賽前四名晋級'] }] }
 };
 
-function buildBracketHtml(bk){
+function buildBracketHtml(bk,bidx){
   var PAIR=98,BGAP=16,TOTAL=212;
-  var h='<div class="bk">';
+  var h='<div class="bk" data-bracket-idx="'+(bidx||0)+'">';
   // Seeds
   h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
   [[0,1],[2,3]].forEach(function(p){
@@ -1024,10 +1025,10 @@ function buildBracketHtml(bk){
   h+='</div>';
   // H-lines + SF boxes
   h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
-  ['①','②'].forEach(function(n){
+  ['①','②'].forEach(function(n,i){
     h+='<div style="height:'+PAIR+'px;display:flex;align-items:center">';
     h+='<div class="bk-conn-h"></div>';
-    h+='<div class="bk-sf"><div class="bk-sf-lbl">半決賽'+n+'</div><div class="bk-sf-sub">勝方晉級</div></div>';
+    h+='<div class="bk-sf" data-sf-idx="'+i+'"><div class="bk-sf-lbl">半決賽'+n+'</div><div class="bk-sf-sub">勝方晉級</div></div>';
     h+='</div>';
   });
   h+='</div>';
@@ -1095,7 +1096,7 @@ function initBrackets(){
       if(idx>0){var sp=document.createElement('div');sp.style.height='14px';outer.appendChild(sp);}
       if(bk.subLabel){var sl=document.createElement('div');sl.className='bk-sub-label';sl.textContent=bk.subLabel;outer.appendChild(sl);}
       var tmp=document.createElement('div');
-      tmp.innerHTML=bk.directBracket?buildDirectBracketHtml(bk):(bk.direct?buildDirectFinalHtml(bk):buildBracketHtml(bk));
+      tmp.innerHTML=bk.directBracket?buildDirectBracketHtml(bk):(bk.direct?buildDirectFinalHtml(bk):buildBracketHtml(bk,idx));
       outer.appendChild(tmp.firstElementChild);
       if(bk.notes&&bk.notes.length){
         var nb=document.createElement('div');nb.className='bk-notes-bar';
@@ -1186,10 +1187,6 @@ function calcGroupStandings(divId, prefix){
         else if(g.sB>g.sA) h2h[g.cB].w++;
       });
       grp.sort(function(x,y){
-        var hx=h2h[x.code],hy=h2h[y.code];
-        if(hy.w!==hx.w) return hy.w-hx.w;
-        var hdx=hx.gf-hx.ga,hdy=hy.gf-hy.ga;
-        if(hdy!==hdx) return hdy-hdx;
         var dx=x.gf-x.ga,dy=y.gf-y.ga;
         if(dy!==dx) return dy-dx;
         return y.gf-x.gf;
@@ -1243,7 +1240,7 @@ function initStandings(){
     var lastWrap = tables[tables.length-1].closest('.sched-wrap');
     var rule = document.createElement('div');
     rule.className = 'st-rule';
-    rule.innerHTML = '📌 積分制度：勝1場得<b>2分</b>，負1場得<b>1分</b>（含違規判負），喪失資格得<b>0分</b>。<br>同積分排名：① 互相比賽得失分差 › ② 互相比賽得分總和 › ③ 黃金罰球';
+    rule.innerHTML = '📌 積分制度：勝1場得<b>2分</b>，負1場得<b>1分</b>（含違規判負），喪失資格得<b>0分</b>。<br>同積分排名：① 總得分差 › ② 總得分之和 › ③ 黃金罰球';
     outer.appendChild(rule);
     if(lastWrap) lastWrap.parentNode.insertBefore(outer, lastWrap.nextSibling);
   });
@@ -1314,6 +1311,7 @@ function initKnockouts(){
     } else {
       var cnts={};
       var sfGnoMap={};
+      var finalGnoMap={};
       tbds.forEach(function(tbd){
         var t=tbd.textContent.trim();
         var cell=tbd.closest('.td-match');
@@ -1345,7 +1343,31 @@ function initKnockouts(){
             cell.setAttribute('data-ko-div',divId);
             cell.setAttribute('data-ko-sources',sf[0].gno+'|'+sf[1].gno);
             cell.setAttribute('data-ko-source-seeds',sf[0].seeds.join(',')+'|'+sf[1].seeds.join(','));
+            if(gno) finalGnoMap[div]=gno;
           }
+        }
+      });
+      // Wire up bracket boxes with game data
+      Object.keys(sfGnoMap).forEach(function(div){
+        var bidx=parseInt(div)-1;
+        var bkEl=sec.querySelector('.bk[data-bracket-idx="'+bidx+'"]');
+        if(!bkEl) return;
+        var sf=sfGnoMap[div];
+        [0,1].forEach(function(i){
+          if(!sf[i]) return;
+          var sfEl=bkEl.querySelector('.bk-sf[data-sf-idx="'+i+'"]');
+          if(sfEl){
+            sfEl.setAttribute('data-gno',sf[i].gno);
+            sfEl.setAttribute('data-seeds',sf[i].seeds.join(','));
+            sfEl.setAttribute('data-bk-div',divId);
+          }
+        });
+        var finalEl=bkEl.querySelector('.bk-final');
+        if(finalEl&&sf[0]&&sf[1]){
+          finalEl.setAttribute('data-sf-gnos',sf[0].gno+'|'+sf[1].gno);
+          finalEl.setAttribute('data-sf-seeds',sf[0].seeds.join(',')+'|'+sf[1].seeds.join(','));
+          finalEl.setAttribute('data-bk-div',divId);
+          if(finalGnoMap[div]) finalEl.setAttribute('data-gno',finalGnoMap[div]);
         }
       });
     }
@@ -1400,6 +1422,50 @@ function refreshBrackets(divId){
     if(nm){ desc.textContent=nm; desc.style.color='#1a6635'; }
     else{ desc.textContent=box.getAttribute('data-desc')||''; desc.style.color=''; }
   });
+  // SF winner names (multi-div brackets)
+  outer.querySelectorAll('.bk-sf[data-gno]').forEach(function(box){
+    var gno=box.getAttribute('data-gno');
+    var divIdB=box.getAttribute('data-bk-div');
+    var seeds=(box.getAttribute('data-seeds')||'').split(',');
+    var sc=scores[gno];
+    var winEl=box.querySelector('.bk-sf-winner');
+    if(!winEl){winEl=document.createElement('div');winEl.className='bk-sf-winner';box.appendChild(winEl);}
+    if(sc&&sc.a!==''&&sc.b!==''&&Number(sc.a)!==Number(sc.b)){
+      var a=Number(sc.a),b=Number(sc.b);
+      var wSeed=a>b?seeds[0]:seeds[1];
+      winEl.textContent='→ '+(resolveSeedName(divIdB,wSeed)||wSeed);
+      winEl.style.color='#1a6635';
+    } else { winEl.textContent=''; }
+  });
+  // Final winner names (multi-div brackets)
+  outer.querySelectorAll('.bk-final[data-sf-gnos]').forEach(function(box){
+    var divIdB=box.getAttribute('data-bk-div');
+    var sfGnos=box.getAttribute('data-sf-gnos').split('|');
+    var sfSeeds=box.getAttribute('data-sf-seeds').split('|');
+    var finalGno=box.getAttribute('data-gno');
+    var winEl=box.querySelector('.bk-final-winner');
+    if(!winEl){winEl=document.createElement('div');winEl.className='bk-final-winner';box.appendChild(winEl);}
+    function sfW(g,pair){var ss=pair.split(','),sc=scores[g];if(!sc||sc.a===''||sc.b==='')return null;var a=Number(sc.a),b=Number(sc.b);return a===b?null:(a>b?ss[0]:ss[1]);}
+    var w1=sfW(sfGnos[0],sfSeeds[0]),w2=sfW(sfGnos[1],sfSeeds[1]);
+    if(finalGno){
+      var sc=scores[finalGno];
+      if(sc&&sc.a!==''&&sc.b!==''&&Number(sc.a)!==Number(sc.b)&&w1&&w2){
+        var a=Number(sc.a),b=Number(sc.b);
+        var wSeed=a>b?w1:w2;
+        winEl.textContent='🏅 '+(resolveSeedName(divIdB,wSeed)||wSeed);
+        winEl.style.color='#1a6635';
+        return;
+      }
+    }
+    if(w1||w2){
+      var parts=[];
+      if(w1) parts.push(resolveSeedName(divIdB,w1)||w1);
+      if(w2) parts.push(resolveSeedName(divIdB,w2)||w2);
+      winEl.textContent='→ '+parts.join(' / ');
+      winEl.style.color='#9a8a7a';
+    } else { winEl.textContent=''; }
+  });
+  // directBracket final winner (g8f, a6, g14f)
   outer.querySelectorAll('.bk-final[data-gno]').forEach(function(box){
     var gno=box.getAttribute('data-gno');
     var divIdB=box.getAttribute('data-bk-div');
