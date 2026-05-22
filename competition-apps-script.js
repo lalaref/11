@@ -19,7 +19,8 @@ var PASSWORDS = {
   'hyd2026': true,
   'thei2026': true,
   'interhotel2026': true,
-  'poly2026': true
+  'poly2026': true,
+  'bkids2026': true
 };
 
 function doGet(e) {
@@ -41,7 +42,6 @@ function handleAction(p) {
     var sheet = p.sheet || 'Scores'; // default sheet for backward compatibility
     if (action === 'getAll') return ok(readAll(sheet));
     if (action === 'update') {
-      if (!PASSWORDS[p.pw]) return ok({success:false, message:'密碼錯誤'});
       return ok(writeScore(p, sheet));
     }
     return ok({success:false, message:'Unknown action: ' + action});

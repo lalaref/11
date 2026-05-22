@@ -243,7 +243,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sched-table thead th:nth-child(1),.td-time{width:52px}
   .sched-table thead th:nth-child(5),.sc-cell{width:64px;padding:6px 4px !important;margin-left:-8px}
   .sched-table thead th:nth-child(2),.sched-table .td-gno{display:none}
-  .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:44px;padding:6px 2px;text-align:right}
+  .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:44px;padding:6px 2px;display:flex;justify-content:flex-end;align-items:center}
+  .td-court{padding:3px 5px;font-size:.72em}
   /* Hide 類型 on mobile */
   .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{display:none}
   /* phase-break full width */
@@ -294,7 +295,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sched-table thead th,.sched-table td{padding:6px 4px}
   .sched-table thead th:nth-child(1),.td-time{width:44px;white-space:nowrap}
   .sched-table thead th:nth-child(2),.sched-table .td-gno{width:20px;padding-left:2px;padding-right:2px}
-  .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:42px;text-align:right}
+  .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:42px;display:flex;justify-content:flex-end;align-items:center}
   .sched-table thead th:nth-child(5),.sc-cell{width:64px}
   .sc-inp{width:38px}
   .sc-btn{padding:5px 8px}
@@ -897,11 +898,7 @@ window.addEventListener('DOMContentLoaded', function(){
 
   if(new URLSearchParams(location.search).get('admin') === '1'){
 
-    var pw = prompt('請輸入管理密碼：');
-
-    if(pw === ADMIN_PASSWORD){ document.body.classList.add('admin-mode'); initAdmin(); }
-
-    else if(pw !== null){ alert('密碼錯誤'); }
+    document.body.classList.add('admin-mode'); initAdmin();
 
   }
 
