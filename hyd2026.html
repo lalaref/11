@@ -66,13 +66,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   <div class="rules-grid">
     <div class="rule-box"><div class="rv">5v5</div><div class="rl">賽制</div></div>
     <div class="rule-box"><div class="rv">2×12</div><div class="rl">上下半場 (分鐘)</div></div>
-    <div class="rule-box"><div class="rv">3</div><div class="rl">加時 (分鐘)</div></div>
+    <div class="rule-box"><div class="rv">5</div><div class="rl">加時 (分鐘)</div></div>
     <div class="rule-box"><div class="rv">5</div><div class="rl">個人犯規上限</div></div>
     <div class="rule-box"><div class="rv">無</div><div class="rl">隊犯滿次數</div></div>
-    <div class="rule-box"><div class="rv">1</div><div class="rl">暫停次數/半場</div></div>
+    <div class="rule-box"><div class="rv">2</div><div class="rl">暫停次數/半場</div></div>
   </div>
   <div class="rules-notes">• 每場比賽上下半場各12分鐘
-• 如有加時，3分鐘（不停表）,再和以黃金罰球分勝負
+• 如有加時，每節5分鐘
 • FIBA 規則為基準
 • 女子球員得分按雙倍計：1分 = 2分、2分 = 4分、3分 = 6分</div>
 </div>
@@ -340,15 +340,15 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 <div class="awards-card">
   <h2>🏆 頒獎典禮 16:30 - 17:00</h2>
   <div class="awards-grid">
-    <div class="award-item"><div class="emoji">🥇</div><div class="atitle">盃賽冠軍</div><div class="awinner">TBD</div></div>
-    <div class="award-item"><div class="emoji">🥈</div><div class="atitle">盃賽亞軍</div><div class="awinner">TBD</div></div>
-    <div class="award-item"><div class="emoji">🥉</div><div class="atitle">盃賽季軍</div><div class="awinner">TBD</div></div>
-    <div class="award-item"><div class="emoji">🥉</div><div class="atitle">盃賽季軍</div><div class="awinner">TBD</div></div>
+    <div class="award-item"><div class="emoji">🥇</div><div class="atitle">盃賽冠軍</div><div class="awinner" id="aw-cup-1">TBD</div></div>
+    <div class="award-item"><div class="emoji">🥈</div><div class="atitle">盃賽亞軍</div><div class="awinner" id="aw-cup-2">TBD</div></div>
+    <div class="award-item"><div class="emoji">🥉</div><div class="atitle">盃賽季軍</div><div class="awinner" id="aw-cup-3a">TBD</div></div>
+    <div class="award-item"><div class="emoji">🥉</div><div class="atitle">盃賽季軍</div><div class="awinner" id="aw-cup-3b">TBD</div></div>
     <div style="grid-column:1/-1;height:0;margin:0;padding:0"></div>
-    <div class="award-item"><div class="emoji">🥇</div><div class="atitle">碟賽冠軍</div><div class="awinner">TBD</div></div>
-    <div class="award-item"><div class="emoji">🥈</div><div class="atitle">碟賽亞軍</div><div class="awinner">TBD</div></div>
-    <div class="award-item"><div class="emoji">🥉</div><div class="atitle">碟賽季軍</div><div class="awinner">TBD</div></div>
-    <div class="award-item"><div class="emoji">🥉</div><div class="atitle">碟賽季軍</div><div class="awinner">TBD</div></div>
+    <div class="award-item"><div class="emoji">🥇</div><div class="atitle">碟賽冠軍</div><div class="awinner" id="aw-plate-1">TBD</div></div>
+    <div class="award-item"><div class="emoji">🥈</div><div class="atitle">碟賽亞軍</div><div class="awinner" id="aw-plate-2">TBD</div></div>
+    <div class="award-item"><div class="emoji">🥉</div><div class="atitle">碟賽季軍</div><div class="awinner" id="aw-plate-3a">TBD</div></div>
+    <div class="award-item"><div class="emoji">🥉</div><div class="atitle">碟賽季軍</div><div class="awinner" id="aw-plate-3b">TBD</div></div>
   </div>
 </div>
 
@@ -502,17 +502,50 @@ function applyScores(saved){
 }
 
 function updateTrophies(saved){
+  function setText(id, val){ var el = document.getElementById(id); if(el && val) el.textContent = val; }
+
+  // Cup
   var g10 = saved['#10'];
-  if(g10 && g10.status === 'completed'){
-    var w = Number(g10.scoreA) > Number(g10.scoreB) ? g10.teamA : g10.teamB;
-    var el = document.getElementById('cup-winner');
-    if(el) el.textContent = w;
+  if(g10 && g10.status === 'completed' && g10.scoreA !== '' && g10.scoreB !== ''){
+    var a10 = Number(g10.scoreA), b10 = Number(g10.scoreB);
+    var cupChamp = a10 > b10 ? g10.teamA : g10.teamB;
+    var cupRunnerUp = a10 > b10 ? g10.teamB : g10.teamA;
+    setText('cup-winner', cupChamp);
+    setText('aw-cup-1', cupChamp);
+    setText('aw-cup-2', cupRunnerUp);
   }
+  // Cup 3rd: losers of #5 and #7
+  var g5 = saved['#5'];
+  if(g5 && g5.status === 'completed' && g5.scoreA !== '' && g5.scoreB !== ''){
+    var a5 = Number(g5.scoreA), b5 = Number(g5.scoreB);
+    setText('aw-cup-3a', a5 > b5 ? g5.teamB : g5.teamA);
+  }
+  var g7 = saved['#7'];
+  if(g7 && g7.status === 'completed' && g7.scoreA !== '' && g7.scoreB !== ''){
+    var a7 = Number(g7.scoreA), b7 = Number(g7.scoreB);
+    setText('aw-cup-3b', a7 > b7 ? g7.teamB : g7.teamA);
+  }
+
+  // Plate
   var g9 = saved['#9'];
-  if(g9 && g9.status === 'completed'){
-    var w2 = Number(g9.scoreA) > Number(g9.scoreB) ? g9.teamA : g9.teamB;
-    var el2 = document.getElementById('plate-winner');
-    if(el2) el2.textContent = w2;
+  if(g9 && g9.status === 'completed' && g9.scoreA !== '' && g9.scoreB !== ''){
+    var a9 = Number(g9.scoreA), b9 = Number(g9.scoreB);
+    var plateChamp = a9 > b9 ? g9.teamA : g9.teamB;
+    var plateRunnerUp = a9 > b9 ? g9.teamB : g9.teamA;
+    setText('plate-winner', plateChamp);
+    setText('aw-plate-1', plateChamp);
+    setText('aw-plate-2', plateRunnerUp);
+  }
+  // Plate 3rd: losers of #6 and #8
+  var g6 = saved['#6'];
+  if(g6 && g6.status === 'completed' && g6.scoreA !== '' && g6.scoreB !== ''){
+    var a6 = Number(g6.scoreA), b6 = Number(g6.scoreB);
+    setText('aw-plate-3a', a6 > b6 ? g6.teamB : g6.teamA);
+  }
+  var g8 = saved['#8'];
+  if(g8 && g8.status === 'completed' && g8.scoreA !== '' && g8.scoreB !== ''){
+    var a8 = Number(g8.scoreA), b8 = Number(g8.scoreB);
+    setText('aw-plate-3b', a8 > b8 ? g8.teamB : g8.teamA);
   }
 }
 
