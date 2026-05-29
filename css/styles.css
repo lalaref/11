@@ -118,14 +118,11 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Override headings to dark on light background */
-h1, h2, h3, h4, h5, h6 { color: var(--color-primary); }
-
 /* --- 排版 --- */
 h1, h2, h3, h4, h5, h6 {
     font-weight: var(--font-weight-bold);
     line-height: var(--line-height-tight);
-    color: var(--color-text-inverse);
+    color: var(--color-primary);
 }
 
 h1 { font-size: var(--font-size-2xl); }
@@ -179,6 +176,7 @@ img {
 .header-top-inner {
     display: flex;
     align-items: stretch;
+    width: 100%;
     max-width: var(--container-max);
     margin: 0 auto;
     min-height: 64px;
@@ -225,7 +223,7 @@ img {
 
 /* Info columns */
 .ht-info-wrap {
-    display: flex;
+    display: none; /* shown at 1024px+ via responsive.css */
     align-items: center;
     gap: 0;
     padding: 0 16px;
@@ -266,10 +264,13 @@ img {
 .ht-info-item a:hover { color: #cc0000; }
 
 .ht-icon {
-    width: 26px;
-    height: 26px;
+    width: 16px;
+    height: 16px;
+    max-width: 16px;
+    max-height: 16px;
     flex-shrink: 0;
     color: #cc0000;
+    overflow: hidden;
 }
 
 .ht-lang-wrap {
@@ -332,8 +333,9 @@ img {
     display: none;
     position: absolute;
     top: 64px;
+    left: 0;
     right: 0;
-    width: 220px;
+    width: 100%;
     background-color: #1a1a1a;
     border-bottom: 2px solid #cc0000;
     list-style: none;
@@ -402,7 +404,8 @@ img {
 /* Hide top info bar on mobile — shown via responsive.css at 1024px+ */
 .header-top {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    position: relative;
 }
 
 /* --- 主要內容 --- */
@@ -448,11 +451,68 @@ img {
 
 /* --- 比賽卡片網格 --- */
 .games-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--color-surface);
 }
 
+/* ── Recent Results: one row per match ── */
+.gr-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 90px 1fr;
+    align-items: center;
+    gap: 0 8px;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--color-border);
+    text-decoration: none;
+    color: inherit;
+    transition: background var(--transition-fast);
+    min-height: 40px;
+}
+.gr-row:last-child { border-bottom: none; }
+.gr-row:hover { background: var(--color-surface-light); }
+
+.gr-date {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+}
+
+.gr-team {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.gr-team--home { text-align: right; }
+.gr-team--away { text-align: left; }
+.gr-team--win { color: var(--color-primary); font-weight: 700; }
+
+.gr-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    flex-shrink: 0;
+    white-space: nowrap;
+    color: var(--color-text-muted);
+}
+.gr-score-win { color: var(--color-secondary); }
+.gr-score-sep { font-size: 11px; font-weight: 400; color: #ccc; }
+
+/* legacy .game-card kept for other pages */
 .game-card {
     background-color: var(--color-surface);
     border: 1px solid rgba(0, 0, 0, .06);
@@ -900,6 +960,33 @@ img {
     color: #444;
 }
 
+.footer-social {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.footer-social-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #1a1a2e;
+    border: 1px solid #2a2a3e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    transition: background .2s, color .2s, border-color .2s;
+    flex-shrink: 0;
+}
+
+.footer-social-icon:hover { color: #fff; border-color: #444; background: #252540; }
+.footer-social-icon--wa:hover  { background: #25d366; border-color: #25d366; color: #fff; }
+.footer-social-icon--ig:hover  { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); border-color: #dc2743; color: #fff; }
+.footer-social-icon--fb:hover  { background: #1877f2; border-color: #1877f2; color: #fff; }
+.footer-social-icon--yt:hover  { background: #ff0000; border-color: #ff0000; color: #fff; }
+
 /* --- 工具類別 --- */
 .sr-only {
     position: absolute;
@@ -989,6 +1076,52 @@ img {
 .player-name {
     font-size: var(--font-size-2xl);
     margin-bottom: var(--spacing-xs);
+}
+
+/* --- MVP 徽章 --- */
+.player-mvp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    background: linear-gradient(135deg, #7c5800 0%, #f59e0b 40%, #ffe27a 60%, #f59e0b 100%);
+    color: #1a1200;
+    border-radius: 999px;
+    padding: 0.45em 1.1em 0.45em 0.8em;
+    margin-bottom: var(--spacing-sm);
+    box-shadow: 0 0 18px 4px rgba(245, 158, 11, 0.55), 0 2px 8px rgba(0,0,0,0.35);
+    animation: mvp-glow 2s ease-in-out infinite alternate;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    cursor: default;
+    user-select: none;
+}
+
+@keyframes mvp-glow {
+    from { box-shadow: 0 0 12px 3px rgba(245, 158, 11, 0.45), 0 2px 8px rgba(0,0,0,0.3); }
+    to   { box-shadow: 0 0 28px 8px rgba(245, 158, 11, 0.75), 0 2px 8px rgba(0,0,0,0.3); }
+}
+
+.player-mvp-trophy {
+    font-size: 1.4em;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+
+.player-mvp-count {
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+    color: #1a1200;
+}
+
+.player-mvp-label {
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #3d2a00;
+    align-self: flex-end;
+    margin-bottom: 0.1em;
 }
 
 .player-meta {
