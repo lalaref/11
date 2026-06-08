@@ -264,7 +264,7 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
 
 <!-- HEADER -->
 <div class="ph">
-  <h1>🏀 Delia (Broadway) Alumni Association Basketball Tournament</h1>
+  <h1>🏀 Delia (Broadway) Alumni Association<br>Basketball Tournament</h1>
   <p class="sub">School Gymnasium &nbsp;|&nbsp; 5:45 pm – 9:00 pm &nbsp;|&nbsp; Boys (Court A) + Girls (Court B)</p>
 </div>
 
@@ -697,7 +697,7 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
     <li>Each game is <strong>10 minutes</strong> long. First team to reach <strong>21 points</strong> wins immediately.</li>
     <li>No timeouts and <strong>no stop-clock</strong> for Group Stage matches.</li>
     <li>For <strong>Bronze &amp; Gold Medal games</strong>: clock stops in the last <strong>1 minute</strong>, and each team is allowed <strong>one (1) timeout</strong>.</li>
-    <li>If the score is tied at full time, a <strong>Golden Free Throw</strong> decides the winner — first team to score wins.</li>
+    <li>If the score is tied at full time, a <strong>Golden Free Throw</strong> decides the winner.</li>
   </ol>
 </div>
 
@@ -1155,10 +1155,12 @@ function renderPodium(wrap, champ, runner, bronze, prefix){
 }
 
 function podiumImgFallback(el){
+  var parent = el.parentNode;
+  var trophy = parent.classList.contains('p1') ? '🏆' : parent.classList.contains('p2') ? '🥈' : '🥉';
   var span = document.createElement('span');
-  span.style.cssText = 'padding:6px;line-height:1.4;font-size:.75em;color:#9a8a7a';
-  span.innerHTML = 'Photo<br>Coming<br>Soon';
-  el.parentNode.replaceChild(span, el);
+  span.style.cssText = 'font-size:2.8em;line-height:1';
+  span.textContent = trophy;
+  parent.replaceChild(span, el);
 }
 
 // Auto-refresh every 30 seconds
@@ -1170,13 +1172,42 @@ if(isAdmin){ document.addEventListener('DOMContentLoaded', initAdmin); }
 
 function initAdmin(){
   document.body.classList.add('admin-mode');
-  document.body.classList.add('admin-mode');
 
   document.querySelectorAll('.match-row').forEach(function(row){
     var key = row.getAttribute('data-game');
     if(!key) return;
     row.addEventListener('click', function(){ openEditor(key, row); });
   });
+
+  // Add Reset All button to page
+  var banner = document.createElement('div');
+  banner.className = 'admin-banner';
+  banner.innerHTML = '🔧 Admin Mode &nbsp;|&nbsp; <button onclick="resetAllScores()" style="background:#fff;color:#dc3545;border:none;border-radius:8px;padding:4px 12px;font-weight:700;cursor:pointer;font-size:.9em;">🗑️ Reset All Scores</button>';
+  document.querySelector('.ct').prepend(banner);
+}
+
+function resetAllScores(){
+  if(!confirm('Reset ALL scores and set every game back to Upcoming? This cannot be undone.')) return;
+  var keys = ALL_MATCH_KEYS.slice();
+  var done = 0;
+  var allRows = {};
+  document.querySelectorAll('.match-row[data-game]').forEach(function(r){ allRows[r.getAttribute('data-game')] = r; });
+  function next(){
+    if(done >= keys.length){ loadScores(); alert('All scores have been reset.'); return; }
+    var key = keys[done++];
+    var row = allRows[key] || document.querySelector('.match-row[data-game="' + key + '"]');
+    var home = row ? row.getAttribute('data-home') : '';
+    var away = row ? row.getAttribute('data-away') : '';
+    var params = new URLSearchParams({
+      action:'update', sheet:SHEET_NAME,
+      key:key, teamA:home||'', teamB:away||'',
+      scoreA:'', scoreB:'', status:'scheduled'
+    });
+    fetch(API_URL + '?' + params.toString())
+      .then(function(){ next(); })
+      .catch(function(){ next(); });
+  }
+  next();
 }
 
 function openEditor(key, row){
