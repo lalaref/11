@@ -901,8 +901,7 @@ function sortTeams(teams, stats, matchList){
   order.sort(function(a, b){
     var sa = stats[a], sb = stats[b];
     if(sb.pts !== sa.pts) return sb.pts - sa.pts;
-    var h2h = headToHead(a, b, matchList);
-    if(h2h !== 0) return h2h;
+    // Tiebreaker: Goal Difference (0 ranks above negative)
     var gdA = sa.gf - sa.ga, gdB = sb.gf - sb.ga;
     if(gdB !== gdA) return gdB - gdA;
     return sb.gf - sa.gf;
