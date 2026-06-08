@@ -610,6 +610,7 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
               <th>L</th>
               <th>Pts</th>
               <th>GD</th>
+              <th>GF</th>
             </tr>
           </thead>
           <tbody id="standings-body-G"></tbody>
@@ -635,6 +636,7 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
               <th>L</th>
               <th>Pts</th>
               <th>GD</th>
+              <th>GF</th>
             </tr>
           </thead>
           <tbody id="standings-body-A"></tbody>
@@ -655,6 +657,7 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
               <th>L</th>
               <th>Pts</th>
               <th>GD</th>
+              <th>GF</th>
             </tr>
           </thead>
           <tbody id="standings-body-B"></tbody>
@@ -662,7 +665,7 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
       </div>
     </div>
   </div>
-  <p style="font-size:.75em;color:#9a8a7a;margin-top:10px;text-align:center">* Tiebreaker: Goal Difference &nbsp;·&nbsp; Boys: Top 2 of each group advance to Knockout</p>
+  <p style="font-size:.75em;color:#9a8a7a;margin-top:10px;text-align:center">* Tiebreaker: 1. Goal Difference &nbsp;·&nbsp; 2. Total Points Scored (GF) &nbsp;·&nbsp; Boys: Top 2 of each group advance to Knockout</p>
 </div>
 
 <!-- BOYS CHAMPIONS PODIUM -->
@@ -680,6 +683,18 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
   <div class="podium-wrap" id="podium-wrap-girls">
     <div style="text-align:center;color:#9a8a7a;padding:20px;width:100%">Tournament in progress — standings update live<br><small>Podium finalised after all games</small></div>
   </div>
+</div>
+
+<!-- GAME RULES SUMMARY -->
+<div class="card">
+  <h2>📜 Game Rules Summary</h2>
+  <ol class="rules-list">
+    <li>FIBA 3x3 Official Rules (2021 edition) apply for all matches.</li>
+    <li>Each game is <strong>10 minutes</strong> long. First team to reach <strong>21 points</strong> wins immediately.</li>
+    <li>No timeouts and <strong>no stop-clock</strong> for Group Stage matches.</li>
+    <li>For <strong>Bronze &amp; Gold Medal games</strong>: clock stops in the last <strong>1 minute</strong>, and each team is allowed <strong>one (1) timeout</strong>.</li>
+    <li>If the score is tied at full time, a <strong>Golden Goal</strong> decides the winner — first team to score wins.</li>
+  </ol>
 </div>
 
 <!-- RANKING RULES -->
@@ -948,7 +963,8 @@ function renderGroupTable(tbodyId, order, stats, qualify){
       '<td>' + s.win + '</td>' +
       '<td>' + s.loss + '</td>' +
       '<td class="pts-cell">' + s.pts + '</td>' +
-      '<td class="' + gdClass + '">' + gdStr + '</td>';
+      '<td class="' + gdClass + '">' + gdStr + '</td>' +
+      '<td>' + s.gf + '</td>';
     tbody.appendChild(tr);
   });
 }
