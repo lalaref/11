@@ -50,7 +50,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .mr-label-col.boys{color:#4a90d9}
 .mr-time-col{width:100px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;background:rgba(212,165,116,.08);border-right:1px solid rgba(212,165,116,.2);font-size:.88em;font-weight:700;color:#d4a574;text-align:center;gap:2px}
 .mr-time-col .time-range{font-size:.78em;color:#9a8a7a;font-weight:400}
-.mr-content{flex:1;display:flex;align-items:center;gap:0;padding:0;order:1}
+.mr-content{flex:1;display:flex;align-items:center;gap:0;padding:0}
 .mr-team{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 12px;text-align:center}
 .mr-team.home{align-items:flex-end;text-align:right}
 .mr-team.away{align-items:flex-start;text-align:left}
@@ -62,7 +62,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .score-val.win{color:#198754}
 .score-val.lose{color:#b0a090}
 .score-sep{font-size:1.2em;font-weight:900;color:#c89860;padding:0 6px}
-.mr-status{width:64px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:6px}
+.mr-status{width:64px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center}
 .ms{font-size:.82em;padding:5px 10px;border-radius:10px;font-weight:700;text-align:center}
 .ms.scheduled{background:#fff3cd;color:#856404}
 .ms.live{background:#d1e7dd;color:#0a3622;animation:pulse 1.5s infinite}
@@ -1167,10 +1167,8 @@ function checkAdminPw(){
 }
 
 function initAdmin(){
-  var banner = document.createElement('div');
-  banner.className = 'admin-banner';
-  banner.innerHTML = '🔧 Admin Mode — Click any match row to update the score (visible to everyone in real time)';
-  document.querySelector('.ct').prepend(banner);
+  document.body.classList.add('admin-mode');
+  document.body.classList.add('admin-mode');
 
   document.querySelectorAll('.match-row').forEach(function(row){
     var key = row.getAttribute('data-game');
@@ -1216,7 +1214,7 @@ function saveMatch(key, home, away){
   var msgEl = document.getElementById('am-msg');
   if(msgEl) msgEl.textContent = 'Saving...';
   var params = new URLSearchParams({
-    action:'update', pw:ADMIN_PASSWORD, sheet:SHEET_NAME,
+    action:'update', sheet:SHEET_NAME,
     key:key, teamA:home, teamB:away,
     scoreA:document.getElementById('am-scoreA').value,
     scoreB:document.getElementById('am-scoreB').value,
