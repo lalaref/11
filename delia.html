@@ -165,6 +165,7 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
   .finals-bracket{grid-template-columns:1fr}
 }
 @media(max-width:768px){
+  body{overflow-x:hidden}
   .hb{display:flex}.nk{position:absolute;top:100%;left:0;right:0;background:linear-gradient(145deg,#d4a574,#c89860);flex-direction:column;gap:0;max-height:0;overflow:hidden;transition:max-height .3s}
   .nk.active{max-height:300px}.nk a{padding:12px 25px;border-radius:0;border-bottom:1px solid rgba(255,255,255,.1)}
   .nc{padding:0 15px;position:relative}.nl{font-size:1.2em}.ct{padding:12px}
@@ -201,6 +202,7 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
     border-bottom:1px solid rgba(212,165,116,.2);
     align-items:center;
     justify-content:flex-end;
+    margin-right:0;
   }
   .mr-content{
     grid-area:content;
@@ -218,6 +220,9 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
   table.standings th,table.standings td{padding:7px 5px}
   .export-bar{flex-direction:column;align-items:stretch}
   .export-btn{justify-content:center}
+  .ft{margin:20px 0 0;padding:25px 15px 20px;border-radius:20px 20px 0 0}
+  .ft .fc{gap:15px;margin-bottom:15px}
+  .wf{width:48px;height:48px;bottom:16px;right:16px}
   .podium-wrap{gap:6px}
   .podium-stand.p1{width:120px;min-height:110px}
   .podium-stand{width:96px;padding:10px 6px 18px}
@@ -226,6 +231,21 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
   .podium-team-en{display:none}
   .podium-team-zh{font-size:.72em}
   .podium-rank{font-size:1.6em}
+}
+@media(max-width:480px){
+  .ph h1{font-size:1.1em}
+  .ph .sub{font-size:.82em}
+  .card h2{font-size:1.05em}
+  .score-val{width:34px;height:34px;font-size:1.05em;border-radius:6px}
+  .team-name-zh{font-size:.75em}
+  .team-abbr{font-size:.7em}
+  .mr-time-col{font-size:.75em;padding:5px 6px}
+  .mr-label-col{width:32px;font-size:.58em}
+  .ms{font-size:.68em;padding:3px 6px}
+  table.standings th,table.standings td{padding:5px 3px;font-size:.75em}
+  .pts-chip{padding:7px 12px;font-size:.9em}
+  .info-row{padding:6px 10px;font-size:.8em}
+  .info-row .ir-time{width:70px}
 }
 </style>
 </head>
