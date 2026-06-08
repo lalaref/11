@@ -62,7 +62,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .score-val.win{color:#198754}
 .score-val.lose{color:#b0a090}
 .score-sep{font-size:1.2em;font-weight:900;color:#c89860;padding:0 6px}
-.mr-status{width:64px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center}
+.mr-status{width:64px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;margin-right:60px}
 .ms{font-size:.82em;padding:5px 10px;border-radius:10px;font-weight:700;text-align:center}
 .ms.scheduled{background:#fff3cd;color:#856404}
 .ms.live{background:#d1e7dd;color:#0a3622;animation:pulse 1.5s infinite}
@@ -745,7 +745,6 @@ table.standings tr:hover td{background:rgba(255,255,255,.3)}
 
 <script>
 // ── CONFIG ──
-var ADMIN_PASSWORD = 'delia2026';
 var SHEET_NAME = 'Delia';
 var API_URL = 'https://script.google.com/macros/s/AKfycbz91UrGglg8QMaw2MuqjoOcM0o1lNbPVdXcj74Qx8CvIm5K2jlqZE8yIgisOFPiwvCa6g/exec';
 
@@ -1128,43 +1127,7 @@ setInterval(loadScores, 30000);
 
 // ── Admin Mode ──
 var isAdmin = new URLSearchParams(location.search).get('admin') === '1';
-if(isAdmin){ document.addEventListener('DOMContentLoaded', showAdminLogin); }
-
-function showAdminLogin(){
-  var overlay = document.createElement('div');
-  overlay.className = 'admin-overlay';
-  overlay.id = 'admin-login-overlay';
-  overlay.innerHTML = '<div class="admin-modal">' +
-    '<h3>🔐 Admin Login</h3>' +
-    '<div class="am-row"><label>Admin Password</label>' +
-    '<input id="admin-pw-input" type="password" placeholder="Enter password" autocomplete="current-password"></div>' +
-    '<div class="am-actions">' +
-      '<button class="am-save" onclick="checkAdminPw()">Login</button>' +
-      '<button class="am-cancel" onclick="document.getElementById(\'admin-login-overlay\').remove()">Cancel</button>' +
-    '</div>' +
-    '<div id="admin-pw-msg" style="text-align:center;margin-top:10px;font-size:.85em;color:#dc3545"></div>' +
-  '</div>';
-  document.body.appendChild(overlay);
-  document.getElementById('admin-pw-input').addEventListener('keydown', function(e){
-    if(e.key === 'Enter') checkAdminPw();
-  });
-  setTimeout(function(){ var el = document.getElementById('admin-pw-input'); if(el) el.focus(); }, 100);
-}
-
-function checkAdminPw(){
-  var pw = document.getElementById('admin-pw-input').value;
-  if(pw === ADMIN_PASSWORD){
-    var overlay = document.getElementById('admin-login-overlay');
-    if(overlay) overlay.remove();
-    document.body.classList.add('admin-mode');
-    initAdmin();
-  } else {
-    var msg = document.getElementById('admin-pw-msg');
-    if(msg) msg.textContent = '❌ Incorrect password, please try again.';
-    document.getElementById('admin-pw-input').value = '';
-    document.getElementById('admin-pw-input').focus();
-  }
-}
+if(isAdmin){ document.addEventListener('DOMContentLoaded', initAdmin); }
 
 function initAdmin(){
   document.body.classList.add('admin-mode');
