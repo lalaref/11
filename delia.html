@@ -1168,7 +1168,6 @@ function openEditor(key, row){
   var awayLabel = TEAMS[away] ? (away + ' — ' + TEAMS[away].zh) : away;
   var curScoreA = data.scoreA !== undefined ? data.scoreA : '';
   var curScoreB = data.scoreB !== undefined ? data.scoreB : '';
-  var curStatus = data.status || 'scheduled';
 
   var overlay = document.createElement('div');
   overlay.className = 'admin-overlay';
@@ -1178,12 +1177,6 @@ function openEditor(key, row){
     '<p style="text-align:center;font-size:.88em;color:#7a6a5a;margin-bottom:16px">' + esc(homeLabel) + ' vs ' + esc(awayLabel) + '</p>' +
     '<div class="am-row"><label>' + esc(home || 'Home') + ' Score</label><input id="am-scoreA" type="number" min="0" value="' + esc(String(curScoreA)) + '"></div>' +
     '<div class="am-row"><label>' + esc(away || 'Away') + ' Score</label><input id="am-scoreB" type="number" min="0" value="' + esc(String(curScoreB)) + '"></div>' +
-    '<div class="am-row"><label>Status</label><select id="am-status">' +
-      '<option value="scheduled"' + (curStatus==='scheduled'?' selected':'') + '>Upcoming</option>' +
-      '<option value="live"' + (curStatus==='live'?' selected':'') + '>Live</option>' +
-      '<option value="completed"' + (curStatus==='completed'?' selected':'') + '>Final</option>' +
-      '<option value="walkover"' + (curStatus==='walkover'?' selected':'') + '>Walkover</option>' +
-    '</select></div>' +
     '<div class="am-actions">' +
       '<button class="am-save" onclick="saveMatch(\'' + esc(key) + '\',\'' + esc(home) + '\',\'' + esc(away) + '\')">💾 Save</button>' +
       '<button class="am-cancel" onclick="closeOverlay(\'match-editor-overlay\')">Cancel</button>' +
@@ -1201,7 +1194,7 @@ function saveMatch(key, home, away){
     key:key, teamA:home, teamB:away,
     scoreA:document.getElementById('am-scoreA').value,
     scoreB:document.getElementById('am-scoreB').value,
-    status:document.getElementById('am-status').value
+    status:'completed'
   });
   fetch(API_URL + '?' + params.toString())
     .then(function(r){ return r.json(); })
