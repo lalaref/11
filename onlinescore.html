@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>網上賽果即時更新服務 | Online Match Result Page | LaLaRef 急單王</title>
+<meta name="description" content="LaLaRef 急單王提供專屬網上賽果即時更新服務 — 為您的籃球聯賽/比賽建立專屬賽果頁面，即時更新比分、積分榜及賽程，由 HKD $500 起。適用於學界、企業、私人聯賽。">
+<meta name="keywords" content="網上賽果,籃球賽果更新,即時比分,籃球積分榜,賽程表,LaLaRef,online basketball results,basketball standings,live score update,basketball league page,學界籃球賽果,企業籃球賽果">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L1YNR24WBC"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-L1YNR24WBC');</script>
+<link rel="icon" type="image/jpeg" href="lalaref2.jpg">
+<link rel="canonical" href="https://www.lalaref.com/online-results.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.lalaref.com/online-results.html">
+<meta property="og:title" content="網上賽果即時更新服務 | LaLaRef 急單王">
+<meta property="og:description" content="為您的籃球聯賽建立專屬賽果頁面，即時更新比分、積分榜及賽程。由 HKD $500 起。">
+<meta property="og:image" content="https://www.lalaref.com/lalaref2.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="網上賽果即時更新服務 | LaLaRef 急單王">
+<meta name="twitter:description" content="為您的籃球聯賽建立專屬賽果頁面，即時更新比分、積分榜及賽程。由 HKD $500 起。">
+<meta name="twitter:image" content="https://www.lalaref.com/lalaref2.png">
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "網上賽果即時更新服務",
+  "provider": {
+    "@type": "Organization",
+    "name": "LaLaRef 急單王",
+    "url": "https://www.lalaref.com"
+  },
+  "description": "為籃球聯賽/比賽建立專屬網上賽果頁面，即時更新比分、積分榜及賽程表。",
+  "areaServed": "Hong Kong",
+  "offers": {
+    "@type": "AggregateOffer",
+    "lowPrice": "500",
+    "priceCurrency": "HKD"
+  }
+}
+</script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei','PingFang TC',sans-serif;line-height:1.6;color:#5a4a3a;background:linear-gradient(135deg,#f5e6d3,#e8d4b8);min-height:100vh}
+
+/* ── Nav ── */
+.nb{background:linear-gradient(145deg,#d4a574,#c89860);padding:15px 0;box-shadow:0 10px 20px rgba(0,0,0,.15);position:sticky;top:0;z-index:100}
+.nc{max-width:1100px;margin:0 auto;padding:0 30px;display:flex;justify-content:space-between;align-items:center}
+.nl{color:#fff;font-size:1.5em;font-weight:900;text-decoration:none}
+.nk{display:flex;gap:20px}.nk a{color:#fff;text-decoration:none;font-weight:700;padding:8px 14px;border-radius:20px;transition:all .3s}.nk a:hover{background:rgba(255,255,255,.2)}
+.hb{display:none;flex-direction:column;cursor:pointer;padding:5px}.hb span{width:25px;height:3px;background:#fff;margin:3px 0;border-radius:3px}
+
+/* ── Layout ── */
+.ct{max-width:1100px;margin:0 auto;padding:30px}
+
+/* ── Hero ── */
+.hero{text-align:center;padding:60px 30px 40px;background:linear-gradient(145deg,#f0dcc8,#e8d4b8);border-radius:30px;box-shadow:15px 15px 30px rgba(0,0,0,.12),-15px -15px 30px rgba(255,255,255,.7);margin-bottom:36px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 20%,rgba(212,165,116,.18) 0%,transparent 60%);pointer-events:none}
+.hero-icon{font-size:3.5em;margin-bottom:16px;display:block}
+.hero h1{font-size:2.4em;color:#5a4a3a;font-weight:900;margin-bottom:10px;line-height:1.2}
+.hero h1 span{color:#d4a574}
+.hero .tagline{font-size:1.1em;color:#7a6a5a;margin-bottom:24px;max-width:540px;margin-left:auto;margin-right:auto}
+.hero-badges{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:30px}
+.hbadge{background:rgba(255,255,255,.7);border:2px solid rgba(212,165,116,.4);border-radius:30px;padding:6px 18px;font-size:.88em;font-weight:700;color:#5a4a3a;display:flex;align-items:center;gap:6px}
+.hbadge .icon{font-size:1.1em}
+.cta-group{display:flex;justify-content:center;flex-wrap:wrap;gap:14px}
+.btn-main{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(145deg,#d4a574,#c89860);color:#fff;font-weight:900;font-size:1.05em;padding:14px 32px;border-radius:30px;text-decoration:none;box-shadow:6px 6px 16px rgba(200,152,96,.4),-4px -4px 10px rgba(255,255,255,.5);transition:all .3s}
+.btn-main:hover{transform:translateY(-3px);box-shadow:8px 12px 24px rgba(200,152,96,.5)}
+.btn-sec{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.6);color:#d4a574;font-weight:700;font-size:1em;padding:13px 28px;border-radius:30px;text-decoration:none;border:2px solid rgba(212,165,116,.5);transition:all .3s}
+.btn-sec:hover{background:rgba(255,255,255,.9);transform:translateY(-3px)}
+
+/* ── Section Title ── */
+.sec-title{font-size:1.4em;color:#5a4a3a;font-weight:900;margin-bottom:6px}
+.sec-sub{font-size:.95em;color:#7a6a5a;margin-bottom:24px}
+
+/* ── Card base ── */
+.card{background:linear-gradient(145deg,#f0dcc8,#e8d4b8);border-radius:24px;padding:28px;margin-bottom:28px;box-shadow:12px 12px 24px rgba(0,0,0,.1),-12px -12px 24px rgba(255,255,255,.6)}
+.card h2{font-size:1.3em;color:#d4a574;font-weight:900;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid rgba(212,165,116,.3);display:flex;align-items:center;gap:10px}
+
+/* ── Feature grid ── */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.feat-item{background:rgba(255,255,255,.55);border-radius:18px;padding:20px;text-align:center;box-shadow:6px 6px 14px rgba(0,0,0,.07),-6px -6px 14px rgba(255,255,255,.5);transition:transform .25s}
+.feat-item:hover{transform:translateY(-4px)}
+.feat-icon{font-size:2.2em;margin-bottom:10px;display:block}
+.feat-title{font-size:.98em;font-weight:900;color:#5a4a3a;margin-bottom:6px}
+.feat-desc{font-size:.83em;color:#7a6a5a;line-height:1.5}
+
+/* ── Sample preview mockup ── */
+.mockup-wrap{background:rgba(255,255,255,.5);border-radius:18px;padding:18px;margin-top:4px}
+.mockup-bar{background:linear-gradient(145deg,#d4a574,#c89860);border-radius:12px 12px 0 0;padding:10px 16px;display:flex;align-items:center;gap:8px;color:#fff;font-weight:700;font-size:.9em}
+.mockup-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.4);flex-shrink:0}
+.mockup-body{background:rgba(255,255,255,.7);border-radius:0 0 12px 12px;padding:16px;font-size:.85em}
+.mock-match{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid rgba(212,165,116,.2);justify-content:space-between}
+.mock-match:last-child{border-bottom:none}
+.mock-team{font-weight:700;color:#5a4a3a;flex:1}
+.mock-team.right{text-align:right}
+.mock-score{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.mock-s{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:1.1em;font-weight:900;background:rgba(255,255,255,.8);border-radius:8px;color:#5a4a3a}
+.mock-s.w{color:#198754}
+.mock-s.l{color:#b0a090}
+.mock-sep{font-weight:900;color:#c89860}
+.mock-badge{font-size:.75em;padding:3px 8px;border-radius:8px;font-weight:700}
+.mock-badge.done{background:#cfe2ff;color:#084298}
+.mock-badge.live{background:#d1e7dd;color:#0a3622}
+.mock-std{width:100%;border-collapse:collapse;margin-top:8px;font-size:.88em}
+.mock-std th{background:linear-gradient(145deg,#d4a574,#c89860);color:#fff;padding:7px 10px;font-weight:700;font-size:.8em;text-align:center}
+.mock-std th.left{text-align:left}
+.mock-std td{padding:7px 10px;text-align:center;border-bottom:1px solid rgba(212,165,116,.2);color:#5a4a3a}
+.mock-std tr:nth-child(1) td{font-weight:700}
+.mock-std tr:nth-child(1) td:first-child::before{content:'🥇 '}
+
+/* ── Pricing ── */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.price-card{background:rgba(255,255,255,.55);border-radius:22px;padding:26px;text-align:center;box-shadow:8px 8px 18px rgba(0,0,0,.09),-8px -8px 18px rgba(255,255,255,.55);position:relative;transition:transform .25s}
+.price-card:hover{transform:translateY(-5px)}
+.price-card.featured{background:linear-gradient(145deg,#d4a574,#c89860);color:#fff;box-shadow:10px 10px 24px rgba(200,152,96,.4),-6px -6px 16px rgba(255,255,255,.3)}
+.price-card.featured .price-name,.price-card.featured .price-amount,.price-card.featured .price-per,.price-card.featured .price-feature{color:#fff}
+.price-card.featured .price-feature{border-color:rgba(255,255,255,.3)}
+.pc-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#5a4a3a;color:#f5e6d3;font-size:.75em;font-weight:900;padding:4px 16px;border-radius:20px;white-space:nowrap}
+.price-icon{font-size:2em;margin-bottom:10px;display:block}
+.price-name{font-size:1.1em;font-weight:900;color:#5a4a3a;margin-bottom:4px}
+.price-amount{font-size:2.4em;font-weight:900;color:#d4a574;line-height:1}
+.price-amount sup{font-size:.45em;vertical-align:top;margin-top:8px}
+.price-per{font-size:.82em;color:#7a6a5a;margin-bottom:16px}
+.price-divider{border:none;border-top:1px solid rgba(212,165,116,.3);margin:14px 0}
+.price-feature{display:flex;align-items:flex-start;gap:8px;text-align:left;font-size:.88em;color:#5a4a3a;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(212,165,116,.15)}
+.price-feature:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.price-feature .pf-icon{flex-shrink:0;font-size:1em}
+.price-cta{display:inline-block;margin-top:18px;background:rgba(255,255,255,.7);color:#d4a574;font-weight:900;padding:10px 28px;border-radius:20px;text-decoration:none;font-size:.95em;border:2px solid rgba(212,165,116,.4);transition:all .3s}
+.price-card.featured .price-cta{background:rgba(255,255,255,.95);color:#c89860;border-color:transparent}
+.price-cta:hover{transform:scale(1.04);background:#fff}
+
+/* ── Process steps ── */
+.steps{display:flex;flex-direction:column;gap:0}
+.step-item{display:flex;gap:18px;align-items:flex-start;padding:18px 0;border-bottom:1px solid rgba(212,165,116,.2)}
+.step-item:last-child{border-bottom:none}
+.step-num{width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,#d4a574,#c89860);color:#fff;font-size:1.2em;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:4px 4px 10px rgba(200,152,96,.3)}
+.step-body{flex:1}
+.step-title{font-size:1em;font-weight:900;color:#5a4a3a;margin-bottom:4px}
+.step-desc{font-size:.88em;color:#7a6a5a;line-height:1.5}
+
+/* ── Testimonials / Use cases ── */
+.cases-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.case-item{background:rgba(255,255,255,.55);border-radius:16px;padding:18px 16px;text-align:center;box-shadow:5px 5px 12px rgba(0,0,0,.07),-5px -5px 12px rgba(255,255,255,.5)}
+.case-icon{font-size:2em;margin-bottom:8px;display:block}
+.case-name{font-size:.95em;font-weight:900;color:#5a4a3a;margin-bottom:4px}
+.case-desc{font-size:.82em;color:#7a6a5a}
+
+/* ── FAQ accordion ── */
+.faq-item{border-bottom:1px solid rgba(212,165,116,.25);overflow:hidden}
+.faq-item:last-child{border-bottom:none}
+.faq-q{width:100%;background:none;border:none;text-align:left;padding:16px 6px;font-family:inherit;font-size:.95em;font-weight:700;color:#5a4a3a;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:color .2s}
+.faq-q:hover{color:#d4a574}
+.faq-q .faq-arrow{font-size:.8em;transition:transform .3s;flex-shrink:0}
+.faq-q.open .faq-arrow{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .25s}
+.faq-a.open{max-height:200px;padding-bottom:14px}
+.faq-a p{font-size:.88em;color:#7a6a5a;line-height:1.7;padding:0 6px}
+
+/* ── Sample links ── */
+.samples-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.sample-card{background:rgba(255,255,255,.55);border-radius:16px;padding:16px;display:flex;gap:14px;align-items:center;text-decoration:none;box-shadow:5px 5px 12px rgba(0,0,0,.07),-5px -5px 12px rgba(255,255,255,.5);transition:all .25s}
+.sample-card:hover{transform:translateY(-3px);background:rgba(255,255,255,.8)}
+.sc-icon{font-size:2em;flex-shrink:0}
+.sc-body{flex:1}
+.sc-name{font-size:.92em;font-weight:900;color:#5a4a3a;margin-bottom:2px}
+.sc-meta{font-size:.78em;color:#9a8a7a}
+.sc-arrow{font-size:.85em;color:#d4a574;flex-shrink:0}
+.sc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.sc-tag{font-size:.72em;font-weight:700;padding:2px 9px;border-radius:10px;white-space:nowrap}
+.sc-tag.t5x5{background:#dbeafe;color:#1e40af}
+.sc-tag.t3x3{background:#fce7f3;color:#9d174d}
+.sc-tag.tmulti{background:#d1fae5;color:#065f46}
+.sc-tag.tgroup{background:#fef3c7;color:#92400e}
+
+/* ── CTA bottom ── */
+.cta-bottom{text-align:center;padding:50px 30px;background:linear-gradient(145deg,#d4a574,#c89860);border-radius:28px;margin-bottom:10px;box-shadow:10px 10px 24px rgba(200,152,96,.3),-6px -6px 16px rgba(255,255,255,.3)}
+.cta-bottom h2{font-size:1.8em;font-weight:900;color:#fff;margin-bottom:10px}
+.cta-bottom p{color:rgba(255,255,255,.85);font-size:1em;margin-bottom:26px;max-width:480px;margin-left:auto;margin-right:auto}
+.cta-bottom .btn-white{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#c89860;font-weight:900;font-size:1.05em;padding:14px 36px;border-radius:30px;text-decoration:none;box-shadow:4px 4px 14px rgba(0,0,0,.15);transition:all .3s}
+.cta-bottom .btn-white:hover{transform:translateY(-3px);box-shadow:6px 8px 20px rgba(0,0,0,.2)}
+
+/* ── Footer ── */
+.ft{text-align:center;padding:20px 30px 30px;color:#9a8a7a;font-size:.85em}
+.ft a{color:#c89860;text-decoration:none;font-weight:700}
+
+/* ── Mobile ── */
+@media(max-width:768px){
+  /* Nav: hamburger dropdown */
+  .hb{display:flex}
+  .nk{position:absolute;top:100%;left:0;right:0;background:linear-gradient(145deg,#d4a574,#c89860);flex-direction:column;gap:0;max-height:0;overflow:hidden;transition:max-height .3s}
+  .nk.active{max-height:320px}
+  .nk a{padding:12px 25px;border-radius:0;border-bottom:1px solid rgba(255,255,255,.1);font-size:1em}
+  .nc{padding:0 15px;position:relative}
+  .nl{font-size:1.2em}
+  /* Layout */
+  .ct{padding:14px}
+  /* Hero */
+  .hero{padding:36px 18px 28px}
+  .hero-icon{font-size:2.6em}
+  .hero h1{font-size:1.65em}
+  .hero .tagline{font-size:.95em}
+  .hero-badges{gap:7px}
+  .hbadge{font-size:.8em;padding:5px 13px}
+  .cta-group{gap:10px}
+  /* Cards */
+  .card{padding:18px;border-radius:18px}
+  .card h2{font-size:1.15em}
+  /* Feature grid: 2 cols */
+  .feat-grid{grid-template-columns:1fr 1fr}
+  /* Pricing: 1 col */
+  .pricing-grid{grid-template-columns:1fr}
+  /* Cases & samples: 2 cols */
+  .cases-grid,.samples-grid{grid-template-columns:1fr 1fr}
+  /* Mockup */
+  .mockup-bar{font-size:.8em}
+  .mock-match{flex-wrap:nowrap;gap:4px;padding:7px 8px}
+  .mock-team{font-size:.82em}
+  .mock-s{width:30px;height:30px;font-size:.95em}
+  /* Pricing card */
+  .price-amount{font-size:2em}
+  /* CTA bottom */
+  .cta-bottom{padding:36px 20px}
+  .cta-bottom h2{font-size:1.4em}
+  .cta-bottom .btn-white{font-size:.95em;padding:13px 24px}
+  /* Steps */
+  .step-item{gap:12px}
+  .step-num{width:38px;height:38px;font-size:1em}
+}
+@media(max-width:480px){
+  .ct{padding:10px}
+  .hero h1{font-size:1.35em}
+  .hero-icon{font-size:2.2em}
+  .hero .tagline{font-size:.88em}
+  .feat-grid,.cases-grid,.samples-grid{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr}
+  .cta-group{flex-direction:column;align-items:center}
+  .btn-main,.btn-sec{width:100%;max-width:320px;justify-content:center}
+  /* Mockup table: hide less important cols */
+  .mock-std th:nth-child(5),.mock-std td:nth-child(5),
+  .mock-std th:nth-child(6),.mock-std td:nth-child(6){display:none}
+  /* Sample cards: stack icon+text */
+  .sample-card{flex-direction:row}
+  .sc-name{font-size:.85em}
+  .sc-meta{font-size:.72em}
+  /* FAQ */
+  .faq-q{font-size:.9em}
+  /* CTA */
+  .cta-bottom h2{font-size:1.25em}
+  .cta-bottom .btn-white{width:100%;max-width:320px;justify-content:center;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav class="nb">
+  <div class="nc">
+    <a href="index.html" class="nl">⚡ LaLaRef</a>
+    <div class="hb" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="nk" id="navLinks">
+      <a href="index.html">首頁</a>
+      <a href="service.html">服務資訊</a>
+      <a href="news.html">籃球新聞</a>
+      <a href="leagues.html">聯賽列表</a>
+      <a href="index.html#booking">立即預訂</a>
+    </div>
+  </div>
+</nav>
+
+<div class="ct">
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <span class="hero-icon">🏀📊</span>
+    <h1>網上賽果<span>即時更新</span>服務</h1>
+    <p class="tagline">為您的籃球聯賽建立專屬賽果頁面 — 即時更新比分、積分榜及賽程表，讓球員、家長及支持者隨時隨地追蹤賽況</p>
+    <div class="hero-badges">
+      <span class="hbadge"><span class="icon">💰</span> 由 HKD $500 起</span>
+      <span class="hbadge"><span class="icon">📱</span> 手機完全適配</span>
+      <span class="hbadge"><span class="icon">🔗</span> 專屬連結可分享</span>
+      <span class="hbadge"><span class="icon">⚡</span> 比賽即時更新</span>
+      <span class="hbadge"><span class="icon">🏆</span> 積分榜自動計算</span>
+    </div>
+    <div class="cta-group">
+      <a href="https://wa.me/85284828484?text=你好，我想查詢網上賽果即時更新服務" class="btn-main" target="_blank" rel="noopener">📲 WhatsApp 查詢</a>
+      <a href="#pricing" class="btn-sec">查看收費詳情 ↓</a>
+    </div>
+  </section>
+
+  <!-- ── What you get ── -->
+  <section class="card">
+    <h2>🎯 服務內容</h2>
+    <div class="feat-grid">
+      <div class="feat-item">
+        <span class="feat-icon">📄</span>
+        <div class="feat-title">專屬賽事頁面</div>
+        <div class="feat-desc">於 lalaref.com 建立獨立賽事網頁，附專屬連結，可即時分享給所有參賽者</div>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon">⚡</span>
+        <div class="feat-title">即時比分更新</div>
+        <div class="feat-desc">每場比賽結束後即時更新最終比分，無需等待，隨時查閱最新賽果</div>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon">🏆</span>
+        <div class="feat-title">積分榜自動計算</div>
+        <div class="feat-desc">積分、勝負、得失分差全自動計算排列，名次一目了然</div>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon">📅</span>
+        <div class="feat-title">完整賽程表</div>
+        <div class="feat-desc">清晰列出所有賽事日期、時間、場地及對陣隊伍，方便球員安排時間</div>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon">📱</span>
+        <div class="feat-title">手機優先設計</div>
+        <div class="feat-desc">100% 手機友善設計，iPhone / Android 均完美顯示，隨時隨地查閱</div>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon">🎨</span>
+        <div class="feat-title">專業頁面設計</div>
+        <div class="feat-desc">統一品牌視覺風格，頁面設計專業美觀，為您的賽事提升形象</div>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon">📸</span>
+        <div class="feat-title">賽事資訊展示</div>
+        <div class="feat-desc">可加入賽事名稱、主辦單位 Logo、比賽規則及注意事項等完整資訊</div>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon">🌐</span>
+        <div class="feat-title">中英雙語支援</div>
+        <div class="feat-desc">支援中英雙語內容，適合學界、企業或國際性籃球賽事</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Page Preview ── -->
+  <section class="card">
+    <h2>👀 頁面效果預覽</h2>
+    <p style="font-size:.9em;color:#7a6a5a;margin-bottom:16px">以下為實際賽果頁面樣式示意 — 我們為每個客戶打造同等水準的專屬頁面</p>
+    <div class="mockup-wrap">
+      <div class="mockup-bar">
+        <span class="mockup-dot"></span>
+        <span class="mockup-dot"></span>
+        <span class="mockup-dot"></span>
+        <span style="margin-left:4px">🏀 您的賽事名稱 2026 — 賽程及賽果</span>
+      </div>
+      <div class="mockup-body">
+        <!-- Mini schedule -->
+        <div style="font-size:.78em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📅 賽程及賽果</div>
+        <div class="mock-match">
+          <span class="mock-team">隊伍 A</span>
+          <div class="mock-score">
+            <span class="mock-s w">78</span>
+            <span class="mock-sep">:</span>
+            <span class="mock-s l">64</span>
+          </div>
+          <span class="mock-team right">隊伍 B</span>
+          <span class="mock-badge done" style="margin-left:8px">完場</span>
+        </div>
+        <div class="mock-match">
+          <span class="mock-team">隊伍 C</span>
+          <div class="mock-score">
+            <span class="mock-s" style="background:rgba(209,231,221,.6);color:#0a3622">🔴</span>
+            <span class="mock-sep">:</span>
+            <span class="mock-s" style="background:rgba(209,231,221,.6);color:#0a3622">🔴</span>
+          </div>
+          <span class="mock-team right">隊伍 D</span>
+          <span class="mock-badge live">直播中</span>
+        </div>
+        <div class="mock-match">
+          <span class="mock-team">隊伍 E</span>
+          <div class="mock-score">
+            <span class="mock-s" style="color:#856404;background:#fff3cd">—</span>
+            <span class="mock-sep">:</span>
+            <span class="mock-s" style="color:#856404;background:#fff3cd">—</span>
+          </div>
+          <span class="mock-team right">隊伍 F</span>
+          <span class="mock-badge" style="background:#fff3cd;color:#856404;font-size:.75em;padding:3px 8px;border-radius:8px;font-weight:700">待賽</span>
+        </div>
+        <!-- Mini standings -->
+        <div style="font-size:.78em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px">🏆 積分榜</div>
+        <table class="mock-std">
+          <thead>
+            <tr>
+              <th class="left" style="padding-left:10px">隊伍</th>
+              <th>場</th><th>勝</th><th>負</th><th>分</th><th>得分</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="text-align:left;padding-left:10px">隊伍 A</td><td>3</td><td>3</td><td>0</td><td>6</td><td>+47</td></tr>
+            <tr><td style="text-align:left;padding-left:10px">隊伍 C</td><td>3</td><td>2</td><td>1</td><td>4</td><td>+18</td></tr>
+            <tr><td style="text-align:left;padding-left:10px">隊伍 E</td><td>2</td><td>1</td><td>1</td><td>2</td><td>−5</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p style="font-size:.82em;color:#9a8a7a;text-align:center;margin-top:14px">👆 想睬真實樣本？<a href="interhotel.html" style="color:#d4a574;font-weight:700">Inter-Hotel Tournament</a> · <a href="poly.html" style="color:#d4a574;font-weight:700">職員籃球聯賽</a> · <a href="delia.html" style="color:#d4a574;font-weight:700">校友籃球賽</a> · <a href="bkids.html" style="color:#d4a574;font-weight:700">3x3 三人籃球賽</a></p>
+  </section>
+
+  <!-- ── Sample pages ── -->
+  <section class="card">
+    <h2>📂 真實案例參考</h2>
+    <p style="font-size:.9em;color:#7a6a5a;margin-bottom:16px">以下為我們已建立的賽事頁面，點擊即可查閱實際效果</p>
+    <div class="samples-grid">
+      <a href="bkids.html" class="sample-card">
+        <span class="sc-icon">🏀</span>
+        <div class="sc-body">
+          <div class="sc-name">3x3 三人籃球賽</div>
+          <div class="sc-meta">室內體育館</div>
+          <div class="sc-tags">
+            <span class="sc-tag t3x3">3x3</span>
+            <span class="sc-tag tgroup">多組別賽事</span>
+          </div>
+        </div>
+        <span class="sc-arrow">→</span>
+      </a>
+      <a href="poly.html" class="sample-card">
+        <span class="sc-icon">🎓</span>
+        <div class="sc-body">
+          <div class="sc-name">職員籃球聯賽</div>
+          <div class="sc-meta">大專院校</div>
+          <div class="sc-tags">
+            <span class="sc-tag t5x5">5x5</span>
+            <span class="sc-tag tmulti">多日賽事</span>
+            <span class="sc-tag tgroup">多組別賽事</span>
+          </div>
+        </div>
+        <span class="sc-arrow">→</span>
+      </a>
+      <a href="interhotel.html" class="sample-card">
+        <span class="sc-icon">🏨</span>
+        <div class="sc-body">
+          <div class="sc-name">Inter-Hotel Basketball Tournament</div>
+          <div class="sc-meta">酒店業聯賽</div>
+          <div class="sc-tags">
+            <span class="sc-tag t5x5">5x5</span>
+            <span class="sc-tag tmulti">多日賽事</span>
+          </div>
+        </div>
+        <span class="sc-arrow">→</span>
+      </a>
+      <a href="delia.html" class="sample-card">
+        <span class="sc-icon">🏫</span>
+        <div class="sc-body">
+          <div class="sc-name">校友籃球賽</div>
+          <div class="sc-meta">校友會</div>
+          <div class="sc-tags">
+            <span class="sc-tag t5x5">5x5</span>
+            <span class="sc-tag tgroup">多組別賽事</span>
+          </div>
+        </div>
+        <span class="sc-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── Pricing ── -->
+  <section id="pricing" class="card">
+    <h2>💰 服務收費</h2>
+    <p class="sec-sub" style="margin-bottom:28px">按賽事規模選擇合適方案，如有特別需求歡迎查詢訂製方案</p>
+    <div class="pricing-grid">
+
+      <!-- Basic -->
+      <div class="price-card">
+        <span class="price-icon">🏅</span>
+        <div class="price-name">基本套裝</div>
+        <div class="price-amount"><sup>HKD $</sup>500</div>
+        <div class="price-per">單日賽事</div>
+        <hr class="price-divider">
+        <div class="price-feature"><span class="pf-icon">✅</span><span>專屬賽果頁面建立</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>賽程表設計及上線</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>即時比分更新</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>基本積分榜（單組別）</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>手機友善設計</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>專屬分享連結</span></div>
+        <div class="price-feature"><span class="pf-icon">❌</span><span style="color:#b0a090">多組別分組</span></div>
+        <div class="price-feature"><span class="pf-icon">❌</span><span style="color:#b0a090">自訂 Logo / 品牌色</span></div>
+        <a href="https://wa.me/85284828484?text=你好，我想查詢基本套裝（$500）" class="price-cta" target="_blank" rel="noopener">立即查詢</a>
+      </div>
+
+      <!-- Standard (featured) -->
+      <div class="price-card featured">
+        <span class="pc-badge">最受歡迎</span>
+        <span class="price-icon">🥇</span>
+        <div class="price-name">標準套裝</div>
+        <div class="price-amount"><sup>HKD $</sup>800</div>
+        <div class="price-per">多日賽事</div>
+        <hr class="price-divider" style="border-color:rgba(255,255,255,.3)">
+        <div class="price-feature"><span class="pf-icon">✅</span><span>專屬賽果頁面建立</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>完整賽程表設計</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>即時比分更新</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>完整積分榜（多組別）</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>手機友善設計</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>專屬分享連結</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>多組別分組顯示</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>賽事規則及注意事項</span></div>
+        <a href="https://wa.me/85284828484?text=你好，我想查詢標準套裝（$800）" class="price-cta" target="_blank" rel="noopener">立即查詢</a>
+      </div>
+
+      <!-- Premium -->
+      <div class="price-card">
+        <span class="price-icon">👑</span>
+        <div class="price-name">高級套裝</div>
+        <div class="price-amount"><sup>HKD $</sup>1,200<span style="font-size:.4em;color:#d4a574">起</span></div>
+        <div class="price-per">長期聯賽 · 場數不限</div>
+        <hr class="price-divider">
+        <div class="price-feature"><span class="pf-icon">✅</span><span>一切標準套裝功能</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>無限場次即時更新</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>自訂品牌 Logo 及色調</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>淘汰賽對陣表設計</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>多輪次賽事（循環 + 淘汰）</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>最佳球員 / 最高得分統計</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>中英雙語版本</span></div>
+        <div class="price-feature"><span class="pf-icon">✅</span><span>賽後頁面永久保留</span></div>
+        <a href="https://wa.me/85284828484?text=你好，我想查詢高級套裝（$1200起）" class="price-cta" target="_blank" rel="noopener">立即查詢</a>
+      </div>
+
+    </div>
+    <div style="background:rgba(255,255,255,.4);border-radius:16px;padding:16px 20px;margin-top:20px;font-size:.88em;color:#7a6a5a;line-height:1.8">
+      <strong style="color:#5a4a3a">📝 備注：</strong>
+      以上收費為賽果頁面建立及更新服務費，<strong>不包含</strong>球證/裁判費用。如需同時預訂球證/裁判，可享<strong>套餐優惠</strong>，詳情請 WhatsApp 查詢。
+    </div>
+  </section>
+
+  <!-- ── How it works ── -->
+  <section class="card">
+    <h2>🔄 服務流程</h2>
+    <div class="steps">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">提交賽事資料</div>
+          <div class="step-desc">透過 WhatsApp 或電郵提供賽事名稱、參賽隊伍、賽程安排、場地及比賽規則等基本資料</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">確認方案及付款</div>
+          <div class="step-desc">選擇適合的套裝方案，透過 PayMe / FPS 完成付款後，我們即開始製作</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">頁面製作上線</div>
+          <div class="step-desc">我們於 <strong>1–2 個工作天</strong>內完成頁面設計及上線，並將專屬連結發送給您，即可分享給所有參賽者</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">比賽期間即時更新</div>
+          <div class="step-desc">每場比賽結束後，您只需透過 WhatsApp 發送比分，我們即時更新賽果及積分榜，通常 <strong>10 分鐘內</strong>完成更新</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">賽事結束後保留頁面</div>
+          <div class="step-desc">賽事完結後，頁面繼續保留以供日後參考，是珍貴的賽事紀錄及留念</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Suitable for ── -->
+  <section class="card">
+    <h2>🎯 適合哪些賽事？</h2>
+    <div class="cases-grid">
+      <div class="case-item">
+        <span class="case-icon">🏫</span>
+        <div class="case-name">學界比賽</div>
+        <div class="case-desc">中學、大學及大專院校聯賽或邀請賽</div>
+      </div>
+      <div class="case-item">
+        <span class="case-icon">🏢</span>
+        <div class="case-name">企業聯賽</div>
+        <div class="case-desc">公司/機構內部籃球聯賽或年度比賽</div>
+      </div>
+      <div class="case-item">
+        <span class="case-icon">🏨</span>
+        <div class="case-name">行業比賽</div>
+        <div class="case-desc">酒店業、金融業、地產業等同業聯賽</div>
+      </div>
+      <div class="case-item">
+        <span class="case-icon">⛪</span>
+        <div class="case-name">教會/社區賽</div>
+        <div class="case-desc">堂區運動會、社區中心籃球活動</div>
+      </div>
+      <div class="case-item">
+        <span class="case-icon">🎓</span>
+        <div class="case-name">校友賽</div>
+        <div class="case-desc">舊生/校友會籃球比賽及邀請賽</div>
+      </div>
+      <div class="case-item">
+        <span class="case-icon">🏆</span>
+        <div class="case-name">私人聯賽</div>
+        <div class="case-desc">自組籃球聯賽、3x3 街頭籃球賽</div>
+      </div>
+      <div class="case-item">
+        <span class="case-icon">👶</span>
+        <div class="case-name">青少年賽事</div>
+        <div class="case-desc">U12 至 U18 各年齡組別比賽</div>
+      </div>
+      <div class="case-item">
+        <span class="case-icon">🌟</span>
+        <div class="case-name">慈善/義工賽</div>
+        <div class="case-desc">慈善籃球比賽、義工活動運動項目</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="card">
+    <h2>❓ 常見問題</h2>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">頁面建立需要多長時間？<span class="faq-arrow">▼</span></button>
+      <div class="faq-a"><p>一般情況下，提交資料後 <strong>1–2 個工作天</strong>內完成製作並上線。如賽事急迫，可提前告知，我們會盡力配合。</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">比賽期間如何更新比分？<span class="faq-arrow">▼</span></button>
+      <div class="faq-a"><p>我們可為您提供 <strong>Admin 管理頁面</strong>，您及您的工作人員可自行登入即時輸入比分，頁面自動即時更新。</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">我可以自己更新比分嗎？<span class="faq-arrow">▼</span></button>
+      <div class="faq-a"><p>可以！每個賽事頁面均附有專屬 <strong>Admin 管理頁面</strong>。您或您的工作人員將收到專屬密碼，登入後可自行輸入各場最終比分，網頁即時同步更新，無需進一步操作。</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">頁面連結是什麼格式？<span class="faq-arrow">▼</span></button>
+      <div class="faq-a"><p>頁面連結格式為 <strong>lalaref.com/[賽事名稱縮寫].html</strong>，例如 lalaref.com/poly.html。連結簡短易記，方便分享到 WhatsApp 群組或社交媒體。</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">可以加入主辦單位的 Logo 嗎？<span class="faq-arrow">▼</span></button>
+      <div class="faq-a"><p>可以！<strong>標準套裝</strong>及以上方案支援展示主辦單位名稱，<strong>高級套裝</strong>更支援加入自訂 Logo 圖片及品牌色彩，請在查詢時一併提供相關素材。</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">賽事結束後頁面會刪除嗎？<span class="faq-arrow">▼</span></button>
+      <div class="faq-a"><p>不會！賽事結束後頁面會繼續保留，是珍貴的賽事紀錄。<strong>高級套裝</strong>保證永久保留，其他套裝預設保留至少 1 年。</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">可以同時預訂球證/裁判服務嗎？<span class="faq-arrow">▼</span></button>
+      <div class="faq-a"><p>當然可以！同時預訂<strong>球證/裁判服務</strong>及<strong>賽果頁面服務</strong>可享套餐優惠，詳情請 WhatsApp 查詢。</p></div>
+    </div>
+  </section>
+
+  <!-- ── CTA Bottom ── -->
+  <section class="cta-bottom">
+    <h2>立即為您的賽事建立專屬賽果頁面！</h2>
+    <p>由 HKD $500 起 · 1–2 個工作天上線 · 比賽期間即時更新<br>讓每個人都可以隨時追蹤賽況！</p>
+    <a href="https://wa.me/85284828484?text=你好，我想查詢網上賽果即時更新服務，請問可以提供更多資料嗎？" class="btn-white" target="_blank" rel="noopener">
+      📲 WhatsApp 8482 8484 立即查詢
+    </a>
+  </section>
+
+</div>
+
+<!-- ── Footer ── -->
+<footer class="ft">
+  <p>© 2026 <a href="index.html">LaLaRef 急單王</a> · 香港籃球球證/裁判服務 · <a href="service.html">服務資訊</a> · <a href="contact.html">聯絡我們</a></p>
+</footer>
+
+<script>
+function toggleMenu(){
+  document.querySelector('.hb').classList.toggle('active');
+  document.getElementById('navLinks').classList.toggle('active');
+}
+document.querySelectorAll('.nk a').forEach(function(a){
+  a.addEventListener('click',function(){
+    document.querySelector('.hb').classList.remove('active');
+    document.getElementById('navLinks').classList.remove('active');
+  });
+});
+function toggleFaq(btn){
+  var ans=btn.nextElementSibling;
+  var isOpen=ans.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(function(a){a.classList.remove('open')});
+  document.querySelectorAll('.faq-q').forEach(function(q){q.classList.remove('open')});
+  if(!isOpen){ans.classList.add('open');btn.classList.add('open')}
+}
+</script>
+
+</body>
+</html>
