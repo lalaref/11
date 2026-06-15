@@ -160,25 +160,32 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .bk-rank-pill{font-size:.72em;font-weight:700;padding:4px 12px;border-radius:20px}
 .bk-rank-pill.win{background:#d4edda;color:#155724}
 .bk-rank-pill.lose{background:#f0f0f0;color:#666}
-/* 頒獎台 */
-.pt-section{margin:24px auto 0;max-width:900px;padding:0 16px 28px}
-.pt-header{font-size:1.05em;font-weight:700;color:#5a4a3a;letter-spacing:.05em;padding:10px 0 12px}
-.pt-wrap{border-radius:16px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.12)}
-.pt-table{width:100%;border-collapse:collapse;font-size:.87em}
-.pt-table thead tr{background:linear-gradient(135deg,#3d2b00,#8a6000)}
-.pt-table thead th{color:#ffe27a;font-weight:700;padding:10px 14px;text-align:center;font-size:.8em;letter-spacing:.07em}
-.pt-table thead th:first-child{text-align:left;padding-left:16px}
+/* 頒獎台 modal */
+.pt-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1200;align-items:center;justify-content:center;padding:16px}
+.pt-modal-overlay.open{display:flex}
+.pt-modal{background:#fffdf5;border-radius:20px;box-shadow:0 8px 40px rgba(0,0,0,.3);width:100%;max-width:620px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:ptSlideIn .22s ease}
+@keyframes ptSlideIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.pt-modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;background:linear-gradient(135deg,#3d2b00,#8a6000);flex-shrink:0}
+.pt-modal-title{font-size:1.05em;font-weight:700;color:#ffe27a;letter-spacing:.06em}
+.pt-modal-close{background:rgba(255,255,255,.18);border:none;color:#ffe27a;font-size:1.3em;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.pt-modal-close:hover{background:rgba(255,255,255,.32)}
+.pt-modal-body{overflow-y:auto;flex:1}
+.pt-table{width:100%;border-collapse:collapse;font-size:.88em}
+.pt-table thead tr{background:linear-gradient(135deg,#5a3d00,#a07000)}
+.pt-table thead th{color:#ffe27a;font-weight:700;padding:9px 14px;text-align:center;font-size:.8em;letter-spacing:.07em}
+.pt-table thead th:first-child{text-align:left;padding-left:18px}
 .pt-table tbody tr:nth-child(odd){background:#fdfaf5}
 .pt-table tbody tr:nth-child(even){background:#fff8ee}
 .pt-table tbody tr:hover{background:#fff3d6}
 .pt-table tbody td{padding:9px 14px;text-align:center;border-bottom:1px solid #f0e8d8}
 .pt-table tbody tr:last-child td{border-bottom:none}
-.pt-div-label{text-align:left!important;padding-left:16px!important;font-weight:700;color:#7a5a2a;font-size:.82em;white-space:nowrap}
+.pt-div-label{text-align:left!important;padding-left:18px!important;font-weight:700;color:#7a5a2a;font-size:.82em;white-space:nowrap}
 .pt-champ{font-weight:700;color:#7c5800}
-.pt-champ .pt-name{background:linear-gradient(135deg,#7c5800,#c98b00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .pt-second{color:#505050;font-weight:600}
 .pt-third{color:#7a4500;font-weight:600}
 .pt-dash{color:#ccc;font-style:italic;font-size:.82em}
+/* trigger button */
+.div-btn.podium-btn{background:linear-gradient(135deg,#7c5800,#c98b00);color:#fff3d0;border:none;font-weight:700}
 .bk-direct{display:flex;flex-direction:column;gap:14px}
 .bk-direct-game{background:rgba(255,255,255,.4);border-radius:14px;padding:12px 14px}
 .bk-direct-badge{font-size:.75em;font-weight:700;margin-bottom:8px;padding:3px 10px;border-radius:8px;display:inline-block}
@@ -391,6 +398,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
     <button class="div-btn boys" onclick="jumpTo('m10')">男子 M10</button>
     <button class="div-btn boys" onclick="jumpTo('m12')">男子 M12</button>
     <button class="div-btn boys" onclick="jumpTo('g14m')">男子 M14</button>
+    <button class="div-btn podium-btn" onclick="openPodium()">🏅 頒獎台</button>
   </div>
 </div>
 
@@ -715,13 +723,19 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 <button class="jnb" id="jnb" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="返回頂部"><span class="jnb-ico" style="font-style:normal">↑</span><span class="jnb-lbl">TOP</span></button>
 <a href="https://wa.me/85284828484?text=你好！我想查詢球證/裁判服務" class="wf" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><svg viewBox="0 0 32 32" width="28" height="28" fill="white"><path d="M16 0C7.164 0 0 7.164 0 16c0 2.825.738 5.488 2.031 7.813L.281 30.594l7.031-1.844A15.923 15.923 0 0016 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm0 29.25c-2.406 0-4.719-.656-6.719-1.875l-.469-.281-4.875 1.281 1.313-4.781-.313-.5A13.173 13.173 0 012.75 16C2.75 8.681 8.681 2.75 16 2.75S29.25 8.681 29.25 16 23.319 29.25 16 29.25zm7.25-9.906c-.406-.188-2.375-1.156-2.75-1.281-.375-.125-.656-.188-.938.188-.281.375-1.063 1.281-1.313 1.563-.25.281-.5.313-.906.125-.406-.188-1.719-.625-3.281-2-.219-.188-2.031-1.781-2.281-2.156-.25-.375-.031-.594.156-.781.156-.156.406-.406.594-.594.188-.188.25-.313.375-.531.125-.219.063-.406-.031-.594-.094-.188-.938-2.219-1.281-3.031-.344-.781-.688-.656-.938-.656-.25 0-.531-.031-.813-.031s-.75.094-1.125.469c-.375.375-1.438 1.406-1.438 3.438s1.469 3.969 1.656 4.25c.188.281 2.625 4 6.375 5.625.906.375 1.594.594 2.125.781.875.281 1.688.25 2.313.156.719-.094 2.188-.875 2.5-1.719.313-.844.313-1.563.219-1.719-.094-.156-.375-.25-.781-.438z"/></svg></a>
 
-<div class="pt-section" id="pt-section">
-  <div class="pt-header">🏅 頒獎台</div>
-  <div class="pt-wrap">
-    <table class="pt-table">
-      <thead><tr><th>組別</th><th>🥇 冠軍</th><th>🥈 亞軍</th><th>🥉 季軍</th></tr></thead>
-      <tbody id="pt-body"></tbody>
-    </table>
+<!-- 頒獎台 Modal -->
+<div class="pt-modal-overlay" id="pt-modal-overlay" onclick="closePodiumIfOutside(event)">
+  <div class="pt-modal" role="dialog" aria-modal="true" aria-label="頒獎台">
+    <div class="pt-modal-header">
+      <span class="pt-modal-title">🏅 頒獎台</span>
+      <button class="pt-modal-close" onclick="closePodium()" aria-label="閘門">&times;</button>
+    </div>
+    <div class="pt-modal-body">
+      <table class="pt-table">
+        <thead><tr><th>組別</th><th>🥇 冠軍</th><th>🥈 亞軍</th><th>🥉 季軍</th></tr></thead>
+        <tbody id="pt-body"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -1495,6 +1509,10 @@ function refreshRankingMatch(divId){
   });
 }
 
+function openPodium(){ refreshPodium(); document.getElementById('pt-modal-overlay').classList.add('open'); document.body.style.overflow='hidden'; }
+function closePodium(){ document.getElementById('pt-modal-overlay').classList.remove('open'); document.body.style.overflow=''; }
+function closePodiumIfOutside(e){ if(e.target===document.getElementById('pt-modal-overlay')) closePodium(); }
+
 function refreshPodium(){
   var tbody=document.getElementById('pt-body');
   if(!tbody) return;
@@ -1570,8 +1588,7 @@ function refreshPodium(){
     return {label:label,ch:ch,sec:sec,thr:thr};
   });
   function cell(val,cls){
-    return '<td class="'+(val?cls:'pt-dash')+'">'
-      +(val?'<span class="pt-name">'+escHtml(val)+'</span>':'—')+'</td>';
+    return '<td class="'+(val?cls:'pt-dash')+'">'+(val?escHtml(val):'—')+'</td>';
   }
   tbody.innerHTML=rows.map(function(r){
     return '<tr>'
