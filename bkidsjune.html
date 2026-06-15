@@ -146,6 +146,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .bk-notes-bar{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .bk-note-pill{font-size:.72em;color:#9a8a7a;padding:3px 10px;background:rgba(255,255,255,.6);border-radius:20px}
 .bk-fifth-bar{margin-top:8px;padding:6px 12px;background:#fff3cd;border-radius:8px;font-size:.78em;color:#856404;font-weight:700}
+.bk-bronze-bar{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px;padding:8px 12px;background:linear-gradient(135deg,rgba(192,192,192,.15),rgba(160,160,160,.08));border:1.5px solid rgba(180,180,180,.4);border-radius:12px}
+.bk-bronze-label{font-size:.75em;font-weight:700;color:#888;flex-shrink:0}
+.bk-bronze-team{font-size:.78em;color:#555;padding:2px 8px;background:rgba(255,255,255,.6);border-radius:8px}
+.bk-bronze-vs{font-size:.72em;color:#aaa;flex-shrink:0}
+.bk-bronze-arrow{font-size:.8em;color:#aaa;flex-shrink:0}
+.bk-bronze-winner{font-size:.8em;font-weight:700;color:#777;padding:3px 10px;background:rgba(192,192,192,.25);border-radius:10px}
+.bk-bronze-pending{font-size:.75em;color:#aaa;font-style:italic}
 .bk-rank-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 2px}
 .bk-rank-vs{font-size:.9em;font-weight:700;color:#9a8a7a;flex-shrink:0}
 .bk-rank-arrow{font-size:1em;color:#9a8a7a;flex-shrink:0}
@@ -1125,7 +1132,7 @@ function initStandings(){
     var lastWrap = tables[tables.length-1].closest('.sched-wrap');
     var rule = document.createElement('div');
     rule.className = 'st-rule';
-    rule.innerHTML = '📌 積分制度：勝1場得<b>2分</b>，負1場得<b>1分</b>（含違規判負），喪失資格得<b>0分</b>。沒有出現判輸0:10<br>同積分排名：① 總得分差 › ② 總得分之和 › ③ 黃金罰球';
+    rule.innerHTML = '📌 積分制度：勝1場得<b>2分</b>，負1場得<b>1分</b>（含違規判負），喪失資格得<b>0分</b>。沒有出現判輸0:10<br>同積分排名：① 總得失差 › ② 總得分之和 › ③ 黃金罰球';
     outer.appendChild(rule);
     if(lastWrap) lastWrap.parentNode.insertBefore(outer, lastWrap.nextSibling);
   });
@@ -1398,6 +1405,34 @@ function refreshBrackets(divId){
     } else {
       winEl.textContent='';
     }
+  });
+  // Bronze bar (季軍戰 result for semi-final bracket divisions)
+  outer.querySelectorAll('.bk-bronze-bar[data-sf-gnos]').forEach(function(bar){
+    var divIdB=bar.getAttribute('data-bk-div');
+    var sfGnos=bar.getAttribute('data-sf-gnos').split('|');
+    var sfSeeds=bar.getAttribute('data-sf-seeds').split('|');
+    var bronzeGno=bar.getAttribute('data-gno');
+    function sfLoser(g,pair){var ss=pair.split(','),sc=scores[g];if(!sc||sc.a===''||sc.b==='')return null;var a=Number(sc.a),b=Number(sc.b);if(a===b)return null;var ls=a>b?ss[1]:ss[0];return{seed:ls,name:resolveSeedName(divIdB,ls)||ls};}
+    var l1=sfLoser(sfGnos[0],sfSeeds[0]),l2=sfLoser(sfGnos[1],sfSeeds[1]);
+    var html='<span class="bk-bronze-label">🥉 季軍戰</span>';
+    if(l1&&l2){
+      html+='<span class="bk-bronze-team">'+escHtml(l1.name)+'</span>';
+      html+='<span class="bk-bronze-vs">vs</span>';
+      html+='<span class="bk-bronze-team">'+escHtml(l2.name)+'</span>';
+      if(bronzeGno){
+        var bsc=scores[bronzeGno];
+        if(bsc&&bsc.a!==''&&bsc.b!==''){
+          var ba=Number(bsc.a),bb=Number(bsc.b);
+          if(ba!==bb){
+            var wn=ba>bb?l1.name:l2.name;
+            html+='<span class="bk-bronze-arrow">→</span><span class="bk-bronze-winner">🥉 '+escHtml(wn)+'</span>';
+          }
+        }
+      }
+    } else {
+      html+='<span class="bk-bronze-pending">待定（四強負方）</span>';
+    }
+    bar.innerHTML=html;
   });
   refreshRankingMatch(divId);
 }
