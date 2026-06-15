@@ -875,7 +875,7 @@ var BRACKET_DEFS = {
     { subLabel:'出線球隊四強',
       seeds:['A首','B次','B首','A次'],
       descs:['A組第一','B組第二','B組第一','A組第二'],
-      notes:['四強設有季軍戴','A/B組第三→排名賽'] },
+      notes:['四強設有季軍戰','A/B組第三→排名賽'] },
     { rankingMatch:true,
       subLabel:'排名賽 — 第五名之爭',
       seeds:['A三','B三'],
@@ -886,7 +886,7 @@ var BRACKET_DEFS = {
     { subLabel:'出線球隊四強',
       seeds:['A首','B次','B首','A次'],
       descs:['A組第一','B組第二','B組第一','A組第二'],
-      notes:['四強設有季軍戴','A/B組第三→排名賽'] },
+      notes:['四強設有季軍戰','A/B組第三→排名賽'] },
     { rankingMatch:true,
       subLabel:'排名賽 — 第五名之爭',
       seeds:['A三','B三'],
@@ -911,7 +911,7 @@ var BRACKET_DEFS = {
     { subLabel:'出線球隊四強',
       seeds:['A首','B次','B首','A次'],
       descs:['A組第一','B組第二','B組第一','A組第二'],
-      notes:['四強設有季軍戴','A/B組第三→排名賽'] },
+      notes:['四強設有季軍戰','A/B組第三→排名賽'] },
     { rankingMatch:true,
       subLabel:'排名賽 — 第五名之爭',
       seeds:['A三','B三'],
@@ -1247,6 +1247,7 @@ function initKnockouts(){
       var cnts={};
       var sfGnoMap={};
       var finalGnoMap={};
+      var bronzeGnoMap={};
       tbds.forEach(function(tbd){
         var t=tbd.textContent.trim();
         var cell=tbd.closest('.td-match');
@@ -1286,6 +1287,7 @@ function initKnockouts(){
             cell.setAttribute('data-ko-div',divId);
             cell.setAttribute('data-ko-loser-sources',sf[0].gno+'|'+sf[1].gno);
             cell.setAttribute('data-ko-source-seeds',sf[0].seeds.join(',')+'|'+sf[1].seeds.join(','));
+            if(gno) bronzeGnoMap[div]=gno;
           }
         }
       });
@@ -1310,6 +1312,20 @@ function initKnockouts(){
           finalEl.setAttribute('data-sf-seeds',sf[0].seeds.join(',')+'|'+sf[1].seeds.join(','));
           finalEl.setAttribute('data-bk-div',divId);
           if(finalGnoMap[div]) finalEl.setAttribute('data-gno',finalGnoMap[div]);
+        }
+        // Create bronze bar widget for 季軍戰
+        if(bronzeGnoMap[div]&&sf[0]&&sf[1]){
+          var bkOuter=sec.querySelector('.bk-outer');
+          if(bkOuter){
+            var bar=document.createElement('div');
+            bar.className='bk-bronze-bar';
+            bar.setAttribute('data-sf-gnos',sf[0].gno+'|'+sf[1].gno);
+            bar.setAttribute('data-sf-seeds',sf[0].seeds.join(',')+'|'+sf[1].seeds.join(','));
+            bar.setAttribute('data-bk-div',divId);
+            bar.setAttribute('data-gno',bronzeGnoMap[div]);
+            bar.innerHTML='<span class="bk-bronze-label">🥉 季軍戰</span>';
+            bkOuter.appendChild(bar);
+          }
         }
       });
     }
@@ -1482,7 +1498,7 @@ function refreshBrackets(divId){
 }
 
 function refreshRankingMatch(divId){
-  var outer=document.querySelector('.bk-outer[data-bk-div="'+divId+'"');
+  var outer=document.querySelector('.bk-outer[data-bk-div="'+divId+'"]');
   if(!outer) return;
   outer.querySelectorAll('.bk-rank-wrap[data-gno]').forEach(function(wrap){
     var gno=wrap.getAttribute('data-gno');
