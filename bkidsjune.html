@@ -825,7 +825,7 @@ var BRACKET_DEFS = {
     { subLabel:'出線球隊四強',
       seeds:['A首','B次','B首','A次'],
       descs:['A組第一','B組第二','B組第一','A組第二'],
-      notes:['四強負方為雙季軍','A/B組第三→排名賽'] },
+      notes:['四強設有季軍戴','A/B組第三→排名賽'] },
     { rankingMatch:true,
       subLabel:'排名賽 — 第五名之爭',
       seeds:['A三','B三'],
@@ -836,7 +836,7 @@ var BRACKET_DEFS = {
     { subLabel:'出線球隊四強',
       seeds:['A首','B次','B首','A次'],
       descs:['A組第一','B組第二','B組第一','A組第二'],
-      notes:['四強負方為雙季軍','A/B組第三→排名賽'] },
+      notes:['四強設有季軍戴','A/B組第三→排名賽'] },
     { rankingMatch:true,
       subLabel:'排名賽 — 第五名之爭',
       seeds:['A三','B三'],
@@ -861,7 +861,7 @@ var BRACKET_DEFS = {
     { subLabel:'出線球隊四強',
       seeds:['A首','B次','B首','A次'],
       descs:['A組第一','B組第二','B組第一','A組第二'],
-      notes:['四強負方為雙季軍','A/B組第三→排名賽'] },
+      notes:['四強設有季軍戴','A/B組第三→排名賽'] },
     { rankingMatch:true,
       subLabel:'排名賽 — 第五名之爭',
       seeds:['A三','B三'],
@@ -1583,6 +1583,23 @@ function scKey(e, gno, sid){
     if(e.target === a && !e.shiftKey){ e.preventDefault(); if(b) b.focus(); }
   }
 }
+function clearAllResults(){
+  if(!confirm('確定清除所有賽果？此操作不可復原。')) return;
+  var params = new URLSearchParams({action:'clearSheet', sheet:SHEET_NAME});
+  fetch(API_URL + '?' + params.toString())
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if(res.success){
+        scores = {};
+        document.querySelectorAll('.sc-cell[data-game]').forEach(function(td){
+          renderScore(td, td.getAttribute('data-game'));
+        });
+        Object.keys(STANDINGS_DEFS).forEach(function(divId){ refreshStandings(divId); });
+      } else { alert('清除失敗: '+(res.message||'')); }
+    })
+    .catch(function(e){ alert('網絡錯誤'); });
+}
+
 function initAdmin(){
 
   isAdmin = true;
@@ -1599,7 +1616,7 @@ function initAdmin(){
 
   banner.className = 'admin-banner';
 
-  banner.innerHTML = '🔧 管理模式 — 點擊「+ 記分」或比更新結果（所有人即時可見）';
+  banner.innerHTML = '🔧 管理模式 — 點擊「+ 記分」或比更新結果（所有人即時可見）&nbsp;&nbsp;<button onclick="clearAllResults()" style="margin-left:12px;padding:4px 14px;background:#fff;color:#dc3545;border:1.5px solid #dc3545;border-radius:20px;font-size:.82em;font-weight:700;cursor:pointer">🗑️ 一鍵清除所有賽果</button>';
 
   var ct = document.querySelector('.ct');
 
