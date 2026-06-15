@@ -1412,25 +1412,25 @@ function refreshBrackets(divId){
     var sfGnos=bar.getAttribute('data-sf-gnos').split('|');
     var sfSeeds=bar.getAttribute('data-sf-seeds').split('|');
     var bronzeGno=bar.getAttribute('data-gno');
+    var ss1=sfSeeds[0].split(','), ss2=sfSeeds[1].split(',');
     function sfLoser(g,pair){var ss=pair.split(','),sc=scores[g];if(!sc||sc.a===''||sc.b==='')return null;var a=Number(sc.a),b=Number(sc.b);if(a===b)return null;var ls=a>b?ss[1]:ss[0];return{seed:ls,name:resolveSeedName(divIdB,ls)||ls};}
     var l1=sfLoser(sfGnos[0],sfSeeds[0]),l2=sfLoser(sfGnos[1],sfSeeds[1]);
+    // Fallback names from standings when semi not played yet
+    var p1name=l1?l1.name:((resolveSeedName(divIdB,ss1[0])||ss1[0])+' / '+(resolveSeedName(divIdB,ss1[1])||ss1[1]));
+    var p2name=l2?l2.name:((resolveSeedName(divIdB,ss2[0])||ss2[0])+' / '+(resolveSeedName(divIdB,ss2[1])||ss2[1]));
     var html='<span class="bk-bronze-label">🥉 季軍戰</span>';
-    if(l1&&l2){
-      html+='<span class="bk-bronze-team">'+escHtml(l1.name)+'</span>';
-      html+='<span class="bk-bronze-vs">vs</span>';
-      html+='<span class="bk-bronze-team">'+escHtml(l2.name)+'</span>';
-      if(bronzeGno){
-        var bsc=scores[bronzeGno];
-        if(bsc&&bsc.a!==''&&bsc.b!==''){
-          var ba=Number(bsc.a),bb=Number(bsc.b);
-          if(ba!==bb){
-            var wn=ba>bb?l1.name:l2.name;
-            html+='<span class="bk-bronze-arrow">→</span><span class="bk-bronze-winner">🥉 '+escHtml(wn)+'</span>';
-          }
+    html+='<span class="bk-bronze-team">'+escHtml(p1name)+'</span>';
+    html+='<span class="bk-bronze-vs">vs</span>';
+    html+='<span class="bk-bronze-team">'+escHtml(p2name)+'</span>';
+    if(l1&&l2&&bronzeGno){
+      var bsc=scores[bronzeGno];
+      if(bsc&&bsc.a!==''&&bsc.b!==''){
+        var ba=Number(bsc.a),bb=Number(bsc.b);
+        if(ba!==bb){
+          var wn=ba>bb?l1.name:l2.name;
+          html+='<span class="bk-bronze-arrow">→</span><span class="bk-bronze-winner">🥉 '+escHtml(wn)+'</span>';
         }
       }
-    } else {
-      html+='<span class="bk-bronze-pending">待定（四強負方）</span>';
     }
     bar.innerHTML=html;
   });
