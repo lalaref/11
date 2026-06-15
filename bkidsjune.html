@@ -1597,6 +1597,19 @@ function refreshPodium(){
     var label=DIV_LABELS[divId];
     var outer=document.querySelector('.bk-outer[data-bk-div="'+divId+'"]');
     var ch=null,sec=null,thr=null;
+    // For divisions with no bracket (pure round-robin like m8), read standings directly
+    if(!outer || !BRACKET_DEFS[divId]){
+      var stDef = STANDINGS_DEFS[divId];
+      if(stDef && stDef.length===1){
+        var ranked = calcGroupStandings(divId, stDef[0].prefix);
+        var divNm = names[divId]||{};
+        function nm(r){ return r ? (divNm[r.code]||r.code) : null; }
+        if(ranked.length>=1 && ranked[0].gp>0) ch  = nm(ranked[0]);
+        if(ranked.length>=2 && ranked[1].gp>0) sec = nm(ranked[1]);
+        if(ranked.length>=3 && ranked[2].gp>0) thr = nm(ranked[2]);
+      }
+      return {label:label,ch:ch,sec:sec,thr:thr};
+    }
     if(outer){
       var bk0=(BRACKET_DEFS[divId]&&BRACKET_DEFS[divId].brackets)?BRACKET_DEFS[divId].brackets[0]:null;
       if(bk0&&bk0.directBracket){
