@@ -973,6 +973,18 @@ function initBrackets(){
       var tmp=document.createElement('div');
       tmp.innerHTML=bk.rankingMatch?buildRankingMatchHtml(bk):bk.directBracket?buildDirectBracketHtml(bk):(bk.direct?buildDirectFinalHtml(bk):buildBracketHtml(bk,idx));
       outer.appendChild(tmp.firstElementChild);
+      if(bk.rankingMatch){
+        var wrapEl=outer.querySelector('.bk-rank-wrap');
+        if(wrapEl){
+          sec.querySelectorAll('tbody tr').forEach(function(row){
+            var lastSpan=row.querySelector('td:last-child span');
+            if(lastSpan&&lastSpan.textContent.trim()==='排名賽'){
+              var gnoc=row.querySelector('.td-gno');
+              if(gnoc) wrapEl.setAttribute('data-gno',gnoc.textContent.trim());
+            }
+          });
+        }
+      }
       if(bk.notes&&bk.notes.length){
         var nb=document.createElement('div');nb.className='bk-notes-bar';
         bk.notes.forEach(function(n){nb.innerHTML+='<span class="bk-note-pill">✦ '+n+'</span>';});
@@ -1357,6 +1369,35 @@ function refreshBrackets(divId){
     } else {
       winEl.textContent='';
     }
+  });
+  refreshRankingMatch(divId);
+}
+
+function refreshRankingMatch(divId){
+  var outer=document.querySelector('.bk-outer[data-bk-div="'+divId+'"');
+  if(!outer) return;
+  outer.querySelectorAll('.bk-rank-wrap[data-gno]').forEach(function(wrap){
+    var gno=wrap.getAttribute('data-gno');
+    var sc=scores[gno];
+    var winPill=wrap.querySelector('.bk-rank-pill.win');
+    var losePill=wrap.querySelector('.bk-rank-pill.lose');
+    if(!winPill||!losePill) return;
+    var boxes=wrap.querySelectorAll('.bk-box[data-seed]');
+    if(boxes.length<2) return;
+    var seed0=boxes[0].getAttribute('data-seed');
+    var seed1=boxes[1].getAttribute('data-seed');
+    var name0=resolveSeedName(divId,seed0)||seed0;
+    var name1=resolveSeedName(divId,seed1)||seed1;
+    if(sc&&sc.a!==''&&sc.b!==''){
+      var a=Number(sc.a),b=Number(sc.b);
+      if(!isNaN(a)&&!isNaN(b)&&a!==b){
+        winPill.innerHTML='🏅 勝方：'+escHtml(a>b?name0:name1);
+        losePill.innerHTML='負方：'+escHtml(a>b?name1:name0);
+        return;
+      }
+    }
+    winPill.innerHTML='🏅 勝方：第五名';
+    losePill.innerHTML='負方：第六名';
   });
 }
 
