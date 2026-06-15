@@ -186,6 +186,27 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .pt-dash{color:#ccc;font-style:italic;font-size:.82em}
 /* trigger button */
 .div-btn.podium-btn{background:linear-gradient(135deg,#7c5800,#c98b00);color:#fff3d0;border:none;font-weight:700}
+/* ── Team Name Editor Modal ── */
+#tn-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1300;align-items:center;justify-content:center;padding:16px}
+#tn-modal-overlay.open{display:flex}
+#tn-modal{background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(0,0,0,.35);width:100%;max-width:660px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;animation:ptSlideIn .2s ease}
+#tn-modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px;background:linear-gradient(135deg,#1a3a6e,#2e6fd4);flex-shrink:0}
+#tn-modal-header span{font-size:1.05em;font-weight:700;color:#fff;letter-spacing:.04em}
+#tn-modal-header button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1.3em;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#tn-modal-body{overflow-y:auto;flex:1;padding:16px 20px}
+.tn-div-block{margin-bottom:20px}
+.tn-div-label{font-size:.82em;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #dde6f7}
+.tn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+.tn-row{display:flex;align-items:center;gap:8px}
+.tn-slot{font-size:.78em;font-weight:700;color:#666;width:36px;flex-shrink:0;text-align:right}
+.tn-input{flex:1;padding:6px 10px;border:1.5px solid #ccc;border-radius:8px;font-size:.88em;font-family:inherit}
+.tn-input:focus{outline:none;border-color:#2e6fd4;box-shadow:0 0 0 2px rgba(46,111,212,.18)}
+.tn-input.overridden{border-color:#e67e22;background:#fff8f0}
+#tn-modal-footer{padding:12px 20px;background:#f5f7fa;border-top:1px solid #e0e4ea;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.tn-save-btn{padding:8px 22px;background:#2e6fd4;color:#fff;border:none;border-radius:10px;font-size:.9em;font-weight:700;cursor:pointer}
+.tn-save-btn:hover{background:#1a5abf}
+.tn-reset-btn{padding:8px 16px;background:#fff;color:#dc3545;border:1.5px solid #dc3545;border-radius:10px;font-size:.85em;font-weight:700;cursor:pointer}
+.tn-note{font-size:.78em;color:#888;margin-left:auto}
 .bk-direct{display:flex;flex-direction:column;gap:14px}
 .bk-direct-game{background:rgba(255,255,255,.4);border-radius:14px;padding:12px 14px}
 .bk-direct-badge{font-size:.75em;font-weight:700;margin-bottom:8px;padding:3px 10px;border-radius:8px;display:inline-block}
@@ -735,6 +756,22 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
         <thead><tr><th>組別</th><th>🥇 冠軍</th><th>🥈 亞軍</th><th>🥉 季軍</th></tr></thead>
         <tbody id="pt-body"></tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- Team Name Editor Modal (admin only) -->
+<div id="tn-modal-overlay" onclick="closeTnIfOutside(event)">
+  <div id="tn-modal" role="dialog" aria-modal="true" aria-label="更改球隊名稱">
+    <div id="tn-modal-header">
+      <span>✏️ 更改球隊名稱</span>
+      <button onclick="closeTnEditor()" aria-label="關閉">&times;</button>
+    </div>
+    <div id="tn-modal-body" id="tn-body-inner"></div>
+    <div id="tn-modal-footer">
+      <button class="tn-save-btn" onclick="saveTnEditor()">💾 儲存更改</button>
+      <button class="tn-reset-btn" onclick="resetTnEditor()">↺ 重設預設</button>
+      <span class="tn-note">💾 儲存後所有人即時可見</span>
     </div>
   </div>
 </div>
@@ -1657,10 +1694,28 @@ function loadScores(){
       if(!res.success) return;
       var data = res.scores || {};
       scores = {};
+      // First pass: extract team name overrides (key format: name_{divId}_{code})
+      var namesUpdated = false;
       Object.keys(data).forEach(function(key){
+        if(key.indexOf('name_') !== 0) return;
+        var rest = key.slice(5); // strip 'name_'
+        var sep = rest.indexOf('_');
+        if(sep < 1) return;
+        var divId = rest.slice(0, sep);
+        var code = rest.slice(sep + 1);
+        var val = String((data[key].scoreA !== undefined ? data[key].scoreA : ''));
+        if(val && names[divId] !== undefined){ names[divId][code] = val; namesUpdated = true; }
+      });
+      // Second pass: load game scores
+      Object.keys(data).forEach(function(key){
+        if(key.indexOf('name_') === 0) return;
         var d = data[key];
         scores[key] = { a: String(d.scoreA !== undefined ? d.scoreA : ''), b: String(d.scoreB !== undefined ? d.scoreB : '') };
       });
+      if(namesUpdated){
+        applyAllNames();
+        Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
+      }
       document.querySelectorAll('.sc-cell[data-game]').forEach(function(td){
         renderScore(td, td.getAttribute('data-game'));
       });
@@ -1684,6 +1739,19 @@ function syncMatchColWidth(){
   });
 }
 function saveScores(){}
+function pushNameToApi(divId, code, val){
+  var params = new URLSearchParams({
+    action: 'update',
+    pw: ADMIN_PASSWORD,
+    sheet: SHEET_NAME,
+    key: 'name_' + divId + '_' + code,
+    scoreA: val,
+    scoreB: '',
+    status: 'name'
+  });
+  fetch(API_URL + '?' + params.toString())
+    .catch(function(e){ console.warn('Name push failed:', e); });
+}
 function pushScoreToApi(gno, a, b){
   var params = new URLSearchParams({
     action: 'update',
@@ -1826,6 +1894,93 @@ function clearAllResults(){
     .catch(function(e){ alert('網絡錯誤'); });
 }
 
+// ── Team Name Editor (admin) ──
+var TN_DIV_LABELS = {
+  g8f:'女子U8', g10f:'女子U10', g12f:'女子U12',
+  m8:'男子U8', m10:'男子U10', m12:'男子U12', g14m:'混合U14'
+};
+function openTnEditor(){
+  var body = document.getElementById('tn-modal-body');
+  if(!body) return;
+  body.innerHTML = '';
+  Object.keys(DEFAULT_NAMES).forEach(function(divId){
+    var slots = DEFAULT_NAMES[divId];
+    var block = document.createElement('div');
+    block.className = 'tn-div-block';
+    var lbl = document.createElement('div');
+    lbl.className = 'tn-div-label';
+    lbl.textContent = (TN_DIV_LABELS[divId]||divId) + ' (' + divId + ')';
+    block.appendChild(lbl);
+    var grid = document.createElement('div');
+    grid.className = 'tn-grid';
+    Object.keys(slots).forEach(function(code){
+      var row = document.createElement('div');
+      row.className = 'tn-row';
+      var slotLbl = document.createElement('span');
+      slotLbl.className = 'tn-slot';
+      slotLbl.textContent = code;
+      var inp = document.createElement('input');
+      inp.type = 'text';
+      inp.className = 'tn-input';
+      inp.setAttribute('data-div', divId);
+      inp.setAttribute('data-code', code);
+      var current = (names[divId]||{})[code] || '';
+      inp.value = current;
+      inp.placeholder = DEFAULT_NAMES[divId][code] || '';
+      if(current !== (DEFAULT_NAMES[divId][code]||'')) inp.classList.add('overridden');
+      inp.addEventListener('input', function(){
+        var def = DEFAULT_NAMES[inp.getAttribute('data-div')][inp.getAttribute('data-code')] || '';
+        inp.classList.toggle('overridden', inp.value !== def);
+      });
+      row.appendChild(slotLbl);
+      row.appendChild(inp);
+      grid.appendChild(row);
+    });
+    block.appendChild(grid);
+    body.appendChild(block);
+  });
+  document.getElementById('tn-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeTnEditor(){
+  document.getElementById('tn-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeTnIfOutside(e){
+  if(e.target === document.getElementById('tn-modal-overlay')) closeTnEditor();
+}
+function saveTnEditor(){
+  document.querySelectorAll('#tn-modal-body .tn-input').forEach(function(inp){
+    var divId = inp.getAttribute('data-div');
+    var code = inp.getAttribute('data-code');
+    var val = inp.value.trim();
+    if(!names[divId]) names[divId] = {};
+    var effective = val || DEFAULT_NAMES[divId][code] || '';
+    names[divId][code] = effective;
+    // Push to GAS so all viewers get the change
+    pushNameToApi(divId, code, effective);
+  });
+  applyAllNames();
+  Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
+  refreshPodium();
+  closeTnEditor();
+}
+function resetTnEditor(){
+  if(!confirm('重設所有球隊名稱至預設？')) return;
+  // Push blank to each slot so GAS returns no override
+  Object.keys(DEFAULT_NAMES).forEach(function(divId){
+    Object.keys(DEFAULT_NAMES[divId]).forEach(function(code){
+      pushNameToApi(divId, code, DEFAULT_NAMES[divId][code]);
+    });
+  });
+  names = JSON.parse(JSON.stringify(DEFAULT_NAMES));
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  applyAllNames();
+  Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
+  refreshPodium();
+  closeTnEditor();
+}
+
 function initAdmin(){
 
   isAdmin = true;
@@ -1842,7 +1997,8 @@ function initAdmin(){
 
   banner.className = 'admin-banner';
 
-  banner.innerHTML = '🔧 管理模式 — 點擊「+ 記分」或比更新結果（所有人即時可見）&nbsp;&nbsp;<button onclick="clearAllResults()" style="margin-left:12px;padding:4px 14px;background:#fff;color:#dc3545;border:1.5px solid #dc3545;border-radius:20px;font-size:.82em;font-weight:700;cursor:pointer">🗑️ 一鍵清除所有賽果</button>';
+  banner.innerHTML = '🔧 管理模式 — 點擊「+ 記分」或比更新結果（所有人即時可見）&nbsp;&nbsp;<button onclick="clearAllResults()" style="margin-left:12px;padding:4px 14px;background:#fff;color:#dc3545;border:1.5px solid #dc3545;border-radius:20px;font-size:.82em;font-weight:700;cursor:pointer">🗑️ 一鍵清除所有賽果</button>'
+    + '&nbsp;&nbsp;<button onclick="openTnEditor()" style="margin-left:8px;padding:4px 14px;background:#fff;color:#1a3a6e;border:1.5px solid #1a3a6e;border-radius:20px;font-size:.82em;font-weight:700;cursor:pointer">✏️ 更改球隊名稱</button>';
 
   var ct = document.querySelector('.ct');
 
