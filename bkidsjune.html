@@ -936,8 +936,8 @@ function buildRankingMatchHtml(bk){
   h+='<div class="bk-box" data-seed="'+bk.seeds[1]+'" data-desc="'+bk.descs[1]+'"><div class="bk-box-code">'+bk.seeds[1]+'</div><div class="bk-box-desc">'+bk.descs[1]+'</div></div>';
   h+='<span class="bk-rank-arrow">→</span>';
   h+='<div class="bk-rank-outcomes">';
-  h+='<div class="bk-rank-pill win">🏅 勝方：第五名</div>';
-  h+='<div class="bk-rank-pill lose">負方：第六名</div>';
+  h+='<div class="bk-rank-pill win">第五名：—</div>';
+  h+='<div class="bk-rank-pill lose">第六名：—</div>';
   h+='</div></div>';
   return h;
 }
@@ -1391,13 +1391,13 @@ function refreshRankingMatch(divId){
     if(sc&&sc.a!==''&&sc.b!==''){
       var a=Number(sc.a),b=Number(sc.b);
       if(!isNaN(a)&&!isNaN(b)&&a!==b){
-        winPill.innerHTML='🏅 勝方：'+escHtml(a>b?name0:name1);
-        losePill.innerHTML='負方：'+escHtml(a>b?name1:name0);
+        winPill.innerHTML='第五名：'+escHtml(a>b?name0:name1);
+        losePill.innerHTML='第六名：'+escHtml(a>b?name1:name0);
         return;
       }
     }
-    winPill.innerHTML='🏅 勝方：第五名';
-    losePill.innerHTML='負方：第六名';
+    winPill.innerHTML='第五名：—';
+    losePill.innerHTML='第六名：—';
   });
 }
 
