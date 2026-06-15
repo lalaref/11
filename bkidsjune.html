@@ -1230,6 +1230,13 @@ function initKnockouts(){
             cell.setAttribute('data-ko-source-seeds',sf[0].seeds.join(',')+'|'+sf[1].seeds.join(','));
             if(gno) finalGnoMap[div]=gno;
           }
+        } else if(type==='季軍戰'){
+          var sf=sfGnoMap[div]||[];
+          if(sf.length>=2&&sf[0].gno&&sf[1].gno){
+            cell.setAttribute('data-ko-div',divId);
+            cell.setAttribute('data-ko-loser-sources',sf[0].gno+'|'+sf[1].gno);
+            cell.setAttribute('data-ko-source-seeds',sf[0].seeds.join(',')+'|'+sf[1].seeds.join(','));
+          }
         }
       });
       // Wire up bracket boxes with game data
@@ -1287,6 +1294,28 @@ function refreshKnockouts(divId){
     var p1name=w1?w1.name:((resolveSeedName(divId,ss1[0])||ss1[0])+' / '+(resolveSeedName(divId,ss1[1])||ss1[1]));
     var p2seed=w2?w2.seed:'勝②';
     var p2name=w2?w2.name:((resolveSeedName(divId,ss2[0])||ss2[0])+' / '+(resolveSeedName(divId,ss2[1])||ss2[1]));
+    cell.innerHTML='<span class="tn-code">'+escHtml(p1seed)+'</span><span class="tn">'+escHtml(p1name)+'</span>'
+      +' <span class="vs">vs</span> '
+      +'<span class="tn-code">'+escHtml(p2seed)+'</span><span class="tn">'+escHtml(p2name)+'</span>';
+  });
+  document.querySelectorAll('.td-match[data-ko-div="'+divId+'"][data-ko-loser-sources]').forEach(function(cell){
+    var srcs=cell.getAttribute('data-ko-loser-sources').split('|');
+    var seedPairs=cell.getAttribute('data-ko-source-seeds').split('|');
+    function loser(gno,pair){
+      var ss=pair.split(',');
+      var sc=scores[gno];
+      if(!sc||sc.a===''||sc.b==='') return null;
+      var a=Number(sc.a),b=Number(sc.b);
+      if(a===b) return null;
+      var ls=a>b?ss[1]:ss[0];
+      return {seed:ls,name:resolveSeedName(divId,ls)||ls};
+    }
+    var l1=loser(srcs[0],seedPairs[0]),l2=loser(srcs[1],seedPairs[1]);
+    var ss1=seedPairs[0].split(','),ss2=seedPairs[1].split(',');
+    var p1seed=l1?l1.seed:'負②';
+    var p1name=l1?l1.name:((resolveSeedName(divId,ss1[0])||ss1[0])+' / '+(resolveSeedName(divId,ss1[1])||ss1[1]));
+    var p2seed=l2?l2.seed:'負③';
+    var p2name=l2?l2.name:((resolveSeedName(divId,ss2[0])||ss2[0])+' / '+(resolveSeedName(divId,ss2[1])||ss2[1]));
     cell.innerHTML='<span class="tn-code">'+escHtml(p1seed)+'</span><span class="tn">'+escHtml(p1name)+'</span>'
       +' <span class="vs">vs</span> '
       +'<span class="tn-code">'+escHtml(p2seed)+'</span><span class="tn">'+escHtml(p2name)+'</span>';
