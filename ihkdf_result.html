@@ -355,18 +355,20 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 
   /* Podium modal */
   .pt-modal-overlay{padding:10px}
-  .pt-modal{width:100%;border-radius:16px;max-height:92vh}
+  .pt-modal{width:100%;max-width:calc(100vw - 20px);border-radius:16px;max-height:92dvh}
   .pt-modal-header{padding:14px 16px 12px}
   .pt-modal-title{font-size:1.12em}
   .pt-modal-close{width:36px;height:36px;font-size:1.35em}
+  .pt-modal-body{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
   .pt-table,.pt-table thead,.pt-table tbody,.pt-table tr,.pt-table th,.pt-table td{display:block;width:100%}
   .pt-table{font-size:1em;table-layout:auto}
   .pt-table thead{display:none}
-  .pt-table tbody tr{margin:10px 12px;border:1px solid #f0e0c0;border-radius:12px;overflow:hidden;background:#fff8ee!important}
-  .pt-table tbody td{display:flex;justify-content:space-between;gap:12px;text-align:right;padding:10px 14px;font-size:1em;border-bottom:1px solid #f1e5cf;white-space:normal;word-break:break-word}
+  .pt-table tbody tr{width:auto;margin:10px 12px;border:1px solid #f0e0c0;border-radius:12px;overflow:hidden;background:#fff8ee!important;box-sizing:border-box}
+  .pt-table tbody td{display:flex;justify-content:space-between;gap:12px;text-align:right;padding:10px 14px;font-size:1em;border-bottom:1px solid #f1e5cf;white-space:normal;word-break:break-word;box-sizing:border-box}
   .pt-table tbody td:last-child{border-bottom:none}
   .pt-table tbody td::before{content:attr(data-label);font-weight:900;color:#8a6000;text-align:left;flex:0 0 72px}
   .pt-div-label{padding-left:14px!important;background:#fff0c2;font-size:1.02em;text-align:right!important;white-space:normal}
+  .podium-fab{right:18px;bottom:136px;padding:9px 14px;font-size:.86em}
 
   /* Footer */
   .ft{padding:28px 18px 20px;border-radius:28px 28px 0 0;margin:28px 8px 0}
@@ -401,6 +403,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .bk-box{min-width:104px}
   .bk-outer[data-bk-div="day3"] .bk{min-width:620px}
   .bk-outer[data-bk-div="day3"] .bk-box{min-width:132px}
+  .pt-modal-overlay{padding:8px}
+  .pt-modal{max-width:calc(100vw - 16px);border-radius:14px;max-height:94dvh}
+  .pt-modal-header{padding:12px 14px 10px}
+  .pt-table tbody tr{margin:8px 8px}
+  .pt-table tbody td{padding:9px 12px;gap:10px}
+  .pt-table tbody td::before{flex-basis:58px}
+  .podium-fab{right:14px;bottom:128px;padding:8px 12px;font-size:.82em}
   .wf{width:48px;height:48px;bottom:14px;right:14px}
   .jnb{width:40px;height:40px;bottom:72px;right:14px}
 }
@@ -917,6 +926,7 @@ window.addEventListener('DOMContentLoaded', function(){
 
   initKnockouts();
   syncMatchColWidth();
+  setTimeout(openPodium, 350);
   setInterval(loadScores, 30000);
 
   if(new URLSearchParams(location.search).get('admin') === '1'){
