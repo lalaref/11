@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>IHKDF Result | Rundown</title>
-<meta name="description" content="IHKDF 賽事 Rundown（Day 1 / Day 2 / Day 3）完整時間表。">
+<title>IHKDF 明日之星盃 / 凝動夢攻防盃</title>
+<meta name="description" content="IHKDF 明日之星盃 / 凝動夢攻防盃（Day 1 / Day 2 / Day 3）賽程與賽果。">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-L1YNR24WBC"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-L1YNR24WBC');</script>
 <link rel="icon" type="image/jpeg" href="lalaref2.jpg">
@@ -98,13 +98,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sched-table tbody tr.phase-break{display:block;background:rgba(212,165,116,.12)}
 .sched-table tbody tr.phase-break td{padding:6px 14px;font-size:.78em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.5px}
 .sched-table td{display:block;box-sizing:border-box;padding:9px 14px;color:#5a4a3a;flex-shrink:0}
-/* Global column order: 時間 | 結果 | 對陣 | 場次 | 場區 | 類型 */
+/* Global column order: 時間 | 類型 | 結果 | 對陣 | 場次 | 場區 */
 .sched-table thead th:nth-child(1),.td-time{order:1;width:90px;font-weight:700;color:#d4a574;white-space:nowrap}
-.sched-table thead th:nth-child(5),.sc-cell{order:2;width:100px;text-align:left}
-.sched-table thead th:nth-child(4),.td-match{order:3;flex:1 1 0;min-width:0;width:auto}
+.sched-table thead th:nth-child(6),.sched-table tbody td:last-child{order:2;width:88px;flex-shrink:0;text-align:left}
+.sched-table thead th:nth-child(5),.sc-cell{order:3;width:100px;text-align:left}
+.sched-table thead th:nth-child(4),.td-match{order:4;flex:1 1 0;min-width:0;width:auto}
 .sched-table thead th:nth-child(2),.sched-table .td-gno{display:none}
 .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){order:5;width:80px;text-align:left}
-.sched-table thead th:nth-child(6),.sched-table tbody td:last-child{order:6;flex-shrink:0;text-align:left}
 .td-court{background:rgba(255,255,255,.4);border-radius:8px;padding:3px 10px;font-size:.78em;font-weight:700;color:#5a4a3a;white-space:nowrap;display:inline-block}
 .td-court[data-court="1"]{background:rgba(52,152,219,.15);color:#154360;border:1px solid rgba(52,152,219,.45)}
 .td-court[data-court="2"]{background:rgba(39,174,96,.15);color:#145a32;border:1px solid rgba(39,174,96,.45)}
@@ -321,13 +321,16 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sched-table thead th,.sched-table tbody td{padding:6px 6px}
   .sched-table thead th{font-size:.72em}
   .sched-table thead th:nth-child(1),.td-time{width:52px}
+  .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{display:block;width:56px;padding:6px 2px;text-align:left}
+  .tag-ko{margin-left:0;padding:2px 5px;font-size:.66em;white-space:nowrap}
   .sched-table thead th:nth-child(5),.sc-cell{width:64px;padding:6px 4px !important;margin-left:-8px}
   .sched-table thead th:nth-child(2),.sched-table .td-gno{display:none}
   .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:44px;padding:6px 2px;display:flex;justify-content:flex-end;align-items:center}
-  .court-split .sched-table thead th:nth-child(3),.court-split .sched-table tbody td:nth-child(3){display:none}
+  .court-split-grid .sched-table thead th:nth-child(3),.court-split-grid .sched-table tbody td:nth-child(3){display:none}
+  .sched-table thead th:nth-child(4),.td-match{flex:1 1 0 !important;width:auto !important;min-width:0 !important}
+  #day3 .td-match{font-size:1em;line-height:1.45}
+  #day3 .match-meta{font-size:.72em}
   .td-court{padding:3px 5px;font-size:.72em}
-  /* Hide 類型 on mobile */
-  .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{display:none}
   /* phase-break full width */
   .sched-table tbody tr.phase-break td{width:100% !important;white-space:normal;font-size:.74em;padding:5px 8px}
 
@@ -396,8 +399,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sched-table thead th:nth-child(1),.td-time{width:44px;white-space:nowrap}
   .sched-table thead th:nth-child(2),.sched-table .td-gno{width:20px;padding-left:2px;padding-right:2px}
   .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:42px;display:flex;justify-content:flex-end;align-items:center}
-  .court-split .sched-table thead th:nth-child(3),.court-split .sched-table tbody td:nth-child(3){display:none}
+  .court-split-grid .sched-table thead th:nth-child(3),.court-split-grid .sched-table tbody td:nth-child(3){display:none}
+  .sched-table thead th:nth-child(4),.td-match{flex:1 1 0 !important;width:auto !important;min-width:0 !important}
+  #day3 .td-match{font-size:1em;line-height:1.45}
+  #day3 .match-meta{font-size:.72em}
   .sched-table thead th:nth-child(5),.sc-cell{width:64px}
+  .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{width:48px}
+  .tag-ko{font-size:.62em;padding:2px 4px}
   .sc-inp{width:38px}
   .sc-btn{padding:5px 8px}
   .st-table{font-size:.75em}
@@ -428,7 +436,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 
 <!-- ═══════════ HEADER ═══════════ -->
 <div class="ph">
-  <h1>🏀 IHKDF 比賽賽程</h1>
+  <h1>🏀 IHKDF 明日之星盃 / 凝動夢攻防盃</h1>
   <div class="sub">Day 1: 3/7/2026 · Day 2: 4/7/2026 · Day 3: 5/7/2026 · Court A / Court B</div>
   <span class="badge upcoming">即將舉行</span>
 </div>
@@ -2052,6 +2060,14 @@ function loadScores(){
     .catch(function(e){ console.log('Score fetch failed:', e); });
 }
 function syncMatchColWidth(){
+  if(window.matchMedia && window.matchMedia('(max-width: 768px)').matches){
+    document.querySelectorAll('.sched-table').forEach(function(tbl){
+      var th=tbl.querySelector('thead th:nth-child(4)');
+      tbl.querySelectorAll('.td-match').forEach(function(c){c.style.flex='';c.style.width='';});
+      if(th){th.style.flex='';th.style.width='';}
+    });
+    return;
+  }
   document.querySelectorAll('.sched-table').forEach(function(tbl){
     var cells=Array.from(tbl.querySelectorAll('.td-match'));
     var th=tbl.querySelector('thead th:nth-child(4)');
