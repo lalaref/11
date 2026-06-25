@@ -142,6 +142,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sc-display:hover{background:rgba(255,255,255,.85)}
 .sc-num{font-weight:900;color:#9a8a7a;min-width:20px;text-align:center;transition:color .2s}
 .sc-num.win{color:#1a6635}
+.sc-num.forfeit{color:#b42318;font-weight:900}
+.sc-num.award{color:#1a6635;font-weight:900}
 .sc-sep{color:#c0b0a0;font-size:.8em}
 .sc-edit{display:inline-flex;align-items:center;gap:4px}
 .sc-inp{width:38px;padding:3px 4px;border:2px solid #d4a574;border-radius:6px;font-size:.85em;text-align:center;font-family:inherit;color:#5a4a3a;appearance:textfield;-moz-appearance:textfield;background:#fff}
@@ -150,6 +152,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sc-btn:hover{filter:brightness(1.08)}
 .sc-ok{background:#1a6635}
 .sc-cancel{background:#9a8a7a}
+.sc-forfeit-btn{background:#b42318}
 
 /* ── Bracket ── */
 .bk-outer{margin-top:18px;padding:14px 16px;background:rgba(255,255,255,.35);border-radius:14px;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch}
@@ -788,12 +791,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
     <div class="rules-highlight">本屆賽事將以全新晉級賽制進行，各隊按初賽成績分別編入 Division 1 / Division 2 / Division 3 組別比賽，爭奪各組別獎項！提醒各得獎隊伍完成比賽後，需自行到領獎處領取獎項後，才離開場地。</div>
     <strong>積分制度</strong>
     <ul>
-      <li>球隊每勝1場得2分，每負1場得1分（包括「違反比賽規定」判作失敗），及「喪失比賽資格」計0分。</li>
-      <li>球隊若積分相同，則依據有關球隊之間的比賽結果按下列先後程序判定名次：
+      <li>小組賽中，勝方得3分，平手得2分，負方得1分，棄權得0分。</li>
+      <li>如小組內出現得分相同的隊伍，將順序按下列步驟決定出線席位：
         <ol style="padding-left:18px;margin-top:4px">
-          <li>有關球隊的比賽得失分差較高的隊。</li>
-          <li>有關球隊的比賽得分總和較高的隊。</li>
-          <li>若按上述程序仍未能判定名次，則用黃金罰球判定。</li>
+          <li>獲勝場數最多的隊（若小組比賽場數不相等，則採用獲勝率）。</li>
+          <li>對賽成績（只考慮勝或負，但僅適用於同一小組內）。</li>
+          <li>平均得分最多的隊（不包括因對隊棄權而獲得的分數）。</li>
+          <li>若以上步驟仍無法決定出線席位，大會將採用抽籤方式決定。</li>
         </ol>
       </li>
       <li>參賽者須自行承擔活動一切有關任何傷亡的風險。</li>
@@ -1403,6 +1407,25 @@ var DAY2_RANDOM_DRAW_DEFS = [
 
 function normalizeStandingText(s){ return String(s||'').replace(/&nbsp;/g,' ').replace(/[·・]/g,' ').replace(/\s+/g,' ').trim(); }
 
+function isForfeitToken(v){ return String(v||'').toUpperCase() === 'F'; }
+function isWinToken(v){ return String(v||'').toUpperCase() === 'W'; }
+function isCompleteScore(sc){ return !!(sc && sc.a !== '' && sc.b !== ''); }
+function scoreDecision(sc){
+  if(!isCompleteScore(sc)) return null;
+  var aForfeit = isForfeitToken(sc.a), bForfeit = isForfeitToken(sc.b);
+  if(aForfeit || bForfeit){
+    if(aForfeit && !bForfeit) return {winner:1, loser:0, draw:false, forfeit:true};
+    if(bForfeit && !aForfeit) return {winner:0, loser:1, draw:false, forfeit:true};
+    return {winner:null, loser:null, draw:false, forfeit:true};
+  }
+  var scoreA = Number(sc.a), scoreB = Number(sc.b);
+  if(isNaN(scoreA) || isNaN(scoreB)) return null;
+  if(scoreA === scoreB) return {winner:null, loser:null, draw:true, forfeit:false, scoreA:scoreA, scoreB:scoreB};
+  return {winner:scoreA > scoreB ? 0 : 1, loser:scoreA > scoreB ? 1 : 0, draw:false, forfeit:false, scoreA:scoreA, scoreB:scoreB};
+}
+function scoreWinnerIndex(sc){ var d = scoreDecision(sc); return d && !d.draw ? d.winner : null; }
+function scoreLoserIndex(sc){ var d = scoreDecision(sc); return d && !d.draw ? d.loser : null; }
+
 function extractRundownMatch(row, def){
   var matchCell = row.querySelector('.td-match');
   var gnoCell = row.querySelector('.td-gno');
@@ -1427,53 +1450,105 @@ function extractRundownMatch(row, def){
   return teamA && teamB ? {gno:gnoCell.textContent.trim(), teamA:teamA, teamB:teamB} : null;
 }
 
+function standingPoints(row){ return row.pts !== undefined ? row.pts : (row.w * 3 + row.d * 2 + row.l); }
+function standingWinRate(row){ return row.gp ? row.w / row.gp : 0; }
+function standingWinMetric(row){ return row.gp ? (row.w + ' / ' + Math.round(standingWinRate(row) * 100) + '%') : '-'; }
+function standingAvgScore(row){ return row.avgGp ? row.avgGf / row.avgGp : 0; }
+function sortStandingRows(rows, games, keyField, teamNameField){
+  var sorted = rows.slice().sort(function(a,b){
+    var pts = standingPoints(b) - standingPoints(a);
+    if(pts !== 0) return pts;
+    return String(a[teamNameField]).localeCompare(String(b[teamNameField]), 'zh-Hant');
+  });
+  var result = [], i = 0;
+  while(i < sorted.length){
+    var ptsVal = standingPoints(sorted[i]);
+    var tied = [];
+    while(i < sorted.length && standingPoints(sorted[i]) === ptsVal) tied.push(sorted[i++]);
+    if(tied.length > 1){
+      var tiedKeys = tied.map(function(row){ return row[keyField]; });
+      var unequalGames = tied.some(function(row){ return row.gp !== tied[0].gp; });
+      function h2hWins(row){
+        var key = row[keyField], wins = 0;
+        games.forEach(function(game){
+          var inA = tiedKeys.indexOf(game.teamA) !== -1;
+          var inB = tiedKeys.indexOf(game.teamB) !== -1;
+          if(!inA || !inB) return;
+          if(game.forfeit){
+            if(game.teamA === key && game.winner === 0) wins++;
+            if(game.teamB === key && game.winner === 1) wins++;
+            return;
+          }
+          if(game.scoreA === game.scoreB) return;
+          if(game.teamA === key && game.scoreA > game.scoreB) wins++;
+          if(game.teamB === key && game.scoreB > game.scoreA) wins++;
+        });
+        return wins;
+      }
+      tied.sort(function(a,b){
+        var winMetricB = unequalGames ? standingWinRate(b) : b.w;
+        var winMetricA = unequalGames ? standingWinRate(a) : a.w;
+        if(winMetricB !== winMetricA) return winMetricB - winMetricA;
+        var h2h = h2hWins(b) - h2hWins(a);
+        if(h2h !== 0) return h2h;
+        var avg = standingAvgScore(b) - standingAvgScore(a);
+        if(avg !== 0) return avg;
+        return String(a[teamNameField]).localeCompare(String(b[teamNameField]), 'zh-Hant');
+      });
+    }
+    result = result.concat(tied);
+  }
+  return result;
+}
+
 function calcRundownStanding(divId, def){
   var stats = {};
-  def.teams.forEach(function(team){ stats[team] = {team:team,w:0,l:0,gf:0,ga:0,gp:0}; });
+  var games = [];
+  def.teams.forEach(function(team){ stats[team] = {team:team,w:0,d:0,l:0,f:0,pts:0,gf:0,ga:0,gp:0,avgGf:0,avgGp:0}; });
   document.querySelectorAll('.sched-table[data-div="'+divId+'"]').forEach(function(table){
     table.querySelectorAll('tbody tr:not(.phase-break)').forEach(function(row){
       var match = extractRundownMatch(row, def);
       if(!match) return;
       var sc = scores[match.gno];
-      if(!sc || sc.a === '' || sc.b === '') return;
-      var scoreA = Number(sc.a), scoreB = Number(sc.b);
-      if(isNaN(scoreA) || isNaN(scoreB)) return;
+      var decision = scoreDecision(sc);
+      if(!decision) return;
       var a = stats[match.teamA], b = stats[match.teamB];
       if(!a || !b) return;
-      a.gf += scoreA; a.ga += scoreB; a.gp++;
-      b.gf += scoreB; b.ga += scoreA; b.gp++;
-      if(scoreA > scoreB){ a.w++; b.l++; }
-      else if(scoreB > scoreA){ b.w++; a.l++; }
+      a.gp++; b.gp++;
+      if(decision.forfeit){
+        if(decision.winner === 0){ a.w++; a.pts += 3; b.f++; }
+        else if(decision.winner === 1){ b.w++; b.pts += 3; a.f++; }
+        games.push({teamA:match.teamA, teamB:match.teamB, forfeit:true, winner:decision.winner});
+        return;
+      }
+      var scoreA = decision.scoreA, scoreB = decision.scoreB;
+      a.gf += scoreA; a.ga += scoreB; a.avgGf += scoreA; a.avgGp++;
+      b.gf += scoreB; b.ga += scoreA; b.avgGf += scoreB; b.avgGp++;
+      games.push({teamA:match.teamA, teamB:match.teamB, scoreA:scoreA, scoreB:scoreB, forfeit:false});
+      if(decision.draw){ a.d++; b.d++; a.pts += 2; b.pts += 2; }
+      else if(decision.winner === 0){ a.w++; b.l++; a.pts += 3; b.pts += 1; }
+      else if(decision.winner === 1){ b.w++; a.l++; b.pts += 3; a.pts += 1; }
     });
   });
-  return Object.values(stats).sort(function(a,b){
-    var ptsB = b.w * 2 + b.l;
-    var ptsA = a.w * 2 + a.l;
-    if(ptsB !== ptsA) return ptsB - ptsA;
-    var diffB = b.gf - b.ga;
-    var diffA = a.gf - a.ga;
-    if(diffB !== diffA) return diffB - diffA;
-    if(b.gf !== a.gf) return b.gf - a.gf;
-    return a.team.localeCompare(b.team, 'zh-Hant');
-  });
+  return sortStandingRows(Object.values(stats), games, 'team', 'team');
 }
 
 function renderRundownStanding(divId, def, container){
   var rows = calcRundownStanding(divId, def);
   var h = '<div class="st-group-lbl">' + escHtml(def.label) + '</div>';
-  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th>勝</th><th>負</th><th>積分</th><th>得分</th><th>失分</th><th>得失差</th></tr></thead><tbody>';
+  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th>勝</th><th>平</th><th>負</th><th>棄</th><th>積分</th><th>勝場數<br>／勝率</th><th>平均得分</th><th>得分</th></tr></thead><tbody>';
   rows.forEach(function(r, idx){
-    var diff = r.gf - r.ga;
-    var diffCls = diff > 0 ? 'st-pos' : (diff < 0 ? 'st-neg' : '');
     h += '<tr>'
       + '<td class="st-rank">' + (idx + 1) + '</td>'
       + '<td class="td-name">' + formatStandingTeamName(getTeamDisplayName(r.team, divId)) + '</td>'
       + '<td class="st-w">' + r.w + '</td>'
+      + '<td>' + r.d + '</td>'
       + '<td class="st-l">' + r.l + '</td>'
-      + '<td class="st-pts">' + (r.gp ? (r.w * 2 + r.l) : '-') + '</td>'
+      + '<td>' + r.f + '</td>'
+      + '<td class="st-pts">' + (r.gp ? standingPoints(r) : '-') + '</td>'
+        + '<td>' + standingWinMetric(r) + '</td>'
+      + '<td>' + (r.gp ? standingAvgScore(r).toFixed(1) : '-') + '</td>'
       + '<td>' + (r.gp ? r.gf : '-') + '</td>'
-      + '<td>' + (r.gp ? ('-' + r.ga) : '-') + '</td>'
-      + '<td class="' + diffCls + '">' + (r.gp ? (diff > 0 ? '+' + diff : String(diff)) : '-') + '</td>'
       + '</tr>';
   });
   container.innerHTML = h + '</tbody></table>';
@@ -1614,7 +1689,7 @@ function initRundownStandings(){
     var outer = document.createElement('div');
     outer.className = 'st-outer';
     outer.setAttribute('data-rundown-st', divId);
-    outer.innerHTML = '<div class="st-title">📊 分組排名 / Standings</div><div class="st-groups"></div><div class="st-rule">📌 積分：勝1場得2分，負1場得1分。排名按積分、得失差、總得分排序；未輸入比分前只列出隊伍。</div>';
+    outer.innerHTML = '<div class="st-title">📊 分組排名 / Standings</div><div class="st-groups"></div><div class="st-rule">📌 積分：勝3分，平2分，負1分，棄權0分。<br>同分排名：① 勝場數／勝率 › ② 對賽成績（只計勝負） › ③ 平均得分（不包括因對隊棄權而獲得的分數） › ④ 抽籤。</div>';
     var groups = outer.querySelector('.st-groups');
     RUNDOWN_STANDINGS[divId].forEach(function(def){
       var group = document.createElement('div');
@@ -1660,10 +1735,9 @@ function collectGames(divId, prefix){
       var gnoCell = row.querySelector('.td-gno');
       var gno = gnoCell ? gnoCell.textContent.trim() : '';
       var s = scores[gno];
-      if(!s || s.a==='' || s.b==='') return;
-      var a=parseInt(s.a), b=parseInt(s.b);
-      if(isNaN(a)||isNaN(b)) return;
-      games.push({cA:codes[0], cB:codes[1], sA:a, sB:b});
+      var decision = scoreDecision(s);
+      if(!decision) return;
+      games.push({cA:codes[0], cB:codes[1], sA:decision.scoreA, sB:decision.scoreB, teamA:codes[0], teamB:codes[1], scoreA:decision.scoreA, scoreB:decision.scoreB, forfeit:decision.forfeit, winner:decision.winner, draw:decision.draw});
     });
   });
   return games;
@@ -1673,66 +1747,46 @@ function calcGroupStandings(divId, prefix){
   var divNames = names[divId] || {};
   var stats = {};
   Object.keys(divNames).filter(function(k){ return k.charAt(0)===prefix; }).forEach(function(code){
-    stats[code] = {code:code,w:0,l:0,gf:0,ga:0,gp:0};
+    stats[code] = {code:code,w:0,d:0,l:0,f:0,pts:0,gf:0,ga:0,gp:0,avgGf:0,avgGp:0};
   });
   var games = collectGames(divId, prefix);
   games.forEach(function(g){
     var cA=g.cA, cB=g.cB;
-    if(!stats[cA]) stats[cA]={code:cA,w:0,l:0,gf:0,ga:0,gp:0};
-    if(!stats[cB]) stats[cB]={code:cB,w:0,l:0,gf:0,ga:0,gp:0};
-    stats[cA].gf+=g.sA; stats[cA].ga+=g.sB; stats[cA].gp++;
-    stats[cB].gf+=g.sB; stats[cB].ga+=g.sA; stats[cB].gp++;
-    if(g.sA>g.sB){stats[cA].w++;stats[cB].l++;}
-    else if(g.sB>g.sA){stats[cB].w++;stats[cA].l++;}
-  });
-  // Sort: wins → head-to-head (W then diff) → overall diff → overall GF
-  var arr = Object.values(stats);
-  arr.sort(function(a,b){ return b.w-a.w; });
-  var result=[], i=0;
-  while(i<arr.length){
-    var wv=arr[i].w, grp=[];
-    while(i<arr.length && arr[i].w===wv) grp.push(arr[i++]);
-    if(grp.length>1){
-      var gc=grp.map(function(t){return t.code;});
-      var h2h={};
-      gc.forEach(function(c){h2h[c]={w:0,gf:0,ga:0};});
-      games.forEach(function(g){
-        if(gc.indexOf(g.cA)<0||gc.indexOf(g.cB)<0) return;
-        h2h[g.cA].gf+=g.sA; h2h[g.cA].ga+=g.sB;
-        h2h[g.cB].gf+=g.sB; h2h[g.cB].ga+=g.sA;
-        if(g.sA>g.sB) h2h[g.cA].w++;
-        else if(g.sB>g.sA) h2h[g.cB].w++;
-      });
-      grp.sort(function(x,y){
-        var dx=x.gf-x.ga,dy=y.gf-y.ga;
-        if(dy!==dx) return dy-dx;
-        return y.gf-x.gf;
-      });
+    if(!stats[cA]) stats[cA]={code:cA,w:0,d:0,l:0,f:0,pts:0,gf:0,ga:0,gp:0,avgGf:0,avgGp:0};
+    if(!stats[cB]) stats[cB]={code:cB,w:0,d:0,l:0,f:0,pts:0,gf:0,ga:0,gp:0,avgGf:0,avgGp:0};
+    stats[cA].gp++; stats[cB].gp++;
+    if(g.forfeit){
+      if(g.winner === 0){ stats[cA].w++; stats[cA].pts += 3; stats[cB].f++; }
+      else if(g.winner === 1){ stats[cB].w++; stats[cB].pts += 3; stats[cA].f++; }
+      return;
     }
-    result=result.concat(grp);
-  }
-  return result;
+    stats[cA].gf+=g.sA; stats[cA].ga+=g.sB; stats[cA].avgGf+=g.sA; stats[cA].avgGp++;
+    stats[cB].gf+=g.sB; stats[cB].ga+=g.sA; stats[cB].avgGf+=g.sB; stats[cB].avgGp++;
+    if(g.draw){ stats[cA].d++; stats[cB].d++; stats[cA].pts += 2; stats[cB].pts += 2; }
+    else if(g.winner === 0){stats[cA].w++;stats[cB].l++;stats[cA].pts += 3;stats[cB].pts += 1;}
+    else if(g.winner === 1){stats[cB].w++;stats[cA].l++;stats[cB].pts += 3;stats[cA].pts += 1;}
+  });
+  return sortStandingRows(Object.values(stats), games, 'code', 'code');
 }
 
 function renderGroupStandings(divId, prefix, label, container){
   var rows = calcGroupStandings(divId, prefix);
   var divNames = names[divId]||{};
   var h = label ? '<div class="st-group-lbl">'+escHtml(label)+'</div>' : '';
-  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="勝">勝</th><th title="負">負</th><th title="積分">積分</th><th>得分</th><th>失分</th><th>得失差</th></tr></thead><tbody>';
+  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="勝">勝</th><th title="平">平</th><th title="負">負</th><th title="棄權">棄</th><th title="積分">積分</th><th>勝場數<br>／勝率</th><th>平均得分</th><th>得分</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
     var nm = divNames[r.code]||r.code;
-    var diff = r.gf-r.ga;
-    var diffStr = diff>0 ? '+'+diff : String(diff);
-    var diffCls = diff>0 ? 'st-pos' : (diff<0 ? 'st-neg' : '');
     h += '<tr>';
     h += '<td class="st-rank">'+(i+1)+'</td>';
     h += '<td class="td-name"><span class="tn-code">'+escHtml(r.code)+'</span>'+formatStandingTeamName(nm)+'</td>';
     h += '<td class="st-w">'+r.w+'</td>';
+    h += '<td>'+r.d+'</td>';
     h += '<td class="st-l">'+r.l+'</td>';
-    h += '<td class="st-pts">'+(r.gp>0?(r.w*2+r.l):'-')+'</td>';
+    h += '<td>'+r.f+'</td>';
+    h += '<td class="st-pts">'+(r.gp>0?standingPoints(r):'-')+'</td>';
+    h += '<td>'+standingWinMetric(r)+'</td>';
+    h += '<td>'+(r.gp>0?standingAvgScore(r).toFixed(1):'-')+'</td>';
     h += '<td>'+(r.gp>0?r.gf:'-')+'</td>';
-    h += '<td>'+(r.gp>0?('-'+r.ga):'-')+'</td>';
-    h += '<td class="'+diffCls+'">'+(r.gp>0?diffStr:'-')+'</td>';
     h += '</tr>';
   });
   h += '</tbody></table>';
@@ -1757,7 +1811,7 @@ function initStandings(){
     var lastWrap = tables[tables.length-1].closest('.sched-wrap');
     var rule = document.createElement('div');
     rule.className = 'st-rule';
-    rule.innerHTML = '📌 積分制度：勝1場得<b>2分</b>，負1場得<b>1分</b>（含違規判負），喪失資格得<b>0分</b>。沒有出現判輸0:10<br>同積分排名：① 總得失差 › ② 總得分之和 › ③ 黃金罰球';
+    rule.innerHTML = '📌 積分制度：勝<b>3分</b>，平<b>2分</b>，負<b>1分</b>，棄權<b>0分</b>。<br>同分排名：① 勝場數／勝率 › ② 對賽成績（只計勝負） › ③ 平均得分（不包括因對隊棄權而獲得的分數） › ④ 抽籤';
     outer.appendChild(rule);
     if(lastWrap) lastWrap.parentNode.insertBefore(outer, lastWrap.nextSibling);
   });
@@ -1826,10 +1880,9 @@ function resolveDay3SeedName(seed, seen){
     seen[gno] = true;
     var parts = DAY3_GAME_PARTICIPANTS[gno];
     var sc = scores['#'+gno] || scores[gno];
-    if(!parts || !sc || sc.a === '' || sc.b === '') return null;
-    var scoreA = Number(sc.a), scoreB = Number(sc.b);
-    if(isNaN(scoreA) || isNaN(scoreB) || scoreA === scoreB) return null;
-    var idx = gameRef[2] === '勝方' ? (scoreA > scoreB ? 0 : 1) : (scoreA > scoreB ? 1 : 0);
+    if(!parts) return null;
+    var idx = gameRef[2] === '勝方' ? scoreWinnerIndex(sc) : scoreLoserIndex(sc);
+    if(idx === null || idx === undefined) return null;
     return resolveDay3SeedName(parts[idx], Object.assign({}, seen)) || parts[idx];
   }
 
@@ -1998,10 +2051,9 @@ function refreshKnockouts(divId){
     function winner(gno,pair){
       var ss=pair.split(',');
       var sc=scores[gno];
-      if(!sc||sc.a===''||sc.b==='') return null;
-      var a=Number(sc.a),b=Number(sc.b);
-      if(a===b) return null;
-      var ws=a>b?ss[0]:ss[1];
+      var idx = scoreWinnerIndex(sc);
+      if(idx === null || idx === undefined) return null;
+      var ws=ss[idx];
       return {seed:ws,name:resolveSeedName(divId,ws)||ws};
     }
     var w1=winner(srcs[0],seedPairs[0]),w2=winner(srcs[1],seedPairs[1]);
@@ -2021,10 +2073,9 @@ function refreshKnockouts(divId){
     function loser(gno,pair){
       var ss=pair.split(',');
       var sc=scores[gno];
-      if(!sc||sc.a===''||sc.b==='') return null;
-      var a=Number(sc.a),b=Number(sc.b);
-      if(a===b) return null;
-      var ls=a>b?ss[1]:ss[0];
+      var idx = scoreLoserIndex(sc);
+      if(idx === null || idx === undefined) return null;
+      var ls=ss[idx];
       return {seed:ls,name:resolveSeedName(divId,ls)||ls};
     }
     var l1=loser(srcs[0],seedPairs[0]),l2=loser(srcs[1],seedPairs[1]);
@@ -2062,9 +2113,9 @@ function refreshBrackets(divId){
     var sc=scores[gno];
     var winEl=box.querySelector('.bk-sf-winner');
     if(!winEl){winEl=document.createElement('div');winEl.className='bk-sf-winner';box.appendChild(winEl);}
-    if(sc&&sc.a!==''&&sc.b!==''&&Number(sc.a)!==Number(sc.b)){
-      var a=Number(sc.a),b=Number(sc.b);
-      var wSeed=a>b?seeds[0]:seeds[1];
+    var wIdx = scoreWinnerIndex(sc);
+    if(wIdx !== null && wIdx !== undefined){
+      var wSeed=seeds[wIdx];
       winEl.textContent='→ '+(resolveSeedName(divIdB,wSeed)||wSeed);
       winEl.style.color='#1a6635';
     } else { winEl.textContent=''; }
@@ -2077,9 +2128,9 @@ function refreshBrackets(divId){
     var sc=scores[gno];
     var winEl=box.querySelector('.bk-sf-winner');
     if(!winEl){winEl=document.createElement('div');winEl.className='bk-sf-winner';box.appendChild(winEl);}
-    if(sc&&sc.a!==''&&sc.b!==''&&Number(sc.a)!==Number(sc.b)){
-      var a=Number(sc.a),b=Number(sc.b);
-      var wSeed=a>b?seeds[0]:seeds[1];
+    var wIdx = scoreWinnerIndex(sc);
+    if(wIdx !== null && wIdx !== undefined){
+      var wSeed=seeds[wIdx];
       winEl.textContent='→ '+(resolveSeedName(divIdB,wSeed)||wSeed);
       winEl.style.color='#1a6635';
     } else { winEl.textContent=''; }
@@ -2092,13 +2143,13 @@ function refreshBrackets(divId){
     var finalGno=box.getAttribute('data-gno');
     var winEl=box.querySelector('.bk-final-winner');
     if(!winEl){winEl=document.createElement('div');winEl.className='bk-final-winner';box.appendChild(winEl);}
-    function sfW(g,pair){var ss=pair.split(','),sc=scores[g];if(!sc||sc.a===''||sc.b==='')return null;var a=Number(sc.a),b=Number(sc.b);return a===b?null:(a>b?ss[0]:ss[1]);}
+    function sfW(g,pair){var ss=pair.split(','),idx=scoreWinnerIndex(scores[g]);return idx===null||idx===undefined?null:ss[idx];}
     var w1=sfW(sfGnos[0],sfSeeds[0]),w2=sfW(sfGnos[1],sfSeeds[1]);
     if(finalGno){
       var sc=scores[finalGno];
-      if(sc&&sc.a!==''&&sc.b!==''&&Number(sc.a)!==Number(sc.b)&&w1&&w2){
-        var a=Number(sc.a),b=Number(sc.b);
-        var wSeed=a>b?w1:w2;
+      var finalIdx = scoreWinnerIndex(sc);
+      if(finalIdx!==null&&finalIdx!==undefined&&w1&&w2){
+        var wSeed=finalIdx===0?w1:w2;
         winEl.textContent='🏅 '+(resolveSeedName(divIdB,wSeed)||wSeed);
         winEl.style.color='#1a6635';
         return;
@@ -2122,9 +2173,9 @@ function refreshBrackets(divId){
     var sc=scores[gno];
     var winEl=box.querySelector('.bk-final-winner');
     if(!winEl){winEl=document.createElement('div');winEl.className='bk-final-winner';box.appendChild(winEl);}
-    if(sc&&sc.a!==''&&sc.b!==''&&Number(sc.a)!==Number(sc.b)){
-      var a=Number(sc.a),b=Number(sc.b);
-      var ws=a>b?sp[0]:sp[1];
+    var wIdx = scoreWinnerIndex(sc);
+    if(wIdx !== null && wIdx !== undefined){
+      var ws=sp[wIdx];
       var wname=resolveSeedName(divIdB,ws)||ws;
       winEl.textContent='🏅 '+wname;
       winEl.style.color='#1a6635';
@@ -2139,7 +2190,7 @@ function refreshBrackets(divId){
     var sfSeeds=bar.getAttribute('data-sf-seeds').split('|');
     var bronzeGno=bar.getAttribute('data-gno');
     var ss1=sfSeeds[0].split(','), ss2=sfSeeds[1].split(',');
-    function sfLoser(g,pair){var ss=pair.split(','),sc=scores[g];if(!sc||sc.a===''||sc.b==='')return null;var a=Number(sc.a),b=Number(sc.b);if(a===b)return null;var ls=a>b?ss[1]:ss[0];return{seed:ls,name:resolveSeedName(divIdB,ls)||ls};}
+    function sfLoser(g,pair){var ss=pair.split(','),idx=scoreLoserIndex(scores[g]);if(idx===null||idx===undefined)return null;var ls=ss[idx];return{seed:ls,name:resolveSeedName(divIdB,ls)||ls};}
     var l1=sfLoser(sfGnos[0],sfSeeds[0]),l2=sfLoser(sfGnos[1],sfSeeds[1]);
     // Fallback names from standings when semi not played yet
     var p1name=l1?l1.name:((resolveSeedName(divIdB,ss1[0])||ss1[0])+' / '+(resolveSeedName(divIdB,ss1[1])||ss1[1]));
@@ -2150,12 +2201,10 @@ function refreshBrackets(divId){
     html+='<span class="bk-bronze-team">'+escHtml(p2name)+'</span>';
     if(l1&&l2&&bronzeGno){
       var bsc=scores[bronzeGno];
-      if(bsc&&bsc.a!==''&&bsc.b!==''){
-        var ba=Number(bsc.a),bb=Number(bsc.b);
-        if(ba!==bb){
-          var wn=ba>bb?l1.name:l2.name;
-          html+='<span class="bk-bronze-arrow">→</span><span class="bk-bronze-winner">🥉 '+escHtml(wn)+'</span>';
-        }
+      var bIdx = scoreWinnerIndex(bsc);
+      if(bIdx !== null && bIdx !== undefined){
+        var wn=bIdx===0?l1.name:l2.name;
+        html+='<span class="bk-bronze-arrow">→</span><span class="bk-bronze-winner">🥉 '+escHtml(wn)+'</span>';
       }
     }
     bar.innerHTML=html;
@@ -2178,13 +2227,11 @@ function refreshRankingMatch(divId){
     var seed1=boxes[1].getAttribute('data-seed');
     var name0=resolveSeedName(divId,seed0)||seed0;
     var name1=resolveSeedName(divId,seed1)||seed1;
-    if(sc&&sc.a!==''&&sc.b!==''){
-      var a=Number(sc.a),b=Number(sc.b);
-      if(!isNaN(a)&&!isNaN(b)&&a!==b){
-        winPill.innerHTML='第五名：'+escHtml(a>b?name0:name1);
-        losePill.innerHTML='第六名：'+escHtml(a>b?name1:name0);
+    var wIdx = scoreWinnerIndex(sc);
+    if(wIdx !== null && wIdx !== undefined){
+        winPill.innerHTML='第五名：'+escHtml(wIdx===0?name0:name1);
+        losePill.innerHTML='第六名：'+escHtml(wIdx===0?name1:name0);
         return;
-      }
     }
     winPill.innerHTML='第五名：—';
     losePill.innerHTML='第六名：—';
@@ -2257,20 +2304,18 @@ function refreshPodium(){
     var left=participant(parts[0],Object.assign({},seen));
     var right=participant(parts[1],Object.assign({},seen));
     var sc=scoreFor(gno);
-    if(!sc || sc.a==='' || sc.b==='') return {name:gno+type, ready:false};
-    var a=Number(sc.a),b=Number(sc.b);
-    if(isNaN(a)||isNaN(b)||a===b) return {name:gno+type, ready:false};
-    if(type==='勝方') return a>b?left:right;
-    return a>b?right:left;
+    var idx = type === '勝方' ? scoreWinnerIndex(sc) : scoreLoserIndex(sc);
+    if(idx === null || idx === undefined) return {name:gno+type, ready:false};
+    return idx === 0 ? left : right;
   }
   function podiumFor(def){
     var finalSc=scoreFor(def.final), bronzeSc=scoreFor(def.bronze);
     var ch=null,sec=null,thr=null;
-    if(finalSc && finalSc.a!=='' && finalSc.b!=='' && Number(finalSc.a)!==Number(finalSc.b)){
+    if(scoreWinnerIndex(finalSc) !== null && scoreWinnerIndex(finalSc) !== undefined){
       ch=gameOutcome(def.final,'勝方',{}).name;
       sec=gameOutcome(def.final,'負方',{}).name;
     }
-    if(bronzeSc && bronzeSc.a!=='' && bronzeSc.b!=='' && Number(bronzeSc.a)!==Number(bronzeSc.b)){
+    if(scoreWinnerIndex(bronzeSc) !== null && scoreWinnerIndex(bronzeSc) !== undefined){
       thr=gameOutcome(def.bronze,'勝方',{}).name;
     }
     return {label:def.label,ch:ch,sec:sec,thr:thr};
@@ -2408,7 +2453,7 @@ function pushScoreToApi(gno, a, b){
     key: gno,
     scoreA: a,
     scoreB: b,
-    status: (a !== '' && b !== '') ? 'completed' : 'scheduled'
+    status: (isForfeitToken(a) || isForfeitToken(b)) ? 'forfeit' : ((a !== '' && b !== '') ? 'completed' : 'scheduled')
   });
   fetch(API_URL + '?' + params.toString())
     .catch(function(e){ console.warn('Score push failed:', e); });
@@ -2459,6 +2504,15 @@ function renderScore(td, gno){
 
   } else {
 
+    if(isForfeitToken(s.a) || isForfeitToken(s.b)){
+      td.innerHTML = '<span class="sc-display"' + oc + '>'
+        + '<span class="sc-num' + (isForfeitToken(s.a) ? ' forfeit' : ' award') + '">' + (isForfeitToken(s.a) ? '棄權' : '勝') + '</span>'
+        + '<span class="sc-sep"> – </span>'
+        + '<span class="sc-num' + (isForfeitToken(s.b) ? ' forfeit' : ' award') + '">' + (isForfeitToken(s.b) ? '棄權' : '勝') + '</span>'
+        + '</span>';
+      return;
+    }
+
     var a = Number(s.a), b = Number(s.b);
 
     var aW = a > b, bW = b > a;
@@ -2484,12 +2538,16 @@ function editScore(el){
   var gno = td.getAttribute('data-game');
   var s = scores[gno] || {a:'',b:''};
   var sid = gno.replace('#','g');
+  var valA = isWinToken(s.a) || isForfeitToken(s.a) ? '' : s.a;
+  var valB = isWinToken(s.b) || isForfeitToken(s.b) ? '' : s.b;
   td.innerHTML =
     '<div class="sc-edit">' +
-    '<input class="sc-inp" type="number" min="0" max="99" value="' + s.a + '" id="sa-' + sid + '" onkeydown="scKey(event,\'' + gno + '\',\'' + sid + '\')">' +
+    '<input class="sc-inp" type="number" min="0" max="99" value="' + valA + '" id="sa-' + sid + '" onkeydown="scKey(event,\'' + gno + '\',\'' + sid + '\')">' +
     '<span class="sc-sep">–</span>' +
-    '<input class="sc-inp" type="number" min="0" max="99" value="' + s.b + '" id="sb-' + sid + '" onkeydown="scKey(event,\'' + gno + '\',\'' + sid + '\')">' +
+    '<input class="sc-inp" type="number" min="0" max="99" value="' + valB + '" id="sb-' + sid + '" onkeydown="scKey(event,\'' + gno + '\',\'' + sid + '\')">' +
     '<button class="sc-btn sc-ok"  onclick="saveScore(\'' + gno + '\',\'' + sid + '\')">✓</button>' +
+    '<button class="sc-btn sc-forfeit-btn" onclick="saveForfeitScore(\'' + gno + '\',0)" title="主隊棄權">主棄</button>' +
+    '<button class="sc-btn sc-forfeit-btn" onclick="saveForfeitScore(\'' + gno + '\',1)" title="客隊棄權">客棄</button>' +
     '<button class="sc-btn sc-cancel" onclick="cancelScore(\'' + gno + '\')">✕</button>' +
     '</div>';
   var inp = document.getElementById('sa-' + sid);
@@ -2504,6 +2562,23 @@ function saveScore(gno, sid){
   saveScores();
   pushScoreToApi(gno, a.value.trim(), b.value.trim());
   var td = a.closest('.sc-cell');
+  var tbl = td ? td.closest('.sched-table') : null;
+  var divId = tbl ? tbl.getAttribute('data-div') : null;
+  if(td) renderScore(td, gno);
+  if(divId) refreshStandings(divId);
+  if(divId) refreshRundownStandings(divId);
+  renderRundownVsInSchedule();
+  refreshDay1KnockoutMatchups();
+  refreshDay2RandomDraws();
+  refreshDay3BracketMatchups();
+  refreshPodium();
+}
+
+function saveForfeitScore(gno, side){
+  scores[gno] = side === 0 ? {a:'F', b:'W'} : {a:'W', b:'F'};
+  saveScores();
+  pushScoreToApi(gno, scores[gno].a, scores[gno].b);
+  var td = document.querySelector('.sc-cell[data-game="' + gno + '"]');
   var tbl = td ? td.closest('.sched-table') : null;
   var divId = tbl ? tbl.getAttribute('data-div') : null;
   if(td) renderScore(td, gno);
