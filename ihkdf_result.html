@@ -48,7 +48,9 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 /* ── Division Nav Bar ── */
 .div-nav{background:linear-gradient(145deg,#f0dcc8,#e8d4b8);border-radius:20px;padding:16px 20px;margin-bottom:28px;box-shadow:8px 8px 20px rgba(0,0,0,.1),-8px -8px 20px rgba(255,255,255,.6)}
 .div-nav-title{font-size:.72em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
-.div-nav-btns{display:flex;flex-wrap:wrap;gap:8px}
+.div-nav-btns{display:flex;flex-direction:column;gap:10px}
+.div-nav-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.div-day-label{display:inline-flex;align-items:center;padding:8px 16px;border:1.5px solid transparent;border-radius:20px;font-size:.85em;font-weight:900;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .div-btn{padding:8px 16px;border:1.5px solid transparent;border-radius:20px;font-size:.85em;font-weight:800;cursor:pointer;transition:all .25s;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .div-btn.girls{background:linear-gradient(145deg,#f8bbd0,#f48fb1);color:#880e4f}
 .div-btn.girls:hover{background:linear-gradient(145deg,#f48fb1,#e91e63);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(233,30,99,.3)}
@@ -58,10 +60,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .div-btn.mixed:hover{background:linear-gradient(145deg,#a5d6a7,#4caf50);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(76,175,80,.3)}
 .div-btn.day1{background:#fff3cd;color:#6b4e00;border-color:#e0aa28}
 .div-btn.day1:hover{background:#d89400;color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(216,148,0,.28)}
+.div-day-label.day1{background:#fff3cd;color:#6b4e00;border-color:#e0aa28}
 .div-btn.day2{background:#f8d7da;color:#842029;border-color:#d36a73}
 .div-btn.day2:hover{background:#c43b49;color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(196,59,73,.28)}
+.div-day-label.day2{background:#f8d7da;color:#842029;border-color:#d36a73}
 .div-btn.day3{background:#e2d9f3;color:#432874;border-color:#9270c7}
 .div-btn.day3:hover{background:#7050a8;color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(112,80,168,.28)}
+.div-day-label.day3{background:#e2d9f3;color:#432874;border-color:#9270c7}
 .div-btn.court-a{background:#d7ecff;color:#154360;border-color:#5dade2}
 .div-btn.court-a:hover{background:#2f86c7;color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(47,134,199,.28)}
 .div-btn.court-b{background:#dff3e6;color:#145a32;border-color:#58b77a}
@@ -103,8 +108,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{order:2;width:88px;flex-shrink:0;text-align:left}
 .sched-table thead th:nth-child(5),.sc-cell{order:3;width:100px;text-align:left}
 .sched-table thead th:nth-child(4),.td-match{order:4;flex:1 1 0;min-width:0;width:auto}
-.sched-table thead th:nth-child(2),.sched-table .td-gno{display:none}
-.sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){order:5;width:80px;text-align:left}
+.sched-table thead th:nth-child(2),.sched-table .td-gno{order:5;width:72px;font-weight:800;color:#9a7a55;white-space:nowrap;text-align:left}
+.sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){order:6;width:80px;text-align:left}
 .td-court{background:rgba(255,255,255,.4);border-radius:8px;padding:3px 10px;font-size:.78em;font-weight:700;color:#5a4a3a;white-space:nowrap;display:inline-block}
 .td-court[data-court="1"]{background:rgba(52,152,219,.15);color:#154360;border:1px solid rgba(52,152,219,.45)}
 .td-court[data-court="2"]{background:rgba(39,174,96,.15);color:#145a32;border:1px solid rgba(39,174,96,.45)}
@@ -237,17 +242,26 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .st-groups{display:flex;flex-wrap:wrap;gap:14px}
 .st-group{flex:0 0 calc(50% - 7px);min-width:0;overflow-x:auto}
 .st-group-lbl{font-size:.72em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;padding:2px 8px;background:rgba(212,165,116,.12);border-radius:8px;display:inline-block}
-.st-table{width:100%;border-collapse:collapse;font-size:.82em}
+.st-table{width:100%;min-width:410px;border-collapse:collapse;font-size:.82em;table-layout:fixed}
 .st-table th{padding:5px 8px;font-size:.72em;font-weight:700;color:#9a8a7a;text-align:center;border-bottom:1.5px solid rgba(212,165,116,.25);white-space:nowrap}
-.st-table th.th-name{text-align:left;padding-left:4px}
+.st-table th.th-name{text-align:left;padding-left:4px;width:15em}
 .st-table td{padding:6px 8px;text-align:center;color:#5a4a3a;border-bottom:1px solid rgba(212,165,116,.1)}
-.st-table td.td-name{text-align:left;font-weight:700;padding-left:4px;white-space:nowrap}
+.st-table td.td-name{text-align:left;font-weight:700;padding-left:4px;width:15em;white-space:normal;line-height:1.25;word-break:keep-all;overflow-wrap:normal}
+.st-team-name{display:inline-block;max-width:14em;vertical-align:middle}
+.st-name-line{display:block;white-space:nowrap}
+.st-table th:nth-child(6),.st-table td:nth-child(6),
+.st-table th:nth-child(7),.st-table td:nth-child(7){width:38px;padding-left:3px;padding-right:3px}
+.st-table th:nth-child(8),.st-table td:nth-child(8){width:44px;padding-left:3px;padding-right:3px}
+.st-table th:nth-child(3),.st-table td:nth-child(3),
+.st-table th:nth-child(4),.st-table td:nth-child(4){width:30px;padding-left:2px;padding-right:2px}
+.st-table th:nth-child(5),.st-table td:nth-child(5){width:36px;padding-left:2px;padding-right:2px}
 .st-table tr:last-child td{border-bottom:none}
 .st-rank{font-size:.7em;color:#9a8a7a;font-weight:700;width:20px}
 .st-rank-ico{font-size:.95em;margin-right:3px;vertical-align:middle}
 .st-w{color:#1a6635;font-weight:900}
 .st-l{color:#c0392b;font-weight:700}
-.st-pts{color:#7a5a20;font-weight:900}
+.st-table th:nth-child(5){color:#d86f00}
+.st-table td.st-pts{color:#d86f00;font-weight:900}
 .st-pos{color:#1a6635;font-weight:700}
 .st-neg{color:#c0392b;font-weight:700}
 .st-table tr:first-child td{border-top:none}
@@ -306,8 +320,10 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 
   /* Division nav */
   .div-nav{padding:12px 14px;border-radius:16px;margin-bottom:20px}
-  .div-nav-btns{gap:6px}
+  .div-nav-btns{gap:8px}
+  .div-nav-row{gap:6px}
   .div-btn{padding:7px 11px;font-size:.78em}
+  .div-day-label{padding:7px 11px;font-size:.78em;min-width:112px}
 
   /* Division header — stack badge + meta vertically */
   .div-header{flex-direction:column;align-items:flex-start;gap:8px}
@@ -323,8 +339,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sched-table thead th:nth-child(1),.td-time{width:52px}
   .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{display:block;width:56px;padding:6px 2px;text-align:left}
   .tag-ko{margin-left:0;padding:2px 5px;font-size:.66em;white-space:nowrap}
-  .sched-table thead th:nth-child(5),.sc-cell{width:64px;padding:6px 4px !important;margin-left:-8px}
-  .sched-table thead th:nth-child(2),.sched-table .td-gno{display:none}
+  .sched-table thead th:nth-child(2),.sched-table .td-gno{display:block;width:44px;padding:6px 2px;font-size:1em}
+  .sched-table thead th:nth-child(5),.sc-cell{width:60px;padding:6px 3px !important;margin-left:0}
   .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:44px;padding:6px 2px;display:flex;justify-content:flex-end;align-items:center}
   .court-split-grid .sched-table thead th:nth-child(3),.court-split-grid .sched-table tbody td:nth-child(3){display:none}
   .sched-table thead th:nth-child(4),.td-match{flex:1 1 0 !important;width:auto !important;min-width:0 !important}
@@ -393,17 +409,19 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .rules-notes{font-size:.82em}
   .overview-grid{grid-template-columns:1fr}
   .div-nav-btns{gap:5px}
+  .div-nav-row{gap:5px}
   .div-btn{padding:6px 9px;font-size:.74em}
+  .div-day-label{padding:6px 9px;font-size:.74em;min-width:98px}
   .sched-table{font-size:.78em}
   .sched-table thead th,.sched-table td{padding:6px 4px}
   .sched-table thead th:nth-child(1),.td-time{width:44px;white-space:nowrap}
-  .sched-table thead th:nth-child(2),.sched-table .td-gno{width:20px;padding-left:2px;padding-right:2px}
+  .sched-table thead th:nth-child(2),.sched-table .td-gno{display:block;width:40px;padding-left:2px;padding-right:2px}
   .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:42px;display:flex;justify-content:flex-end;align-items:center}
   .court-split-grid .sched-table thead th:nth-child(3),.court-split-grid .sched-table tbody td:nth-child(3){display:none}
   .sched-table thead th:nth-child(4),.td-match{flex:1 1 0 !important;width:auto !important;min-width:0 !important}
   #day3 .td-match{font-size:1em;line-height:1.45}
   #day3 .match-meta{font-size:.72em}
-  .sched-table thead th:nth-child(5),.sc-cell{width:64px}
+  .sched-table thead th:nth-child(5),.sc-cell{width:56px}
   .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{width:48px}
   .tag-ko{font-size:.62em;padding:2px 4px}
   .sc-inp{width:38px}
@@ -461,15 +479,21 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 <div class="div-nav" id="divnav">
   <div class="div-nav-title">快速跳轉 — 選擇賽程日</div>
   <div class="div-nav-btns">
-    <button class="div-btn day1" onclick="jumpTo('day1')">Day 1 · 3/7/2026</button>
-    <button class="div-btn court-a" onclick="jumpTo('day1-court-a')">Day 1 · Court A</button>
-    <button class="div-btn court-b" onclick="jumpTo('day1-court-b')">Day 1 · Court B</button>
-    <button class="div-btn day2" onclick="jumpTo('day2')">Day 2 · 4/7/2026</button>
-    <button class="div-btn court-a" onclick="jumpTo('day2-court-a')">Day 2 · Court A</button>
-    <button class="div-btn court-b" onclick="jumpTo('day2-court-b')">Day 2 · Court B</button>
-    <button class="div-btn day3" onclick="jumpTo('day3')">Day 3 · 5/7/2026</button>
-    <button class="div-btn court-a" onclick="jumpTo('day3-court-a')">Day 3 · Court A</button>
-    <button class="div-btn court-b" onclick="jumpTo('day3-court-b')">Day 3 · Court B</button>
+    <div class="div-nav-row">
+      <span class="div-day-label day1">Day 1 · 3/7/2026</span>
+      <button class="div-btn court-a" onclick="jumpTo('day1-court-a')">Court A</button>
+      <button class="div-btn court-b" onclick="jumpTo('day1-court-b')">Court B</button>
+    </div>
+    <div class="div-nav-row">
+      <span class="div-day-label day2">Day 2 · 4/7/2026</span>
+      <button class="div-btn court-a" onclick="jumpTo('day2-court-a')">Court A</button>
+      <button class="div-btn court-b" onclick="jumpTo('day2-court-b')">Court B</button>
+    </div>
+    <div class="div-nav-row">
+      <span class="div-day-label day3">Day 3 · 5/7/2026</span>
+      <button class="div-btn court-a" onclick="jumpTo('day3-court-a')">Court A</button>
+      <button class="div-btn court-b" onclick="jumpTo('day3-court-b')">Court B</button>
+    </div>
   </div>
 </div>
 
@@ -506,10 +530,10 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
         <tr><td class="td-time">10:48</td><td class="td-gno">#17</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9-C 田家炳 (B) 慈天 (B)</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr><td class="td-time">10:48</td><td class="td-gno">#18</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U9-C 馬鞍山靈糧 (B) 天水圍靈愛 (A)</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr class="phase-break"><td colspan="5">11:00 &#183; BREAK(15 mins )</td></tr>
-        <tr><td class="td-time">11:15</td><td class="td-gno">#19</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9- 八強 A 首名 B 次名</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
-        <tr><td class="td-time">11:15</td><td class="td-gno">#20</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U9- 八強 A 次名 B 首名</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
-        <tr><td class="td-time">11:30</td><td class="td-gno">#21</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9- 八強 C 首名 D 次名</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
-        <tr><td class="td-time">11:30</td><td class="td-gno">#22</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U9- 八強 C 次名 D 首名</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
+        <tr><td class="td-time">11:15</td><td class="td-gno">#19</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9- 八強 A 首名 vs B 次名</td><td><span class="tag-ko tag-rr">八強</span></td></tr>
+        <tr><td class="td-time">11:15</td><td class="td-gno">#20</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U9- 八強 A 次名 vs B 首名</td><td><span class="tag-ko tag-rr">八強</span></td></tr>
+        <tr><td class="td-time">11:30</td><td class="td-gno">#21</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9- 八強 C 首名 vs D 次名</td><td><span class="tag-ko tag-rr">八強</span></td></tr>
+        <tr><td class="td-time">11:30</td><td class="td-gno">#22</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U9- 八強 C 次名 vs D 首名</td><td><span class="tag-ko tag-rr">八強</span></td></tr>
         <tr class="phase-break"><td colspan="5">11:45 &#183; BREAK(15 mins )</td></tr>
         <tr><td class="td-time">12:00</td><td class="td-gno">#23</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U11-A 田家炳 (A ） 全二 (A)</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr><td class="td-time">12:00</td><td class="td-gno">#24</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U11-A 荃灣商會 (A) 愛禮信 (B)</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
@@ -537,10 +561,10 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
         <tr><td class="td-time">14:24</td><td class="td-gno">#45</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U11-F 荃灣商會 (B) 黃楚標 (A)</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr><td class="td-time">14:24</td><td class="td-gno">#46</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U11-F 迦密愛禮信 (A) 循理會美林 (B)</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr class="phase-break"><td colspan="5">14:36 &#183; BREAK(9 mins )</td></tr>
-        <tr><td class="td-time">14:45</td><td class="td-gno">#47</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U11- 八強 A 首名 B 首名</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
-        <tr><td class="td-time">14:45</td><td class="td-gno">#48</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U11- 八強 A 次名 C 首名</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
-        <tr><td class="td-time">15:00</td><td class="td-gno">#49</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U11- 八強 D 首名 F 首名</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
-        <tr><td class="td-time">15:00</td><td class="td-gno">#50</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U11- 八強 E 首名 F 次名</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
+        <tr><td class="td-time">14:45</td><td class="td-gno">#47</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U11- 八強 A 首名 vs B 首名</td><td><span class="tag-ko tag-rr">八強</span></td></tr>
+        <tr><td class="td-time">14:45</td><td class="td-gno">#48</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U11- 八強 A 次名 vs C 首名</td><td><span class="tag-ko tag-rr">八強</span></td></tr>
+        <tr><td class="td-time">15:00</td><td class="td-gno">#49</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U11- 八強 D 首名 vs F 首名</td><td><span class="tag-ko tag-rr">八強</span></td></tr>
+        <tr><td class="td-time">15:00</td><td class="td-gno">#50</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U11- 八強 E 首名 vs F 次名</td><td><span class="tag-ko tag-rr">八強</span></td></tr>
         <tr class="phase-break"><td colspan="5">15:15 &#183; BREAK(21 mins )</td></tr>
         <tr><td class="td-time">15:36</td><td class="td-gno">#51</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U13-A 公益社 (A) 紅磡信義 (A)</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr><td class="td-time">15:36</td><td class="td-gno">#52</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U13-A 禾 輋 信義 (A) 迦密愛禮信 (A)</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
@@ -621,7 +645,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
         <tr><td class="td-time">13:24</td><td class="td-gno">#102</td><td><span class="td-court">場區B</span></td><td class="td-match">凝動夢攻防盃 &#183; U13-B 嗇色園主辦可立小學 天主教聖母聖心小學</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr><td class="td-time">13:36</td><td class="td-gno">#103</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9 遺材賽 U9 9-14 抽籤 U9 9-14 抽籤</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr><td class="td-time">13:36</td><td class="td-gno">#104</td><td><span class="td-court">場區B</span></td><td class="td-match">凝動夢攻防盃 &#183; U13-A 港澳信義會小學 聖瑪加利男女英文中小學</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
-        <tr><td class="td-time">13:48</td><td class="td-gno">#105</td><td><span class="td-court">場區A</span></td><td class="td-match">凝動夢攻防盃 &#183; U13-A 聖公會基德小學 聖公會田灣始南小學</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
+        <tr><td class="td-time">13:48</td><td class="td-gno">#105</td><td><span class="td-court">場區B</span></td><td class="td-match">凝動夢攻防盃 &#183; U13-A 聖公會基德小學 聖公會田灣始南小學</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr class="phase-break"><td colspan="5">14:00 &#183; BREAK(12 mins )</td></tr>
         <tr><td class="td-time">14:12</td><td class="td-gno">#106</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U11 遺材賽 47 負方 49 負方</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr><td class="td-time">14:12</td><td class="td-gno">#107</td><td><span class="td-court">場區B</span></td><td class="td-match">凝動夢攻防盃 &#183; U13-B 聖保羅書院小學 嗇色園主辦可立小學</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
@@ -895,6 +919,21 @@ function cacheOriginals(){
 }
 
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function formatStandingTeamName(name){
+  var chars = Array.from(String(name || ''));
+  var limit = Array.from('中華基督教會協和小學').length;
+  if(chars.length <= limit) return '<span class="tn st-team-name">' + escHtml(name) + '</span>';
+  var splitAt = limit;
+  var text = chars.join('');
+  var spaces = [];
+  chars.forEach(function(ch, idx){ if(/\s/.test(ch)) spaces.push(idx); });
+  if(spaces.length){
+    var target = Math.min(limit, Math.ceil(chars.length / 2));
+    var best = spaces.reduce(function(prev, cur){ return Math.abs(cur - target) < Math.abs(prev - target) ? cur : prev; }, spaces[0]);
+    if(best >= 5 && best <= limit + 5) splitAt = best;
+  }
+  return '<span class="tn st-team-name"><span class="st-name-line">' + escHtml(chars.slice(0, splitAt).join('').trim()) + '</span><span class="st-name-line">' + escHtml(chars.slice(splitAt).join('').trim()) + '</span></span>';
+}
 
 // Apply stored team names to all schedule tables
 function applyAllNames(){
@@ -936,6 +975,7 @@ window.addEventListener('DOMContentLoaded', function(){
 
   initKnockouts();
   renderRundownVsInSchedule();
+  refreshDay2RandomDraws();
   syncMatchColWidth();
   setTimeout(openPodium, 350);
   setInterval(loadScores, 30000);
@@ -1235,6 +1275,12 @@ var RUNDOWN_STANDINGS = {
   ]
 };
 
+var DAY2_RANDOM_DRAW_DEFS = [
+  {age:'U9', games:['#99','#101','#103'], labels:['明日之星盃 U9-A','明日之星盃 U9-B','明日之星盃 U9-C','明日之星盃 U9-D'], minRank:3},
+  {age:'U11', games:['#110','#112','#114','#116','#118','#120'], labels:['明日之星盃 U11-A','明日之星盃 U11-B','明日之星盃 U11-C','明日之星盃 U11-D','明日之星盃 U11-E','明日之星盃 U11-F'], minRank:3, includeRank2From:['明日之星盃 U11-B','明日之星盃 U11-C','明日之星盃 U11-D','明日之星盃 U11-E']},
+  {age:'U13', games:['#119','#121','#122'], labels:['明日之星盃 U13-A','明日之星盃 U13-B'], minRank:3}
+];
+
 function normalizeStandingText(s){ return String(s||'').replace(/&nbsp;/g,' ').replace(/[·・]/g,' ').replace(/\s+/g,' ').trim(); }
 
 function extractRundownMatch(row, def){
@@ -1301,7 +1347,7 @@ function renderRundownStanding(divId, def, container){
     var diffCls = diff > 0 ? 'st-pos' : (diff < 0 ? 'st-neg' : '');
     h += '<tr>'
       + '<td class="st-rank">' + (idx + 1) + '</td>'
-      + '<td class="td-name">' + escHtml(r.team) + '</td>'
+      + '<td class="td-name">' + formatStandingTeamName(r.team) + '</td>'
       + '<td class="st-w">' + r.w + '</td>'
       + '<td class="st-l">' + r.l + '</td>'
       + '<td class="st-pts">' + (r.gp ? (r.w * 2 + r.l) : '-') + '</td>'
@@ -1311,6 +1357,102 @@ function renderRundownStanding(divId, def, container){
       + '</tr>';
   });
   container.innerHTML = h + '</tbody></table>';
+}
+
+function seededRandom(seed){
+  var h = 2166136261;
+  String(seed).split('').forEach(function(ch){ h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); });
+  return function(){
+    h += 0x6D2B79F5;
+    var t = h;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function isDay2DrawPoolComplete(drawDef){
+  return drawDef.labels.every(function(label){
+    var def = (RUNDOWN_STANDINGS.day1 || []).filter(function(group){ return group.label === label; })[0];
+    if(!def) return false;
+    var matches = [];
+    document.querySelectorAll('.sched-table[data-div="day1"] tbody tr:not(.phase-break)').forEach(function(row){
+      var match = extractRundownMatch(row, def);
+      if(match) matches.push(match);
+    });
+    if(!matches.length) return false;
+    return matches.every(function(match){
+      var sc = scores[match.gno];
+      return sc && sc.a !== '' && sc.b !== '';
+    });
+  });
+}
+
+function shuffledDrawTeams(drawDef){
+  var teams = [];
+  drawDef.labels.forEach(function(label){
+    var def = (RUNDOWN_STANDINGS.day1 || []).filter(function(group){ return group.label === label; })[0];
+    if(!def) return;
+    calcRundownStanding('day1', def).forEach(function(row, idx){
+      var rank = idx + 1;
+      if(rank >= drawDef.minRank || (drawDef.includeRank2From || []).indexOf(label) !== -1 && rank === 2){
+        teams.push({team:row.team, key:label + '-' + rank});
+      }
+    });
+  });
+  var rand = seededRandom('ihkdf-day2-draw-' + drawDef.age + '-' + teams.map(function(item){ return item.key + ':' + item.team; }).join('|'));
+  for(var i = teams.length - 1; i > 0; i--){
+    var j = Math.floor(rand() * (i + 1));
+    var tmp = teams[i]; teams[i] = teams[j]; teams[j] = tmp;
+  }
+  return teams;
+}
+
+function refreshDay2RandomDraws(){
+  DAY2_RANDOM_DRAW_DEFS.forEach(function(drawDef){
+    var isComplete = isDay2DrawPoolComplete(drawDef);
+    var teams = isComplete ? shuffledDrawTeams(drawDef) : [];
+    drawDef.games.forEach(function(gno, idx){
+      var row = Array.from(document.querySelectorAll('#day2 .sched-table tbody tr:not(.phase-break)')).filter(function(r){
+        var g = r.querySelector('.td-gno');
+        return g && g.textContent.trim() === gno;
+      })[0];
+      if(!row) return;
+      var cell = row.querySelector('.td-match');
+      var a = teams[idx * 2];
+      var b = teams[idx * 2 + 1];
+      var meta = '明日之星盃 ' + drawDef.age + ' 遺材賽 · 系統隨機抽籤';
+      cell.removeAttribute('data-vs-rendered');
+      cell.setAttribute('data-random-draw','1');
+      if(!isComplete){
+        cell.innerHTML = '<span class="tbd">完成該組別最後一場賽果後顯示</span>'
+          + ' <span class="match-meta">' + escHtml(meta) + '</span>';
+      }else if(a && b){
+        cell.innerHTML = '<span class="tn">' + escHtml(a.team) + '</span>'
+          + ' <span class="vs">vs</span> '
+          + '<span class="tn">' + escHtml(b.team) + '</span>'
+          + ' <span class="match-meta">' + escHtml(meta) + '</span>';
+      }else{
+        cell.innerHTML = '<span class="tbd">系統隨機抽籤待定</span>'
+          + ' <span class="match-meta">' + escHtml(meta) + '</span>';
+      }
+    });
+  });
+}
+
+function renderConsolationSourceVs(){
+  document.querySelectorAll('.td-match').forEach(function(cell){
+    if(cell.getAttribute('data-random-draw') === '1') return;
+    if(cell.getAttribute('data-vs-rendered') === '1') return;
+    var text = normalizeStandingText(cell.getAttribute('data-orig') || cell.textContent);
+    var match = text.match(/^(明日之星盃)\s+([A-Z0-9]+)\s+遺材賽\s+(\d+\s+負方)\s+(\d+\s+負方)$/);
+    if(!match) return;
+    cell.innerHTML = '<span class="tn">' + escHtml(match[3]) + '</span>'
+      + ' <span class="vs">vs</span> '
+      + '<span class="tn">' + escHtml(match[4]) + '</span>'
+      + ' <span class="match-meta">' + escHtml(match[1] + ' ' + match[2] + ' 遺材賽') + '</span>';
+    cell.setAttribute('data-vs-rendered','1');
+  });
 }
 
 function renderRundownVsInSchedule(){
@@ -1332,6 +1474,7 @@ function renderRundownVsInSchedule(){
       });
     });
   });
+  renderConsolationSourceVs();
 }
 
 function initRundownStandings(){
@@ -1449,13 +1592,13 @@ function renderGroupStandings(divId, prefix, label, container){
   var h = label ? '<div class="st-group-lbl">'+escHtml(label)+'</div>' : '';
   h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="勝">勝</th><th title="負">負</th><th title="積分">積分</th><th>得分</th><th>失分</th><th>得失差</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
-    var nm = escHtml(divNames[r.code]||r.code);
+    var nm = divNames[r.code]||r.code;
     var diff = r.gf-r.ga;
     var diffStr = diff>0 ? '+'+diff : String(diff);
     var diffCls = diff>0 ? 'st-pos' : (diff<0 ? 'st-neg' : '');
     h += '<tr>';
     h += '<td class="st-rank">'+(i+1)+'</td>';
-    h += '<td class="td-name"><span class="tn-code">'+escHtml(r.code)+'</span><span class="tn">'+nm+'</span></td>';
+    h += '<td class="td-name"><span class="tn-code">'+escHtml(r.code)+'</span>'+formatStandingTeamName(nm)+'</td>';
     h += '<td class="st-w">'+r.w+'</td>';
     h += '<td class="st-l">'+r.l+'</td>';
     h += '<td class="st-pts">'+(r.gp>0?(r.w*2+r.l):'-')+'</td>';
@@ -2046,6 +2189,7 @@ function loadScores(){
       if(namesUpdated){
         applyAllNames();
         renderRundownVsInSchedule();
+        refreshDay2RandomDraws();
         Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
       }
       document.querySelectorAll('.sc-cell[data-game]').forEach(function(td){
@@ -2053,6 +2197,7 @@ function loadScores(){
       });
       Object.keys(STANDINGS_DEFS).forEach(function(divId){ refreshStandings(divId); });
       refreshRundownStandings();
+      refreshDay2RandomDraws();
       refreshDay3BracketMatchups();
       syncMatchColWidth();
       refreshPodium();
@@ -2203,6 +2348,7 @@ function saveScore(gno, sid){
   if(td) renderScore(td, gno);
   if(divId) refreshStandings(divId);
   if(divId) refreshRundownStandings(divId);
+  refreshDay2RandomDraws();
   refreshDay3BracketMatchups();
   refreshPodium();
 }
@@ -2235,6 +2381,7 @@ function clearAllResults(){
         });
         Object.keys(STANDINGS_DEFS).forEach(function(divId){ refreshStandings(divId); });
         refreshRundownStandings();
+        refreshDay2RandomDraws();
         refreshDay3BracketMatchups();
         refreshPodium();
       } else { alert('清除失敗: '+(res.message||'')); }
@@ -2307,6 +2454,7 @@ function saveTnEditor(){
   });
   applyAllNames();
   renderRundownVsInSchedule();
+  refreshDay2RandomDraws();
   Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
   refreshPodium();
   closeTnEditor();
@@ -2323,6 +2471,7 @@ function resetTnEditor(){
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   applyAllNames();
   renderRundownVsInSchedule();
+  refreshDay2RandomDraws();
   Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
   refreshPodium();
   closeTnEditor();
