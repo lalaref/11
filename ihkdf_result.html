@@ -908,6 +908,39 @@ var STORAGE_KEY = 'ihkdf_33_names';
 var DEFAULT_NAMES = {};
 var names = JSON.parse(JSON.stringify(DEFAULT_NAMES));
 
+function resetNamesToDefaults(){
+  names = JSON.parse(JSON.stringify(DEFAULT_NAMES));
+}
+
+function getTeamDisplayName(team, divId){
+  initDefaultTeamNames();
+  var divIds = divId ? [divId] : Object.keys(DEFAULT_NAMES);
+  for(var i=0;i<divIds.length;i++){
+    var id = divIds[i];
+    var defaults = DEFAULT_NAMES[id] || {};
+    var current = names[id] || {};
+    var keys = Object.keys(defaults);
+    for(var j=0;j<keys.length;j++){
+      var key = keys[j];
+      if(defaults[key] === team) return current[key] || defaults[key];
+    }
+  }
+  return team;
+}
+
+function initDefaultTeamNames(){
+  if(Object.keys(DEFAULT_NAMES).length || typeof RUNDOWN_STANDINGS === 'undefined') return;
+  Object.keys(RUNDOWN_STANDINGS).forEach(function(divId){
+    DEFAULT_NAMES[divId] = {};
+    (RUNDOWN_STANDINGS[divId] || []).forEach(function(def){
+      def.teams.forEach(function(team, idx){
+        DEFAULT_NAMES[divId][def.key + '-' + (idx + 1)] = team;
+      });
+    });
+  });
+  resetNamesToDefaults();
+}
+
 // Auto-assign data-div to tables based on parent section id
 (function assignDivIds(){ var map = {day1:'day1',day2:'day2'}; Object.keys(map).forEach(function(secId){ var sec = document.getElementById(secId); if(!sec) return; sec.querySelectorAll('.sched-table').forEach(function(t){ if(!t.getAttribute('data-div')) t.setAttribute('data-div', map[secId]); }); }); })();
 
@@ -937,20 +970,22 @@ function formatStandingTeamName(name){
 
 // Apply stored team names to all schedule tables
 function applyAllNames(){
+  initDefaultTeamNames();
   document.querySelectorAll('.sched-table[data-div]').forEach(function(table){
     var divId = table.getAttribute('data-div');
     var divNames = names[divId] || {};
-    var codes = Object.keys(divNames).filter(function(c){ return divNames[c]; });
-    // Sort longest codes first to avoid partial replacements
-    codes.sort(function(a,b){ return b.length - a.length; });
+    var defaults = DEFAULT_NAMES[divId] || {};
+    var codes = Object.keys(defaults).filter(function(c){ return divNames[c] && defaults[c]; });
+    codes.sort(function(a,b){ return defaults[b].length - defaults[a].length; });
     table.querySelectorAll('.td-match').forEach(function(cell){
       if(cell.querySelector('.tbd')) return; // skip knockout placeholders
       var html = cell.getAttribute('data-orig') || cell.innerHTML;
       codes.forEach(function(code){
         var name = divNames[code];
-        if(!name) return;
-        var re = new RegExp('\\b' + code.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'g');
-        html = html.replace(re, '<span class="tn-code">' + escHtml(code) + '</span><span class="tn">' + escHtml(name) + '</span>');
+        var source = defaults[code];
+        if(!name || !source || name === source) return;
+        var re = new RegExp(source.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
+        html = html.replace(re, '<span class="tn">' + escHtml(name) + '</span>');
       });
       cell.innerHTML = html;
     });
@@ -958,20 +993,15 @@ function applyAllNames(){
 }
 
 function loadNames(){
-  try{
-    var stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    Object.keys(stored).forEach(function(divId){
-      if(!names[divId]) names[divId] = {};
-      Object.keys(stored[divId]).forEach(function(code){ names[divId][code] = stored[divId][code]; });
-    });
-  } catch(e){}
+  initDefaultTeamNames();
+  resetNamesToDefaults();
   cacheOriginals();
   applyAllNames();
 }
 
 window.addEventListener('DOMContentLoaded', function(){
 
-  splitCourtSchedules(); loadNames(); loadScores(); initScoreCols(); initBrackets(); initDay3BracketData(); initStandings(); initRundownStandings(); colorCourts();
+  splitCourtSchedules(); loadNames(); loadScores(); initScoreCols(); initBrackets(); initDay1KnockoutData(); initDay3BracketData(); initStandings(); initRundownStandings(); colorCourts();
 
   initKnockouts();
   renderRundownVsInSchedule();
@@ -1173,6 +1203,30 @@ function day3GameCell(gno){
   return null;
 }
 
+function gameMatchCells(dayId, gno){
+  var clean = String(gno||'').replace(/^#/, '');
+  return Array.from(document.querySelectorAll('#'+dayId+' .sched-table tbody tr')).filter(function(row){
+    var gnoCell = row.querySelector('.td-gno');
+    return gnoCell && gnoCell.textContent.trim().replace(/^#/, '') === clean;
+  }).map(function(row){ return row.querySelector('.td-match'); }).filter(Boolean);
+}
+
+function initDay1KnockoutData(){
+  ['19','20','21','22','47','48','49','50'].forEach(function(gno){
+    var seeds = DAY3_GAME_PARTICIPANTS[gno];
+    if(!seeds) return;
+    gameMatchCells('day1', gno).forEach(function(cell){
+      cell.setAttribute('data-ko-div','day1');
+      cell.setAttribute('data-ko-seeds',seeds.join(','));
+    });
+  });
+  refreshDay1KnockoutMatchups();
+}
+
+function refreshDay1KnockoutMatchups(){
+  refreshKnockouts('day1');
+}
+
 function initDay3BracketData(){
   var outer = document.querySelector('.bk-outer[data-bk-div="day3"]');
   if(!outer) return;
@@ -1347,7 +1401,7 @@ function renderRundownStanding(divId, def, container){
     var diffCls = diff > 0 ? 'st-pos' : (diff < 0 ? 'st-neg' : '');
     h += '<tr>'
       + '<td class="st-rank">' + (idx + 1) + '</td>'
-      + '<td class="td-name">' + formatStandingTeamName(r.team) + '</td>'
+      + '<td class="td-name">' + formatStandingTeamName(getTeamDisplayName(r.team, divId)) + '</td>'
       + '<td class="st-w">' + r.w + '</td>'
       + '<td class="st-l">' + r.l + '</td>'
       + '<td class="st-pts">' + (r.gp ? (r.w * 2 + r.l) : '-') + '</td>'
@@ -1428,9 +1482,9 @@ function refreshDay2RandomDraws(){
         cell.innerHTML = '<span class="tbd">完成該組別最後一場賽果後顯示</span>'
           + ' <span class="match-meta">' + escHtml(meta) + '</span>';
       }else if(a && b){
-        cell.innerHTML = '<span class="tn">' + escHtml(a.team) + '</span>'
+        cell.innerHTML = '<span class="tn">' + escHtml(getTeamDisplayName(a.team, 'day1')) + '</span>'
           + ' <span class="vs">vs</span> '
-          + '<span class="tn">' + escHtml(b.team) + '</span>'
+          + '<span class="tn">' + escHtml(getTeamDisplayName(b.team, 'day1')) + '</span>'
           + ' <span class="match-meta">' + escHtml(meta) + '</span>';
       }else{
         cell.innerHTML = '<span class="tbd">系統隨機抽籤待定</span>'
@@ -1466,9 +1520,9 @@ function renderRundownVsInSchedule(){
         if(!match) return;
         var cell = row.querySelector('.td-match');
         if(!cell || cell.getAttribute('data-vs-rendered') === '1') return;
-        cell.innerHTML = '<span class="tn">' + escHtml(match.teamA) + '</span>'
+        cell.innerHTML = '<span class="tn">' + escHtml(getTeamDisplayName(match.teamA, divId)) + '</span>'
           + ' <span class="vs">vs</span> '
-          + '<span class="tn">' + escHtml(match.teamB) + '</span>'
+          + '<span class="tn">' + escHtml(getTeamDisplayName(match.teamB, divId)) + '</span>'
           + ' <span class="match-meta">' + escHtml(def.label) + '</span>';
         cell.setAttribute('data-vs-rendered','1');
       });
@@ -1639,6 +1693,9 @@ function resolveSeedName(divId,seed){
 
   if(divId === 'day3') return resolveDay3SeedName(seed, {});
 
+  var standingName = resolveStandingSeedName(seed);
+  if(standingName) return standingName;
+
   var divNames=names[divId]||{};
 
   var rankMap={'首':0,'次':1,'三':2,'四':3};
@@ -1671,6 +1728,20 @@ function resolveSeedName(divId,seed){
 
 }
 
+function resolveStandingSeedName(seed){
+  var token = normalizeStandingText(seed).replace(/^#/,'');
+  var standingRef = token.match(/^(明日之星盃|凝動夢攻防盃)\s+(U\d+)-([A-F])(首名|次名)$/);
+  if(!standingRef) return null;
+  var standingDiv = standingRef[1] === '明日之星盃' ? 'day1' : 'day2';
+  var label = standingRef[1] + ' ' + standingRef[2] + '-' + standingRef[3];
+  var rank = standingRef[4] === '首名' ? 0 : 1;
+  var def = (RUNDOWN_STANDINGS[standingDiv] || []).filter(function(group){ return group.label === label; })[0];
+  if(!def) return null;
+  var rows = calcRundownStanding(standingDiv, def);
+  var row = rows[rank];
+  return row && row.gp > 0 ? getTeamDisplayName(row.team, standingDiv) : null;
+}
+
 function resolveDay3SeedName(seed, seen){
   var token = normalizeStandingText(seed).replace(/^#/,'');
   seen = seen || {};
@@ -1688,16 +1759,8 @@ function resolveDay3SeedName(seed, seen){
     return resolveDay3SeedName(parts[idx], Object.assign({}, seen)) || parts[idx];
   }
 
-  var standingRef = token.match(/^(明日之星盃|凝動夢攻防盃)\s+(U\d+)-([A-F])(首名|次名)$/);
-  if(standingRef){
-    var standingDiv = standingRef[1] === '明日之星盃' ? 'day1' : 'day2';
-    var label = standingRef[1] + ' ' + standingRef[2] + '-' + standingRef[3];
-    var rank = standingRef[4] === '首名' ? 0 : 1;
-    var def = (RUNDOWN_STANDINGS[standingDiv] || []).filter(function(group){ return group.label === label; })[0];
-    if(!def) return null;
-    var rows = calcRundownStanding(standingDiv, def);
-    return rows[rank] && rows[rank].gp > 0 ? rows[rank].team : null;
-  }
+  var standingName = resolveStandingSeedName(token);
+  if(standingName) return standingName;
 
   return null;
 }
@@ -2168,6 +2231,8 @@ function loadScores(){
       if(!res.success) return;
       var data = res.scores || {};
       scores = {};
+      initDefaultTeamNames();
+      resetNamesToDefaults();
       // First pass: extract team name overrides (key format: name_{divId}_{code})
       var namesUpdated = false;
       Object.keys(data).forEach(function(key){
@@ -2178,7 +2243,7 @@ function loadScores(){
         var divId = rest.slice(0, sep);
         var code = rest.slice(sep + 1);
         var val = String((data[key].scoreA !== undefined ? data[key].scoreA : ''));
-        if(val && names[divId] !== undefined){ names[divId][code] = val; namesUpdated = true; }
+        if(val && names[divId] !== undefined && DEFAULT_NAMES[divId] && DEFAULT_NAMES[divId][code] !== undefined){ names[divId][code] = val; namesUpdated = true; }
       });
       // Second pass: load game scores
       Object.keys(data).forEach(function(key){
@@ -2197,6 +2262,7 @@ function loadScores(){
       });
       Object.keys(STANDINGS_DEFS).forEach(function(divId){ refreshStandings(divId); });
       refreshRundownStandings();
+      refreshDay1KnockoutMatchups();
       refreshDay2RandomDraws();
       refreshDay3BracketMatchups();
       syncMatchColWidth();
@@ -2236,8 +2302,13 @@ function pushNameToApi(divId, code, val){
     scoreB: '',
     status: 'name'
   });
-  fetch(API_URL + '?' + params.toString())
-    .catch(function(e){ console.warn('Name push failed:', e); });
+  return fetch(API_URL + '?' + params.toString())
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if(res && res.success === false) throw new Error(res.message || 'Name update failed');
+      return res;
+    })
+    .catch(function(e){ console.warn('Name push failed:', e); throw e; });
 }
 function pushScoreToApi(gno, a, b){
   var params = new URLSearchParams({
@@ -2348,6 +2419,7 @@ function saveScore(gno, sid){
   if(td) renderScore(td, gno);
   if(divId) refreshStandings(divId);
   if(divId) refreshRundownStandings(divId);
+  refreshDay1KnockoutMatchups();
   refreshDay2RandomDraws();
   refreshDay3BracketMatchups();
   refreshPodium();
@@ -2392,6 +2464,7 @@ function clearAllResults(){
 // ── Team Name Editor (admin) ──
 var TN_DIV_LABELS = {};
 function openTnEditor(){
+  initDefaultTeamNames();
   var body = document.getElementById('tn-modal-body');
   if(!body) return;
   body.innerHTML = '';
@@ -2410,7 +2483,7 @@ function openTnEditor(){
       row.className = 'tn-row';
       var slotLbl = document.createElement('span');
       slotLbl.className = 'tn-slot';
-      slotLbl.textContent = code;
+      slotLbl.textContent = DEFAULT_NAMES[divId][code] || code;
       var inp = document.createElement('input');
       inp.type = 'text';
       inp.className = 'tn-input';
@@ -2442,6 +2515,11 @@ function closeTnIfOutside(e){
   if(e.target === document.getElementById('tn-modal-overlay')) closeTnEditor();
 }
 function saveTnEditor(){
+  initDefaultTeamNames();
+  var saveBtn = document.querySelector('#tn-modal-footer .tn-save-btn');
+  var originalText = saveBtn ? saveBtn.textContent : '';
+  if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = '儲存中...'; }
+  var updates = [];
   document.querySelectorAll('#tn-modal-body .tn-input').forEach(function(inp){
     var divId = inp.getAttribute('data-div');
     var code = inp.getAttribute('data-code');
@@ -2449,32 +2527,55 @@ function saveTnEditor(){
     if(!names[divId]) names[divId] = {};
     var effective = val || DEFAULT_NAMES[divId][code] || '';
     names[divId][code] = effective;
-    // Push to GAS so all viewers get the change
-    pushNameToApi(divId, code, effective);
+    updates.push(pushNameToApi(divId, code, effective));
   });
-  applyAllNames();
-  renderRundownVsInSchedule();
-  refreshDay2RandomDraws();
-  Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
-  refreshPodium();
-  closeTnEditor();
+  Promise.all(updates).then(function(){
+    applyAllNames();
+    renderRundownVsInSchedule();
+    refreshRundownStandings();
+    refreshDay1KnockoutMatchups();
+    refreshDay2RandomDraws();
+    Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
+    refreshDay3BracketMatchups();
+    refreshPodium();
+    closeTnEditor();
+    loadScores();
+  }).catch(function(){
+    alert('球隊名稱未能儲存到雲端，請檢查網絡後再試。');
+  }).finally(function(){
+    if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = originalText; }
+  });
 }
 function resetTnEditor(){
   if(!confirm('重設所有球隊名稱至預設？')) return;
-  // Push blank to each slot so GAS returns no override
+  initDefaultTeamNames();
+  var resetBtn = document.querySelector('#tn-modal-footer .tn-reset-btn');
+  var originalText = resetBtn ? resetBtn.textContent : '';
+  if(resetBtn){ resetBtn.disabled = true; resetBtn.textContent = '重設中...'; }
+  var updates = [];
   Object.keys(DEFAULT_NAMES).forEach(function(divId){
     Object.keys(DEFAULT_NAMES[divId]).forEach(function(code){
-      pushNameToApi(divId, code, DEFAULT_NAMES[divId][code]);
+      updates.push(pushNameToApi(divId, code, DEFAULT_NAMES[divId][code]));
     });
   });
-  names = JSON.parse(JSON.stringify(DEFAULT_NAMES));
-  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
-  applyAllNames();
-  renderRundownVsInSchedule();
-  refreshDay2RandomDraws();
-  Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
-  refreshPodium();
-  closeTnEditor();
+  Promise.all(updates).then(function(){
+    resetNamesToDefaults();
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    applyAllNames();
+    renderRundownVsInSchedule();
+    refreshRundownStandings();
+    refreshDay1KnockoutMatchups();
+    refreshDay2RandomDraws();
+    Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
+    refreshDay3BracketMatchups();
+    refreshPodium();
+    closeTnEditor();
+    loadScores();
+  }).catch(function(){
+    alert('球隊名稱未能重設到雲端，請檢查網絡後再試。');
+  }).finally(function(){
+    if(resetBtn){ resetBtn.disabled = false; resetBtn.textContent = originalText; }
+  });
 }
 
 function initAdmin(){
