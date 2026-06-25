@@ -50,7 +50,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .div-nav-title{font-size:.72em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
 .div-nav-btns{display:flex;flex-direction:column;gap:10px}
 .div-nav-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.div-day-label{display:inline-flex;align-items:center;padding:8px 16px;border:1.5px solid transparent;border-radius:20px;font-size:.85em;font-weight:900;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.div-day-label{display:inline-flex;align-items:center;padding:8px 16px;border:1.5px solid transparent;border-radius:20px;font-size:.85em;font-weight:900;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.08);cursor:pointer;transition:all .25s;font-family:inherit;line-height:1.25}
 .div-btn{padding:8px 16px;border:1.5px solid transparent;border-radius:20px;font-size:.85em;font-weight:800;cursor:pointer;transition:all .25s;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .div-btn.girls{background:linear-gradient(145deg,#f8bbd0,#f48fb1);color:#880e4f}
 .div-btn.girls:hover{background:linear-gradient(145deg,#f48fb1,#e91e63);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(233,30,99,.3)}
@@ -480,17 +480,17 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   <div class="div-nav-title">快速跳轉 — 選擇賽程日</div>
   <div class="div-nav-btns">
     <div class="div-nav-row">
-      <span class="div-day-label day1">Day 1 · 3/7/2026</span>
+      <button class="div-day-label day1" onclick="jumpTo('day1')">Day 1 · 3/7/2026</button>
       <button class="div-btn court-a" onclick="jumpTo('day1-court-a')">Court A</button>
       <button class="div-btn court-b" onclick="jumpTo('day1-court-b')">Court B</button>
     </div>
     <div class="div-nav-row">
-      <span class="div-day-label day2">Day 2 · 4/7/2026</span>
+      <button class="div-day-label day2" onclick="jumpTo('day2')">Day 2 · 4/7/2026</button>
       <button class="div-btn court-a" onclick="jumpTo('day2-court-a')">Court A</button>
       <button class="div-btn court-b" onclick="jumpTo('day2-court-b')">Court B</button>
     </div>
     <div class="div-nav-row">
-      <span class="div-day-label day3">Day 3 · 5/7/2026</span>
+      <button class="div-day-label day3" onclick="jumpTo('day3')">Day 3 · 5/7/2026</button>
       <button class="div-btn court-a" onclick="jumpTo('day3-court-a')">Court A</button>
       <button class="div-btn court-b" onclick="jumpTo('day3-court-b')">Court B</button>
     </div>
