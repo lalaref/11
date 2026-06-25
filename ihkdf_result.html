@@ -1561,15 +1561,23 @@ function refreshDay2RandomDraws(){
 }
 
 function renderConsolationSourceVs(){
+  function sourceParticipantHtml(seed){
+    var name = resolveDay3SeedName(seed, {});
+    if(!name){
+      return '<span class="tn">' + escHtml(seed) + '</span>';
+    }
+    return '<span class="tn-code">' + escHtml(seed) + '</span>'
+      + '<span class="tn-sep">·</span>'
+      + '<span class="tn">' + escHtml(name) + '</span>';
+  }
   document.querySelectorAll('.td-match').forEach(function(cell){
     if(cell.getAttribute('data-random-draw') === '1') return;
-    if(cell.getAttribute('data-vs-rendered') === '1') return;
     var text = normalizeStandingText(cell.getAttribute('data-orig') || cell.textContent);
     var match = text.match(/^(明日之星盃)\s+([A-Z0-9]+)\s+遺材賽\s+(\d+\s+負方)\s+(\d+\s+負方)$/);
     if(!match) return;
-    cell.innerHTML = '<span class="tn">' + escHtml(match[3]) + '</span>'
+    cell.innerHTML = sourceParticipantHtml(match[3])
       + ' <span class="vs">vs</span> '
-      + '<span class="tn">' + escHtml(match[4]) + '</span>'
+      + sourceParticipantHtml(match[4])
       + ' <span class="match-meta">' + escHtml(match[1] + ' ' + match[2] + ' 遺材賽') + '</span>';
     cell.setAttribute('data-vs-rendered','1');
   });
@@ -2343,6 +2351,7 @@ function loadScores(){
       });
       Object.keys(STANDINGS_DEFS).forEach(function(divId){ refreshStandings(divId); });
       refreshRundownStandings();
+      renderRundownVsInSchedule();
       refreshDay1KnockoutMatchups();
       refreshDay2RandomDraws();
       refreshDay3BracketMatchups();
@@ -2500,6 +2509,7 @@ function saveScore(gno, sid){
   if(td) renderScore(td, gno);
   if(divId) refreshStandings(divId);
   if(divId) refreshRundownStandings(divId);
+  renderRundownVsInSchedule();
   refreshDay1KnockoutMatchups();
   refreshDay2RandomDraws();
   refreshDay3BracketMatchups();
