@@ -100,8 +100,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sched-table tbody tr{display:flex;align-items:center;width:100%;border-bottom:1px solid rgba(212,165,116,.15);transition:background .2s}
 .sched-table tbody tr:last-child{border-bottom:none}
 .sched-table tbody tr:hover{background:rgba(255,255,255,.35)}
-.sched-table tbody tr.phase-break{display:block;background:rgba(212,165,116,.12)}
-.sched-table tbody tr.phase-break td{padding:6px 14px;font-size:.78em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.5px}
+.sched-table tbody tr.phase-break{display:block;width:100%;background:rgba(212,165,116,.12)}
+.sched-table tbody tr.phase-break td{display:block;width:100%;padding:6px 14px;font-size:.78em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.5px;text-align:center}
 .sched-table td{display:block;box-sizing:border-box;padding:9px 14px;color:#5a4a3a;flex-shrink:0}
 /* Global column order: 時間 | 類型 | 結果 | 對陣 | 場次 | 場區 */
 .sched-table thead th:nth-child(1),.td-time{order:1;width:90px;font-weight:700;color:#d4a574;white-space:nowrap}
@@ -122,6 +122,12 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .td-match .tbd{color:#b0a090;font-style:italic;font-weight:400}
 .match-meta{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(212,165,116,.14);color:#9a7a55;font-size:.72em;font-weight:900;white-space:nowrap;vertical-align:middle}
 .tag-ko{display:inline-block;padding:2px 8px;border-radius:8px;font-size:.72em;font-weight:700;margin-left:6px}
+.sched-table tbody tr.cup-star{box-shadow:inset 4px 0 #d89400}
+.sched-table tbody tr.cup-dream{box-shadow:inset 4px 0 #087f8c}
+.cup-star .tag-ko,.div-tag.cup-star,.match-meta.cup-star,.cup-star .match-meta{background:rgba(216,148,0,.16);color:#7a4d00;border:1px solid rgba(216,148,0,.36)}
+.cup-dream .tag-ko,.div-tag.cup-dream,.match-meta.cup-dream,.cup-dream .match-meta{background:rgba(8,127,140,.14);color:#075c66;border:1px solid rgba(8,127,140,.34)}
+.cup-star .tn-code{color:#7a4d00;background:rgba(216,148,0,.12);border-color:rgba(216,148,0,.28)}
+.cup-dream .tn-code{color:#075c66;background:rgba(8,127,140,.11);border-color:rgba(8,127,140,.26)}
 .tag-rr{background:#d1e7dd;color:#0a3622}
 .tag-sf{background:#fff3cd;color:#856404}
 .tag-final{background:#cfe2ff;color:#084298}
@@ -159,8 +165,11 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .bk-cb{flex:1;border-bottom:2px solid rgba(212,165,116,.55);border-right:2px solid rgba(212,165,116,.55);border-bottom-right-radius:3px}
 .bk-conn-h{width:12px;height:2px;background:rgba(212,165,116,.55);flex-shrink:0}
 .bk-sf{height:48px;padding:0 10px;background:rgba(212,165,116,.1);border:1.5px solid rgba(212,165,116,.4);border-radius:8px;display:flex;flex-direction:column;justify-content:center;min-width:88px;flex-shrink:0;text-align:center;box-sizing:border-box}
+.bk-qf{height:48px;padding:0 10px;background:rgba(42,157,143,.1);border:1.5px solid rgba(42,157,143,.35);border-radius:8px;display:flex;flex-direction:column;justify-content:center;min-width:88px;flex-shrink:0;text-align:center;box-sizing:border-box}
 .bk-sf-lbl{font-size:.64em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.2px}
 .bk-sf-sub{font-size:.7em;color:#7a6a5a;margin-top:1px}
+.bk-qf .bk-sf-lbl{color:#2a7d78}
+.bk-qf .bk-sf-sub{color:#3f8f89}
 .bk-final{padding:10px 12px;background:linear-gradient(145deg,rgba(212,165,116,.2),rgba(200,152,96,.1));border:2px solid rgba(212,165,116,.55);border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;min-width:86px;text-align:center;box-sizing:border-box}
 .bk-final-ico{font-size:1.3em;line-height:1}
 .bk-final-lbl{font-size:.68em;font-weight:700;color:#d4a574;white-space:nowrap}
@@ -688,11 +697,11 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
       <thead><tr><th>時間</th><th>場次</th><th>場區</th><th>對陣</th><th>類型</th></tr></thead>
       <tbody>
         <tr><td class="td-time">9:30</td><td class="td-gno">#123</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9 四強 19 勝方 20 勝方</td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">9:30</td><td class="td-gno">#124</td><td><span class="td-court">場區B</span></td><td class="td-match">R.S &#183; U9 四強 21 勝方 22 勝方</td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">9:30</td><td class="td-gno">#124</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U9 四強 21 勝方 22 勝方</td><td><span class="tag-ko tag-sf">四強</span></td></tr>
         <tr><td class="td-time">9:45</td><td class="td-gno">#125</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U11 四強 47 勝方 48 勝方</td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">9:45</td><td class="td-gno">#126</td><td><span class="td-court">場區B</span></td><td class="td-match">R.S &#183; U11 四強 49 勝方 50 勝方</td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">9:45</td><td class="td-gno">#126</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U11 四強 49 勝方 50 勝方</td><td><span class="tag-ko tag-sf">四強</span></td></tr>
         <tr><td class="td-time">10:00</td><td class="td-gno">#127</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U13 四強 A 組首名 B組次名</td><td><span class="tag-ko tag-sf">四強</span></td></tr>
-        <tr><td class="td-time">10:00</td><td class="td-gno">#128</td><td><span class="td-court">場區B</span></td><td class="td-match">R.S &#183; U13 四強 B組首名 A組次名</td><td><span class="tag-ko tag-sf">四強</span></td></tr>
+        <tr><td class="td-time">10:00</td><td class="td-gno">#128</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U13 四強 B組首名 A組次名</td><td><span class="tag-ko tag-sf">四強</span></td></tr>
         <tr class="phase-break"><td colspan="5">10:15 &#183; BREAK(5 mins )</td></tr>
         <tr><td class="td-time">10:20</td><td class="td-gno">#129</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9 季軍賽 123 負方 124 負方</td><td><span class="tag-ko tag-3rd">季軍賽</span></td></tr>
         <tr><td class="td-time">10:35</td><td class="td-gno">#130</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9 冠軍賽 123 勝方 124 勝方</td><td><span class="tag-ko tag-final">冠軍賽</span></td></tr>
@@ -813,22 +822,6 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
         <thead><tr><th>組別</th><th>🥇 冠軍</th><th>🥈 亞軍</th><th>🥉 季軍</th></tr></thead>
         <tbody id="pt-body"></tbody>
       </table>
-    </div>
-  </div>
-</div>
-
-<!-- Team Name Editor Modal (admin only) -->
-<div id="tn-modal-overlay" onclick="closeTnIfOutside(event)">
-  <div id="tn-modal" role="dialog" aria-modal="true" aria-label="更改球隊名稱">
-    <div id="tn-modal-header">
-      <span>✏️ 更改球隊名稱</span>
-      <button onclick="closeTnEditor()" aria-label="關閉">&times;</button>
-    </div>
-    <div id="tn-modal-body" id="tn-body-inner"></div>
-    <div id="tn-modal-footer">
-      <button class="tn-save-btn" onclick="saveTnEditor()">💾 儲存更改</button>
-      <button class="tn-reset-btn" onclick="resetTnEditor()">↺ 重設預設</button>
-      <span class="tn-note">💾 儲存後所有人即時可見</span>
     </div>
   </div>
 </div>
@@ -1001,7 +994,7 @@ function loadNames(){
 
 window.addEventListener('DOMContentLoaded', function(){
 
-  splitCourtSchedules(); loadNames(); loadScores(); initScoreCols(); initBrackets(); initDay1KnockoutData(); initDay3BracketData(); initStandings(); initRundownStandings(); colorCourts();
+  splitCourtSchedules(); loadNames(); loadScores(); initScoreCols(); initBrackets(); initDay1KnockoutData(); initDay3BracketData(); initStandings(); initRundownStandings(); colorCourts(); colorCupTags();
 
   initKnockouts();
   renderRundownVsInSchedule();
@@ -1019,6 +1012,25 @@ function colorCourts(){
   document.querySelectorAll('.td-court').forEach(function(el){
     var m=el.textContent.trim().match(/([A-B]|\d)$/);
     if(m) el.setAttribute('data-court',m[1]);
+  });
+}
+function cupClassFromText(text){
+  if(String(text || '').indexOf('凝動夢攻防盃') !== -1) return 'cup-dream';
+  if(String(text || '').indexOf('明日之星盃') !== -1) return 'cup-star';
+  return '';
+}
+function colorCupTags(){
+  document.querySelectorAll('.sched-table tbody tr:not(.phase-break)').forEach(function(row){
+    var matchCell = row.querySelector('.td-match');
+    var sourceText = matchCell ? (matchCell.getAttribute('data-orig') || matchCell.textContent) : row.textContent;
+    var cupClass = cupClassFromText(sourceText);
+    row.classList.remove('cup-star','cup-dream');
+    if(cupClass) row.classList.add(cupClass);
+  });
+  document.querySelectorAll('.div-tag,.match-meta').forEach(function(el){
+    var cupClass = cupClassFromText(el.textContent);
+    el.classList.remove('cup-star','cup-dream');
+    if(cupClass) el.classList.add(cupClass);
   });
 }
 
@@ -1058,12 +1070,12 @@ var DAY3_BRACKET_WIRING = [
 
 var BRACKET_DEFS = {
   day3: { brackets:[
-    {subLabel:'明日之星盃 U9', seeds:['19 勝方','20 勝方','21 勝方','22 勝方'], descs:['#19 勝方','#20 勝方','#21 勝方','#22 勝方'], notes:['#123 / #124 四強','#129 季軍賽','#130 冠軍賽']},
-    {subLabel:'明日之星盃 U11', seeds:['47 勝方','48 勝方','49 勝方','50 勝方'], descs:['#47 勝方','#48 勝方','#49 勝方','#50 勝方'], notes:['#125 / #126 四強','#131 季軍賽','#132 冠軍賽']},
+    {subLabel:'明日之星盃 U9', quarter:true, quarterGames:['19','20','21','22'], seeds:['明日之星盃 U9-A首名','明日之星盃 U9-B次名','明日之星盃 U9-A次名','明日之星盃 U9-B首名','明日之星盃 U9-C首名','明日之星盃 U9-D次名','明日之星盃 U9-C次名','明日之星盃 U9-D首名'], descs:['A首名','B次名','A次名','B首名','C首名','D次名','C次名','D首名'], notes:['#19-#22 八強','#123 / #124 四強','#129 季軍賽','#130 冠軍賽']},
+    {subLabel:'明日之星盃 U11', quarter:true, quarterGames:['47','48','49','50'], seeds:['明日之星盃 U11-A首名','明日之星盃 U11-B首名','明日之星盃 U11-A次名','明日之星盃 U11-C首名','明日之星盃 U11-D首名','明日之星盃 U11-F首名','明日之星盃 U11-E首名','明日之星盃 U11-F次名'], descs:['A首名','B首名','A次名','C首名','D首名','F首名','E首名','F次名'], notes:['#47-#50 八強','#125 / #126 四強','#131 季軍賽','#132 冠軍賽']},
     {subLabel:'明日之星盃 U13', seeds:['明日之星盃 U13-A首名','明日之星盃 U13-B次名','明日之星盃 U13-B首名','明日之星盃 U13-A次名'], descs:['A組首名','B組次名','B組首名','A組次名'], notes:['#127 / #128 四強','#133 季軍賽','#134 冠軍賽']},
-    {subLabel:'凝動夢攻防盃 U9', seeds:['135 勝方','136 勝方','137 勝方','138 勝方'], descs:['#135 勝方','#136 勝方','#137 勝方','#138 勝方'], notes:['#135-#138 八強','#139 / #140 四強','#141 季軍賽','#142 冠軍賽']},
-    {subLabel:'凝動夢攻防盃 U11', seeds:['143 勝方','144 勝方','145 勝方','146 勝方'], descs:['#143 勝方','#144 勝方','#145 勝方','#146 勝方'], notes:['#143-#146 八強','#147 / #148 四強','#149 季軍賽','#150 冠軍賽']},
-    {subLabel:'凝動夢攻防盃 U13', seeds:['151 勝方','152 勝方','153 勝方','154 勝方'], descs:['#151 勝方','#152 勝方','#153 勝方','#154 勝方'], notes:['#151-#154 八強','#155 / #156 四強','#157 季軍賽','#158 冠軍賽']}
+    {subLabel:'凝動夢攻防盃 U9', quarter:true, quarterGames:['135','136','137','138'], seeds:['129 負方','凝動夢攻防盃 U9-A首名','130 勝方','凝動夢攻防盃 U9-B次名','130 負方','凝動夢攻防盃 U9-A次名','129 勝方','凝動夢攻防盃 U9-B首名'], descs:['#129 負方','U9-A首名','#130 勝方','U9-B次名','#130 負方','U9-A次名','#129 勝方','U9-B首名'], notes:['#135-#138 八強','#139 / #140 四強','#141 季軍賽','#142 冠軍賽']},
+    {subLabel:'凝動夢攻防盃 U11', quarter:true, quarterGames:['143','144','145','146'], seeds:['131 負方','凝動夢攻防盃 U11-A首名','132 勝方','凝動夢攻防盃 U11-B次名','132 負方','凝動夢攻防盃 U11-A次名','131 勝方','凝動夢攻防盃 U11-B首名'], descs:['#131 負方','U11-A首名','#132 勝方','U11-B次名','#132 負方','U11-A次名','#131 勝方','U11-B首名'], notes:['#143-#146 八強','#147 / #148 四強','#149 季軍賽','#150 冠軍賽']},
+    {subLabel:'凝動夢攻防盃 U13', quarter:true, quarterGames:['151','152','153','154'], seeds:['133 負方','凝動夢攻防盃 U13-A首名','134 勝方','凝動夢攻防盃 U13-B次名','134 負方','凝動夢攻防盃 U13-A次名','133 勝方','凝動夢攻防盃 U13-B首名'], descs:['#133 負方','U13-A首名','#134 勝方','U13-B次名','#134 負方','U13-A次名','#133 勝方','U13-B首名'], notes:['#151-#154 八強','#155 / #156 四強','#157 季軍賽','#158 冠軍賽']}
   ]}
 };
 
@@ -1102,6 +1114,47 @@ function buildBracketHtml(bk,bidx){
   h+='<div class="bk-final"><div class="bk-final-ico">🏆</div><div class="bk-final-lbl">冠軍戰</div></div>';
   h+='</div>';
   h+='</div>';
+  return h;
+}
+
+function buildQuarterBracketHtml(bk,bidx){
+  var PAIR=98,BGAP=16,SFPAIR=(PAIR*2)+BGAP,TOTAL=(SFPAIR*2)+BGAP;
+  var h='<div class="bk" data-bracket-idx="'+(bidx||0)+'">';
+  h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
+  [[0,1],[2,3],[4,5],[6,7]].forEach(function(p){
+    h+='<div class="bk-pair">';
+    p.forEach(function(i){h+='<div class="bk-box" data-seed="'+bk.seeds[i]+'" data-desc="'+bk.descs[i]+'"><div class="bk-box-code">'+bk.seeds[i]+'</div><div class="bk-box-desc">'+bk.descs[i]+'</div></div>';});
+    h+='</div>';
+  });
+  h+='</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
+  [0,1,2,3].forEach(function(){h+='<div class="bk-conn" style="height:'+PAIR+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>';});
+  h+='</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
+  ['#'+bk.quarterGames[0],'#'+bk.quarterGames[1],'#'+bk.quarterGames[2],'#'+bk.quarterGames[3]].forEach(function(gno,i){
+    h+='<div style="height:'+PAIR+'px;display:flex;align-items:center">';
+    h+='<div class="bk-conn-h"></div>';
+    h+='<div class="bk-qf" data-qf-idx="'+i+'"><div class="bk-sf-lbl">八強 '+gno+'</div><div class="bk-sf-sub">勝方晉級</div></div>';
+    h+='</div>';
+  });
+  h+='</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
+  h+='<div class="bk-conn" style="height:'+SFPAIR+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>';
+  h+='<div class="bk-conn" style="height:'+SFPAIR+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>';
+  h+='</div>';
+  h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
+  ['①','②'].forEach(function(n,i){
+    h+='<div style="height:'+SFPAIR+'px;display:flex;align-items:center">';
+    h+='<div class="bk-conn-h"></div>';
+    h+='<div class="bk-sf" data-sf-idx="'+i+'"><div class="bk-sf-lbl">半決賽'+n+'</div><div class="bk-sf-sub">勝方晉級</div></div>';
+    h+='</div>';
+  });
+  h+='</div>';
+  h+='<div style="flex-shrink:0"><div class="bk-conn" style="height:'+TOTAL+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div></div>';
+  h+='<div style="height:'+TOTAL+'px;display:flex;align-items:center;flex-shrink:0">';
+  h+='<div class="bk-conn-h"></div>';
+  h+='<div class="bk-final"><div class="bk-final-ico">🏆</div><div class="bk-final-lbl">冠軍戰</div></div>';
+  h+='</div></div>';
   return h;
 }
 
@@ -1168,7 +1221,7 @@ function initBrackets(){
       if(idx>0){var sp=document.createElement('div');sp.style.height='14px';outer.appendChild(sp);}
       if(bk.subLabel){var sl=document.createElement('div');sl.className='bk-sub-label';sl.textContent=bk.subLabel;outer.appendChild(sl);}
       var tmp=document.createElement('div');
-      tmp.innerHTML=bk.rankingMatch?buildRankingMatchHtml(bk):bk.directBracket?buildDirectBracketHtml(bk):(bk.direct?buildDirectFinalHtml(bk):buildBracketHtml(bk,idx));
+      tmp.innerHTML=bk.rankingMatch?buildRankingMatchHtml(bk):bk.directBracket?buildDirectBracketHtml(bk):(bk.direct?buildDirectFinalHtml(bk):(bk.quarter?buildQuarterBracketHtml(bk,idx):buildBracketHtml(bk,idx)));
       outer.appendChild(tmp.firstElementChild);
       if(bk.rankingMatch){
         var wrapEl=outer.querySelector('.bk-rank-wrap');
@@ -1240,8 +1293,21 @@ function initDay3BracketData(){
   });
 
   DAY3_BRACKET_WIRING.forEach(function(wiring, idx){
+    var bk = BRACKET_DEFS.day3.brackets[idx];
     var bkEl = outer.querySelector('.bk[data-bracket-idx="'+idx+'"]');
     if(!bkEl) return;
+
+    if(bk && bk.quarter && bk.quarterGames){
+      bk.quarterGames.forEach(function(qgno, qIdx){
+        var seeds = DAY3_GAME_PARTICIPANTS[qgno];
+        var qfEl = bkEl.querySelector('.bk-qf[data-qf-idx="'+qIdx+'"]');
+        if(qfEl && seeds){
+          qfEl.setAttribute('data-gno','#'+qgno.replace(/^#/,''));
+          qfEl.setAttribute('data-seeds',seeds.join(','));
+          qfEl.setAttribute('data-bk-div','day3');
+        }
+      });
+    }
 
     wiring.sf.forEach(function(sf, sfIdx){
       var sfEl = bkEl.querySelector('.bk-sf[data-sf-idx="'+sfIdx+'"]');
@@ -1980,6 +2046,21 @@ function refreshBrackets(divId){
     if(nm){ desc.textContent=nm; desc.style.color='#1a6635'; }
     else{ desc.textContent=box.getAttribute('data-desc')||''; desc.style.color=''; }
   });
+  // Quarter-final winner names (Day 3 PDF-style 8-team brackets)
+  outer.querySelectorAll('.bk-qf[data-gno]').forEach(function(box){
+    var gno=box.getAttribute('data-gno');
+    var divIdB=box.getAttribute('data-bk-div');
+    var seeds=(box.getAttribute('data-seeds')||'').split(',');
+    var sc=scores[gno];
+    var winEl=box.querySelector('.bk-sf-winner');
+    if(!winEl){winEl=document.createElement('div');winEl.className='bk-sf-winner';box.appendChild(winEl);}
+    if(sc&&sc.a!==''&&sc.b!==''&&Number(sc.a)!==Number(sc.b)){
+      var a=Number(sc.a),b=Number(sc.b);
+      var wSeed=a>b?seeds[0]:seeds[1];
+      winEl.textContent='→ '+(resolveSeedName(divIdB,wSeed)||wSeed);
+      winEl.style.color='#1a6635';
+    } else { winEl.textContent=''; }
+  });
   // SF winner names (multi-div brackets)
   outer.querySelectorAll('.bk-sf[data-gno]').forEach(function(box){
     var gno=box.getAttribute('data-gno');
@@ -2463,7 +2544,21 @@ function clearAllResults(){
 
 // ── Team Name Editor (admin) ──
 var TN_DIV_LABELS = {};
+function ensureTnEditorModal(){
+  if(document.getElementById('tn-modal-overlay')) return;
+  var tnTitle = '更改' + '球隊' + '名稱';
+  var overlay = document.createElement('div');
+  overlay.id = 'tn-modal-overlay';
+  overlay.setAttribute('onclick', 'closeTnIfOutside(event)');
+  overlay.innerHTML = '<div id="tn-modal" role="dialog" aria-modal="true" aria-label="'+tnTitle+'">'
+    + '<div id="tn-modal-header"><span>✏️ '+tnTitle+'</span><button onclick="closeTnEditor()" aria-label="關閉">&times;</button></div>'
+    + '<div id="tn-modal-body"></div>'
+    + '<div id="tn-modal-footer"><button class="tn-save-btn" onclick="saveTnEditor()">💾 儲存更改</button><button class="tn-reset-btn" onclick="resetTnEditor()">↺ 重設預設</button><span class="tn-note">💾 儲存後所有人即時可見</span></div>'
+    + '</div>';
+  document.body.appendChild(overlay);
+}
 function openTnEditor(){
+  ensureTnEditorModal();
   initDefaultTeamNames();
   var body = document.getElementById('tn-modal-body');
   if(!body) return;
@@ -2508,7 +2603,8 @@ function openTnEditor(){
   document.body.style.overflow = 'hidden';
 }
 function closeTnEditor(){
-  document.getElementById('tn-modal-overlay').classList.remove('open');
+  var overlay = document.getElementById('tn-modal-overlay');
+  if(overlay) overlay.classList.remove('open');
   document.body.style.overflow = '';
 }
 function closeTnIfOutside(e){
@@ -2582,6 +2678,8 @@ function initAdmin(){
 
   isAdmin = true;
 
+  ensureTnEditorModal();
+
   document.querySelectorAll('.sc-cell').forEach(function(td){
 
     var gno = td.getAttribute('data-game');
@@ -2591,11 +2689,12 @@ function initAdmin(){
   });
 
   var banner = document.createElement('div');
+  var tnTitle = '更改' + '球隊' + '名稱';
 
   banner.className = 'admin-banner';
 
   banner.innerHTML = '🔧 管理模式 — 點擊「+ 記分」或比更新結果（所有人即時可見）&nbsp;&nbsp;<button onclick="clearAllResults()" style="margin-left:12px;padding:4px 14px;background:#fff;color:#dc3545;border:1.5px solid #dc3545;border-radius:20px;font-size:.82em;font-weight:700;cursor:pointer">🗑️ 一鍵清除所有賽果</button>'
-    + '&nbsp;&nbsp;<button onclick="openTnEditor()" style="margin-left:8px;padding:4px 14px;background:#fff;color:#1a3a6e;border:1.5px solid #1a3a6e;border-radius:20px;font-size:.82em;font-weight:700;cursor:pointer">✏️ 更改球隊名稱</button>';
+    + '&nbsp;&nbsp;<button onclick="openTnEditor()" style="margin-left:8px;padding:4px 14px;background:#fff;color:#1a3a6e;border:1.5px solid #1a3a6e;border-radius:20px;font-size:.82em;font-weight:700;cursor:pointer">✏️ '+tnTitle+'</button>';
 
   var ct = document.querySelector('.ct');
 
