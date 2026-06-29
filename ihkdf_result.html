@@ -403,9 +403,11 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   /* Standings — tighter on mobile */
   .st-groups{gap:10px}
   .st-group{flex:0 0 calc(50% - 5px);overflow-x:auto}
-  .st-table{font-size:.7em;min-width:360px}
+  .st-table{font-size:.7em;min-width:390px}
   .st-table th,.st-table td{padding:4px 3px;line-height:1.18}
-  .st-table th.th-name,.st-table td.td-name{width:12em;padding-left:3px}
+  .st-table th.th-name,.st-table td.td-name{width:14em;padding-left:3px;padding-right:6px}
+  .st-table td.td-name{overflow:hidden}
+  .st-team-name{max-width:100%}
   .st-table th:nth-child(3),.st-table td:nth-child(3),
   .st-table th:nth-child(4),.st-table td:nth-child(4),
   .st-table th:nth-child(5),.st-table td:nth-child(5),
@@ -474,8 +476,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .tag-ko{font-size:.62em;padding:2px 4px}
   .sc-inp{width:38px}
   .sc-btn{padding:5px 8px}
-  .st-table{font-size:.68em;min-width:320px}
-  .st-table th.th-name,.st-table td.td-name{width:10.5em}
+  .st-table{font-size:.68em;min-width:370px}
+  .st-table th.th-name,.st-table td.td-name{width:13.5em;padding-right:6px}
   .st-table th:nth-child(3),.st-table td:nth-child(3),
   .st-table th:nth-child(4),.st-table td:nth-child(4),
   .st-table th:nth-child(5),.st-table td:nth-child(5),
