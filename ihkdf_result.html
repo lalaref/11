@@ -2468,13 +2468,32 @@ function pushNameToApi(divId, code, val){
     scoreB: '',
     status: 'name'
   });
-  return fetch(API_URL + '?' + params.toString())
+  return fetch(API_URL + '?' + params.toString(), {cache:'no-store'})
     .then(function(r){ return r.json(); })
     .then(function(res){
       if(res && res.success === false) throw new Error(res.message || 'Name update failed');
       return res;
     })
-    .catch(function(e){ console.warn('Name push failed:', e); throw e; });
+    .catch(function(e){
+      console.warn('Name push failed:', divId, code, e);
+      return fetch(API_URL + '?' + params.toString(), {cache:'no-store'})
+        .then(function(r){ return r.json(); })
+        .then(function(res){
+          if(res && res.success === false) throw new Error(res.message || 'Name update failed');
+          return res;
+        });
+    });
+}
+
+function refreshAfterTeamNameSave(){
+  applyAllNames();
+  renderRundownVsInSchedule();
+  refreshRundownStandings();
+  refreshDay1KnockoutMatchups();
+  refreshDay2RandomDraws();
+  Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
+  refreshDay3BracketMatchups();
+  refreshPodium();
 }
 function pushRankOverrideToApi(divId, groupKey, order){
   var params = new URLSearchParams({
@@ -2766,18 +2785,16 @@ function saveTnEditor(){
     }
   });
   updates.reduce(function(chain, update){ return chain.then(update); }, Promise.resolve()).then(function(){
-    applyAllNames();
-    renderRundownVsInSchedule();
-    refreshRundownStandings();
-    refreshDay1KnockoutMatchups();
-    refreshDay2RandomDraws();
-    Object.keys(BRACKET_DEFS).forEach(function(d){ refreshKnockouts(d); });
-    refreshDay3BracketMatchups();
-    refreshPodium();
+    try{
+      refreshAfterTeamNameSave();
+    }catch(e){
+      console.warn('Team name saved, but local refresh failed:', e);
+    }
     closeTnEditor();
     return loadScores();
-  }).catch(function(){
-    alert('球隊名稱未能儲存到雲端，請檢查網絡後再試。');
+  }).catch(function(e){
+    console.warn('Team name save failed:', e);
+    alert('球隊名稱未能儲存到雲端，請檢查網絡後再試。' + (e && e.message ? '\n\n' + e.message : ''));
   }).finally(function(){
     if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = originalText; }
   });
