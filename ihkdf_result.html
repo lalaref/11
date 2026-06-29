@@ -240,10 +240,19 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .podium-fab:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.38)}
 
 /* ── Team Name Editor Modal ── */
+#tn-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1400;align-items:center;justify-content:center;padding:16px}
+#tn-modal-overlay.open{display:flex}
+#tn-modal{width:min(96vw,980px);max-height:90vh;background:#fffdf5;border-radius:18px;box-shadow:0 8px 36px rgba(0,0,0,.3);display:flex;flex-direction:column;overflow:hidden}
+#tn-modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(135deg,#1a3a6e,#2e6fd4);color:#fff;font-weight:900;flex-shrink:0}
 #tn-modal-header button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1.3em;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#tn-modal-body{padding:16px 18px;overflow:auto;flex:1}
 .tn-div-block{margin-bottom:20px}
 .tn-div-label{font-size:.82em;font-weight:700;color:#1a3a6e;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #dde6f7}
 .tn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+.tn-row{display:flex;flex-direction:column;gap:4px;background:#f8fafd;border:1px solid #e2e8f3;border-radius:10px;padding:9px 10px}
+.tn-slot{font-size:.74em;font-weight:800;color:#6c7890;line-height:1.25}
+.tn-input{width:100%;border:1.5px solid #cdd8ea;border-radius:8px;padding:7px 9px;background:#fff;color:#3f4a5f;font-size:.9em;font-family:inherit;min-width:0}
+.tn-input:focus{outline:none;border-color:#2e6fd4;box-shadow:0 0 0 3px rgba(46,111,212,.14)}
 .tn-input.overridden{border-color:#e67e22;background:#fff8f0}
 #tn-modal-footer{padding:12px 20px;background:#f5f7fa;border-top:1px solid #e0e4ea;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .tn-save-btn{padding:8px 22px;background:#2e6fd4;color:#fff;border:none;border-radius:10px;font-size:.9em;font-weight:700;cursor:pointer}
@@ -820,7 +829,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 <footer class="ft"><div class="fc">
   <div><h4>LaLaRef 急單王</h4><p>香港專業籃球球證/裁判<br>即日緊急接單<br>持牌專業球證/裁判 • 24/7接單</p></div>
   <div><h4>聯絡方式</h4><p>📱 WhatsApp: <a href="https://wa.me/85284828484">8482 8484</a><br>📧 <a href="mailto:info@lalaref.com">info@lalaref.com</a><br>📍 服務地區: 全港覆蓋</p></div>
-  <div><h4>網站連結</h4><p><a href="about.html">關於我們</a><br><a href="contact.html">聯絡我們</a><br><a href="privacy.html">私隱政策</a><br><a href="terms.html">服務條款</a><br><a href="bkids-admin.html" style="color:#b0a090;font-size:.85em">⚙ 管理員</a></p></div>
+  <div><h4>網站連結</h4><p><a href="about.html">關於我們</a><br><a href="contact.html">聯絡我們</a><br><a href="privacy.html">私隱政策</a><br><a href="terms.html">服務條款</a></p></div>
 </div><div class="fb"><p>&copy; 2026 LaLa Xolutions Co.</p></div></footer>
 
 <script>
