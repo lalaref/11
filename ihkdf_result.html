@@ -2101,6 +2101,7 @@ function initKnockouts(){
 }
 
 function refreshKnockouts(divId){
+  function sourceSeedLabel(gno, type){ return '#' + String(gno || '').replace(/^#/, '') + ' ' + type; }
   function koParticipantHtml(seed, name){
     var label = name || seed;
     if(!name || name === seed){
@@ -2131,13 +2132,13 @@ function refreshKnockouts(divId){
       var idx = scoreWinnerIndex(sc);
       if(idx === null || idx === undefined) return null;
       var ws=ss[idx];
-      return {seed:ws,name:resolveSeedName(divId,ws)||ws};
+      return {seed:sourceSeedLabel(gno,'勝方'),name:resolveSeedName(divId,ws)||ws};
     }
     var w1=winner(srcs[0],seedPairs[0]),w2=winner(srcs[1],seedPairs[1]);
     var ss1=seedPairs[0].split(','),ss2=seedPairs[1].split(',');
-    var p1seed=w1?w1.seed:'勝①';
+    var p1seed=w1?w1.seed:sourceSeedLabel(srcs[0],'勝方');
     var p1name=w1?w1.name:((resolveSeedName(divId,ss1[0])||ss1[0])+' / '+(resolveSeedName(divId,ss1[1])||ss1[1]));
-    var p2seed=w2?w2.seed:'勝②';
+    var p2seed=w2?w2.seed:sourceSeedLabel(srcs[1],'勝方');
     var p2name=w2?w2.name:((resolveSeedName(divId,ss2[0])||ss2[0])+' / '+(resolveSeedName(divId,ss2[1])||ss2[1]));
     cell.innerHTML=koParticipantHtml(p1seed,p1name)
       +' <span class="vs">vs</span> '
@@ -2153,13 +2154,13 @@ function refreshKnockouts(divId){
       var idx = scoreLoserIndex(sc);
       if(idx === null || idx === undefined) return null;
       var ls=ss[idx];
-      return {seed:ls,name:resolveSeedName(divId,ls)||ls};
+      return {seed:sourceSeedLabel(gno,'負方'),name:resolveSeedName(divId,ls)||ls};
     }
     var l1=loser(srcs[0],seedPairs[0]),l2=loser(srcs[1],seedPairs[1]);
     var ss1=seedPairs[0].split(','),ss2=seedPairs[1].split(',');
-    var p1seed=l1?l1.seed:'負②';
+    var p1seed=l1?l1.seed:sourceSeedLabel(srcs[0],'負方');
     var p1name=l1?l1.name:((resolveSeedName(divId,ss1[0])||ss1[0])+' / '+(resolveSeedName(divId,ss1[1])||ss1[1]));
-    var p2seed=l2?l2.seed:'負③';
+    var p2seed=l2?l2.seed:sourceSeedLabel(srcs[1],'負方');
     var p2name=l2?l2.name:((resolveSeedName(divId,ss2[0])||ss2[0])+' / '+(resolveSeedName(divId,ss2[1])||ss2[1]));
     cell.innerHTML=koParticipantHtml(p1seed,p1name)
       +' <span class="vs">vs</span> '
