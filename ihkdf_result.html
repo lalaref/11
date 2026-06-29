@@ -154,6 +154,29 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sc-cancel{background:#9a8a7a}
 .sc-forfeit-btn{background:#b42318}
 
+/* ── Manual Ranking Editor ── */
+#rank-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1300;align-items:center;justify-content:center;padding:16px}
+#rank-modal-overlay.open{display:flex}
+#rank-modal{width:min(94vw,520px);max-height:90vh;background:#fffdf5;border-radius:18px;box-shadow:0 8px 36px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden}
+#rank-modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(135deg,#5a3d00,#a07000);color:#ffe27a;font-weight:900}
+#rank-modal-header button{border:none;background:rgba(255,255,255,.18);color:#ffe27a;border-radius:50%;width:32px;height:32px;font-size:1.2em;cursor:pointer}
+#rank-modal-body{padding:14px 16px;overflow:auto}
+.rank-help{font-size:.82em;color:#7a6a5a;margin-bottom:10px;line-height:1.5}
+.rank-list{display:flex;flex-direction:column;gap:7px}
+.rank-row{display:grid;grid-template-columns:28px 20px 1fr auto;align-items:center;gap:8px;background:rgba(212,165,116,.12);border:1px solid rgba(212,165,116,.22);border-radius:10px;padding:7px 8px;cursor:grab;transition:opacity .15s,transform .15s,box-shadow .15s,border-color .15s}
+.rank-row.dragging{opacity:.45;cursor:grabbing;box-shadow:0 8px 18px rgba(0,0,0,.16);border-color:rgba(216,111,0,.5)}
+.rank-row.drag-over{transform:translateY(2px);border-color:#d86f00;background:rgba(216,111,0,.14)}
+.rank-pos{font-size:.78em;font-weight:900;color:#d86f00;text-align:center}
+.rank-grip{color:#c29b6d;font-weight:900;text-align:center;line-height:1}
+.rank-name{font-size:.9em;font-weight:800;color:#5a4a3a;line-height:1.3}
+.rank-actions{display:flex;gap:5px}
+.rank-actions button{border:1px solid rgba(90,74,58,.25);background:#fff;color:#5a4a3a;border-radius:8px;padding:3px 7px;font-size:.82em;font-weight:900;cursor:pointer}
+#rank-modal-footer{display:flex;align-items:center;gap:8px;justify-content:flex-end;padding:12px 16px;background:#fff6e5;border-top:1px solid rgba(212,165,116,.25)}
+#rank-modal-footer button{border:none;border-radius:999px;padding:7px 14px;font-weight:900;cursor:pointer;font-family:inherit}
+.rank-save-btn{background:#1a6635;color:#fff}
+.rank-reset-btn{background:#fff;color:#b42318;border:1px solid #b42318!important}
+.rank-cancel-btn{background:#9a8a7a;color:#fff}
+
 /* ── Bracket ── */
 .bk-outer{margin-top:18px;padding:14px 16px;background:rgba(255,255,255,.35);border-radius:14px;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch}
 .bk-outer-title{font-size:.8em;font-weight:700;color:#d4a574;margin-bottom:12px}
@@ -254,6 +277,11 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .st-groups{display:flex;flex-wrap:wrap;gap:14px}
 .st-group{flex:0 0 calc(50% - 7px);min-width:0;overflow-x:auto}
 .st-group-lbl{font-size:.72em;font-weight:700;color:#9a8a7a;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;padding:2px 8px;background:rgba(212,165,116,.12);border-radius:8px;display:inline-block}
+.st-admin-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.st-admin-line .st-group-lbl{margin-bottom:0}
+.rank-edit-btn{display:none;border:1px solid rgba(216,111,0,.45);background:#fff;color:#a85300;border-radius:999px;padding:2px 8px;font-size:.68em;font-weight:800;cursor:pointer;white-space:nowrap}
+.admin-mode .rank-edit-btn{display:inline-flex}
+.rank-manual-note{display:block;margin-top:3px;font-size:.78em;color:#d86f00;font-weight:800}
 .st-table{width:100%;min-width:410px;border-collapse:collapse;font-size:.82em;table-layout:fixed}
 .st-table th{padding:5px 8px;font-size:.72em;font-weight:700;color:#9a8a7a;text-align:center;border-bottom:1.5px solid rgba(212,165,116,.25);white-space:nowrap}
 .st-table th.th-name{text-align:left;padding-left:4px;width:15em}
@@ -271,8 +299,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .st-rank{font-size:.7em;color:#9a8a7a;font-weight:700;width:20px}
 .st-rank-ico{font-size:.95em;margin-right:3px;vertical-align:middle}
 .st-w{color:#1a6635;font-weight:900}
-.st-l{color:#c0392b;font-weight:700}
-.st-table th:nth-child(5){color:#d86f00}
+.st-l{color:inherit;font-weight:700}
+.st-table th:nth-child(3){color:#d86f00}
 .st-table td.st-pts{color:#d86f00;font-weight:900}
 .st-pos{color:#1a6635;font-weight:700}
 .st-neg{color:#c0392b;font-weight:700}
@@ -375,9 +403,17 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   /* Standings — tighter on mobile */
   .st-groups{gap:10px}
   .st-group{flex:0 0 calc(50% - 5px);overflow-x:auto}
-  .st-table{font-size:.74em}
-  .st-table th,.st-table td{padding:5px 5px}
-  .st-table th.th-name,.st-table td.td-name{padding-left:3px}
+  .st-table{font-size:.7em;min-width:360px}
+  .st-table th,.st-table td{padding:4px 3px;line-height:1.18}
+  .st-table th.th-name,.st-table td.td-name{width:12em;padding-left:3px}
+  .st-table th:nth-child(3),.st-table td:nth-child(3),
+  .st-table th:nth-child(4),.st-table td:nth-child(4),
+  .st-table th:nth-child(5),.st-table td:nth-child(5),
+  .st-table th:nth-child(6),.st-table td:nth-child(6),
+  .st-table th:nth-child(7),.st-table td:nth-child(7){width:26px;padding-left:1px;padding-right:1px}
+  .st-table th:nth-child(8),.st-table td:nth-child(8){width:38px;padding-left:1px;padding-right:1px}
+  .st-table th:nth-child(9),.st-table td:nth-child(9),
+  .st-table th:nth-child(10),.st-table td:nth-child(10){width:34px;padding-left:1px;padding-right:1px}
   .st-rank{width:14px}
 
   /* Bracket */
@@ -438,7 +474,16 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .tag-ko{font-size:.62em;padding:2px 4px}
   .sc-inp{width:38px}
   .sc-btn{padding:5px 8px}
-  .st-table{font-size:.75em}
+  .st-table{font-size:.68em;min-width:320px}
+  .st-table th.th-name,.st-table td.td-name{width:10.5em}
+  .st-table th:nth-child(3),.st-table td:nth-child(3),
+  .st-table th:nth-child(4),.st-table td:nth-child(4),
+  .st-table th:nth-child(5),.st-table td:nth-child(5),
+  .st-table th:nth-child(6),.st-table td:nth-child(6),
+  .st-table th:nth-child(7),.st-table td:nth-child(7){width:24px}
+  .st-table th:nth-child(8),.st-table td:nth-child(8){width:36px}
+  .st-table th:nth-child(9),.st-table td:nth-child(9),
+  .st-table th:nth-child(10),.st-table td:nth-child(10){width:30px}
   .st-group{flex:0 0 100%}
   .bk-box{min-width:104px}
   .bk-outer[data-bk-div="day3"] .bk{min-width:620px}
@@ -1454,6 +1499,29 @@ function standingPoints(row){ return row.pts !== undefined ? row.pts : (row.w * 
 function standingWinRate(row){ return row.gp ? row.w / row.gp : 0; }
 function standingWinMetric(row){ return row.gp ? (row.w + ' / ' + Math.round(standingWinRate(row) * 100) + '%') : '-'; }
 function standingAvgScore(row){ return row.avgGp ? row.avgGf / row.avgGp : 0; }
+function rankOverrideKey(divId, groupKey){ return divId + '__' + groupKey; }
+function rankOverrideApiKey(divId, groupKey){ return 'rank_' + rankOverrideKey(divId, groupKey); }
+function parseRankOverrideValue(val){
+  try{
+    var parsed = JSON.parse(String(val || '[]'));
+    return Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : [];
+  }catch(e){ return []; }
+}
+function applyRankOverride(rows, divId, groupKey, keyField){
+  var order = rankOverrides[rankOverrideKey(divId, groupKey)];
+  if(!order || !order.length) return rows;
+  var pos = {};
+  order.forEach(function(key, idx){ pos[String(key)] = idx; });
+  return rows.slice().sort(function(a,b){
+    var ak = String(a[keyField]), bk = String(b[keyField]);
+    var ai = pos[ak], bi = pos[bk];
+    var hasA = ai !== undefined, hasB = bi !== undefined;
+    if(hasA && hasB) return ai - bi;
+    if(hasA) return -1;
+    if(hasB) return 1;
+    return rows.indexOf(a) - rows.indexOf(b);
+  });
+}
 function sortStandingRows(rows, games, keyField, teamNameField){
   var sorted = rows.slice().sort(function(a,b){
     var pts = standingPoints(b) - standingPoints(a);
@@ -1530,23 +1598,24 @@ function calcRundownStanding(divId, def){
       else if(decision.winner === 1){ b.w++; a.l++; b.pts += 3; a.pts += 1; }
     });
   });
-  return sortStandingRows(Object.values(stats), games, 'team', 'team');
+  return applyRankOverride(sortStandingRows(Object.values(stats), games, 'team', 'team'), divId, def.key, 'team');
 }
 
 function renderRundownStanding(divId, def, container){
   var rows = calcRundownStanding(divId, def);
-  var h = '<div class="st-group-lbl">' + escHtml(def.label) + '</div>';
-  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th>勝</th><th>平</th><th>負</th><th>棄</th><th>積分</th><th>勝場數<br>／勝率</th><th>平均得分</th><th>得分</th></tr></thead><tbody>';
+  var hasManual = !!(rankOverrides[rankOverrideKey(divId, def.key)] && rankOverrides[rankOverrideKey(divId, def.key)].length);
+  var h = '<div class="st-admin-line"><div class="st-group-lbl">' + escHtml(def.label) + (hasManual ? '<span class="rank-manual-note">手動排名</span>' : '') + '</div><button class="rank-edit-btn" onclick="openRankEditor(\'' + divId + '\',\'' + def.key + '\',\'rundown\')">調整排名</button></div>';
+  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th>積分</th><th>勝</th><th>平</th><th>負</th><th>棄</th><th>勝場數<br>／勝率</th><th>平均<br>得分</th><th>得分</th></tr></thead><tbody>';
   rows.forEach(function(r, idx){
     h += '<tr>'
       + '<td class="st-rank">' + (idx + 1) + '</td>'
       + '<td class="td-name">' + formatStandingTeamName(getTeamDisplayName(r.team, divId)) + '</td>'
+      + '<td class="st-pts">' + (r.gp ? standingPoints(r) : '-') + '</td>'
       + '<td class="st-w">' + r.w + '</td>'
       + '<td>' + r.d + '</td>'
       + '<td class="st-l">' + r.l + '</td>'
       + '<td>' + r.f + '</td>'
-      + '<td class="st-pts">' + (r.gp ? standingPoints(r) : '-') + '</td>'
-        + '<td>' + standingWinMetric(r) + '</td>'
+      + '<td>' + standingWinMetric(r) + '</td>'
       + '<td>' + (r.gp ? standingAvgScore(r).toFixed(1) : '-') + '</td>'
       + '<td>' + (r.gp ? r.gf : '-') + '</td>'
       + '</tr>';
@@ -1766,24 +1835,25 @@ function calcGroupStandings(divId, prefix){
     else if(g.winner === 0){stats[cA].w++;stats[cB].l++;stats[cA].pts += 3;stats[cB].pts += 1;}
     else if(g.winner === 1){stats[cB].w++;stats[cA].l++;stats[cB].pts += 3;stats[cA].pts += 1;}
   });
-  return sortStandingRows(Object.values(stats), games, 'code', 'code');
+  return applyRankOverride(sortStandingRows(Object.values(stats), games, 'code', 'code'), divId, prefix, 'code');
 }
 
 function renderGroupStandings(divId, prefix, label, container){
   var rows = calcGroupStandings(divId, prefix);
   var divNames = names[divId]||{};
-  var h = label ? '<div class="st-group-lbl">'+escHtml(label)+'</div>' : '';
-  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="勝">勝</th><th title="平">平</th><th title="負">負</th><th title="棄權">棄</th><th title="積分">積分</th><th>勝場數<br>／勝率</th><th>平均得分</th><th>得分</th></tr></thead><tbody>';
+  var hasManual = !!(rankOverrides[rankOverrideKey(divId, prefix)] && rankOverrides[rankOverrideKey(divId, prefix)].length);
+  var h = label ? '<div class="st-admin-line"><div class="st-group-lbl">'+escHtml(label)+(hasManual ? '<span class="rank-manual-note">手動排名</span>' : '')+'</div><button class="rank-edit-btn" onclick="openRankEditor(\''+divId+'\',\''+prefix+'\',\'group\')">調整排名</button></div>' : '';
+  h += '<table class="st-table"><thead><tr><th></th><th class="th-name">球隊</th><th title="積分">積分</th><th title="勝">勝</th><th title="平">平</th><th title="負">負</th><th title="棄權">棄</th><th>勝場數<br>／勝率</th><th>平均<br>得分</th><th>得分</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
     var nm = divNames[r.code]||r.code;
     h += '<tr>';
     h += '<td class="st-rank">'+(i+1)+'</td>';
     h += '<td class="td-name"><span class="tn-code">'+escHtml(r.code)+'</span>'+formatStandingTeamName(nm)+'</td>';
+    h += '<td class="st-pts">'+(r.gp>0?standingPoints(r):'-')+'</td>';
     h += '<td class="st-w">'+r.w+'</td>';
     h += '<td>'+r.d+'</td>';
     h += '<td class="st-l">'+r.l+'</td>';
     h += '<td>'+r.f+'</td>';
-    h += '<td class="st-pts">'+(r.gp>0?standingPoints(r):'-')+'</td>';
     h += '<td>'+standingWinMetric(r)+'</td>';
     h += '<td>'+(r.gp>0?standingAvgScore(r).toFixed(1):'-')+'</td>';
     h += '<td>'+(r.gp>0?r.gf:'-')+'</td>';
@@ -2355,6 +2425,7 @@ function refreshStandings(divId){
 var ADMIN_PASSWORD = 'bkids2026';
 var isAdmin = false;
 var scores = {};
+var rankOverrides = {};
 var SHEET_NAME = 'ihkdf_result_33';
 var API_URL = 'https://script.google.com/macros/s/AKfycbz91UrGglg8QMaw2MuqjoOcM0o1lNbPVdXcj74Qx8CvIm5K2jlqZE8yIgisOFPiwvCa6g/exec';
 
@@ -2365,11 +2436,18 @@ function loadScores(){
       if(!res.success) return;
       var data = res.scores || {};
       scores = {};
+      rankOverrides = {};
       initDefaultTeamNames();
       resetNamesToDefaults();
-      // First pass: extract team name overrides (key format: name_{divId}_{code})
+      // First pass: extract team name and manual ranking overrides.
       var namesUpdated = false;
       Object.keys(data).forEach(function(key){
+        if(key.indexOf('rank_') === 0){
+          var rankKey = key.slice(5);
+          var order = parseRankOverrideValue(data[key].scoreA !== undefined ? data[key].scoreA : '');
+          if(order.length) rankOverrides[rankKey] = order;
+          return;
+        }
         if(key.indexOf('name_') !== 0) return;
         var rest = key.slice(5); // strip 'name_'
         var sep = rest.indexOf('_');
@@ -2382,6 +2460,7 @@ function loadScores(){
       // Second pass: load game scores
       Object.keys(data).forEach(function(key){
         if(key.indexOf('name_') === 0) return;
+        if(key.indexOf('rank_') === 0) return;
         var d = data[key];
         scores[key] = { a: String(d.scoreA !== undefined ? d.scoreA : ''), b: String(d.scoreB !== undefined ? d.scoreB : '') };
       });
@@ -2444,6 +2523,24 @@ function pushNameToApi(divId, code, val){
       return res;
     })
     .catch(function(e){ console.warn('Name push failed:', e); throw e; });
+}
+function pushRankOverrideToApi(divId, groupKey, order){
+  var params = new URLSearchParams({
+    action: 'update',
+    pw: ADMIN_PASSWORD,
+    sheet: SHEET_NAME,
+    key: rankOverrideApiKey(divId, groupKey),
+    scoreA: JSON.stringify(order || []),
+    scoreB: '',
+    status: (order && order.length) ? 'rank' : 'rank-reset'
+  });
+  return fetch(API_URL + '?' + params.toString())
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if(res && res.success === false) throw new Error(res.message || 'Rank update failed');
+      return res;
+    })
+    .catch(function(e){ console.warn('Rank push failed:', e); throw e; });
 }
 function pushScoreToApi(gno, a, b){
   var params = new URLSearchParams({
@@ -2759,11 +2856,162 @@ function resetTnEditor(){
   });
 }
 
+// ── Manual Ranking Editor (admin) ──
+var rankEditorState = null;
+function ensureRankEditorModal(){
+  if(document.getElementById('rank-modal-overlay')) return;
+  var overlay = document.createElement('div');
+  overlay.id = 'rank-modal-overlay';
+  overlay.setAttribute('onclick', 'closeRankIfOutside(event)');
+  overlay.innerHTML = '<div id="rank-modal" role="dialog" aria-modal="true" aria-label="調整排名">'
+    + '<div id="rank-modal-header"><span id="rank-modal-title">調整排名</span><button onclick="closeRankEditor()" aria-label="關閉">&times;</button></div>'
+    + '<div id="rank-modal-body"><div class="rank-help">拖曳球隊名稱調整排名；亦可用上下按鈕微調。儲存後所有人會看到此手動排名；重設後回到系統自動排名。</div><div class="rank-list"></div></div>'
+    + '<div id="rank-modal-footer"><button class="rank-reset-btn" onclick="resetRankEditor()">重設自動排名</button><button class="rank-cancel-btn" onclick="closeRankEditor()">取消</button><button class="rank-save-btn" onclick="saveRankEditor()">儲存排名</button></div>'
+    + '</div>';
+  document.body.appendChild(overlay);
+}
+function findRundownDef(divId, groupKey){
+  var defs = RUNDOWN_STANDINGS[divId] || [];
+  for(var i=0;i<defs.length;i++){ if(defs[i].key === groupKey) return defs[i]; }
+  return null;
+}
+function currentRankRows(divId, groupKey, type){
+  if(type === 'rundown'){
+    var def = findRundownDef(divId, groupKey);
+    if(!def) return {title: groupKey, items: []};
+    return {
+      title: def.label,
+      items: calcRundownStanding(divId, def).map(function(r){ return {key:r.team, name:getTeamDisplayName(r.team, divId)}; })
+    };
+  }
+  var divNames = names[divId] || {};
+  var label = groupKey;
+  (STANDINGS_DEFS[divId] || []).forEach(function(g){ if(g.prefix === groupKey) label = g.label || groupKey; });
+  return {
+    title: label,
+    items: calcGroupStandings(divId, groupKey).map(function(r){ return {key:r.code, name:(divNames[r.code] || r.code)}; })
+  };
+}
+function openRankEditor(divId, groupKey, type){
+  ensureRankEditorModal();
+  var data = currentRankRows(divId, groupKey, type);
+  rankEditorState = {divId:divId, groupKey:groupKey, type:type, items:data.items};
+  var title = document.getElementById('rank-modal-title');
+  if(title) title.textContent = '調整排名：' + data.title;
+  renderRankEditorList();
+  document.getElementById('rank-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function renderRankEditorList(){
+  var list = document.querySelector('#rank-modal-body .rank-list');
+  if(!list || !rankEditorState) return;
+  list.innerHTML = rankEditorState.items.map(function(item, idx){
+    return '<div class="rank-row" draggable="true" data-rank-idx="' + idx + '" ondragstart="rankDragStart(event)" ondragover="rankDragOver(event)" ondragleave="rankDragLeave(event)" ondrop="rankDrop(event)" ondragend="rankDragEnd(event)">'
+      + '<div class="rank-pos">' + (idx + 1) + '</div>'
+      + '<div class="rank-grip" aria-hidden="true">⋮⋮</div>'
+      + '<div class="rank-name">' + escHtml(item.name) + '</div>'
+      + '<div class="rank-actions"><button onclick="moveRankItem(' + idx + ',-1)" ' + (idx === 0 ? 'disabled' : '') + '>↑</button><button onclick="moveRankItem(' + idx + ',1)" ' + (idx === rankEditorState.items.length - 1 ? 'disabled' : '') + '>↓</button></div>'
+      + '</div>';
+  }).join('');
+}
+function rankDragStart(e){
+  var row = e.currentTarget;
+  if(!row) return;
+  row.classList.add('dragging');
+  if(e.dataTransfer){
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', row.getAttribute('data-rank-idx'));
+  }
+}
+function rankDragOver(e){
+  e.preventDefault();
+  var row = e.currentTarget;
+  if(row && !row.classList.contains('dragging')) row.classList.add('drag-over');
+  if(e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+}
+function rankDragLeave(e){
+  if(e.currentTarget) e.currentTarget.classList.remove('drag-over');
+}
+function rankDrop(e){
+  e.preventDefault();
+  if(!rankEditorState || !e.currentTarget) return;
+  var from = e.dataTransfer ? Number(e.dataTransfer.getData('text/plain')) : NaN;
+  var to = Number(e.currentTarget.getAttribute('data-rank-idx'));
+  document.querySelectorAll('.rank-row').forEach(function(row){ row.classList.remove('drag-over','dragging'); });
+  if(isNaN(from) || isNaN(to) || from === to) return;
+  var item = rankEditorState.items.splice(from, 1)[0];
+  rankEditorState.items.splice(to, 0, item);
+  renderRankEditorList();
+}
+function rankDragEnd(){
+  document.querySelectorAll('.rank-row').forEach(function(row){ row.classList.remove('drag-over','dragging'); });
+}
+function moveRankItem(idx, dir){
+  if(!rankEditorState) return;
+  var next = idx + dir;
+  if(next < 0 || next >= rankEditorState.items.length) return;
+  var items = rankEditorState.items;
+  var tmp = items[idx];
+  items[idx] = items[next];
+  items[next] = tmp;
+  renderRankEditorList();
+}
+function refreshAfterRankChange(divId){
+  refreshStandings(divId);
+  refreshRundownStandings(divId);
+  renderRundownVsInSchedule();
+  refreshDay1KnockoutMatchups();
+  refreshDay2RandomDraws();
+  refreshDay3BracketMatchups();
+  refreshPodium();
+}
+function saveRankEditor(){
+  if(!rankEditorState) return;
+  var saveBtn = document.querySelector('#rank-modal-footer .rank-save-btn');
+  var oldText = saveBtn ? saveBtn.textContent : '';
+  if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = '儲存中...'; }
+  var order = rankEditorState.items.map(function(item){ return item.key; });
+  rankOverrides[rankOverrideKey(rankEditorState.divId, rankEditorState.groupKey)] = order;
+  pushRankOverrideToApi(rankEditorState.divId, rankEditorState.groupKey, order).then(function(){
+    refreshAfterRankChange(rankEditorState.divId);
+    closeRankEditor();
+  }).catch(function(){
+    alert('排名未能儲存到雲端，請檢查網絡後再試。');
+  }).finally(function(){
+    if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = oldText; }
+  });
+}
+function resetRankEditor(){
+  if(!rankEditorState || !confirm('重設此組排名至系統自動排名？')) return;
+  var resetBtn = document.querySelector('#rank-modal-footer .rank-reset-btn');
+  var oldText = resetBtn ? resetBtn.textContent : '';
+  if(resetBtn){ resetBtn.disabled = true; resetBtn.textContent = '重設中...'; }
+  delete rankOverrides[rankOverrideKey(rankEditorState.divId, rankEditorState.groupKey)];
+  pushRankOverrideToApi(rankEditorState.divId, rankEditorState.groupKey, []).then(function(){
+    refreshAfterRankChange(rankEditorState.divId);
+    closeRankEditor();
+  }).catch(function(){
+    alert('排名未能重設到雲端，請檢查網絡後再試。');
+  }).finally(function(){
+    if(resetBtn){ resetBtn.disabled = false; resetBtn.textContent = oldText; }
+  });
+}
+function closeRankEditor(){
+  var overlay = document.getElementById('rank-modal-overlay');
+  if(overlay) overlay.classList.remove('open');
+  rankEditorState = null;
+  document.body.style.overflow = '';
+}
+function closeRankIfOutside(e){
+  if(e.target === document.getElementById('rank-modal-overlay')) closeRankEditor();
+}
+
 function initAdmin(){
 
   isAdmin = true;
 
   ensureTnEditorModal();
+  ensureRankEditorModal();
 
   document.querySelectorAll('.sc-cell').forEach(function(td){
 
