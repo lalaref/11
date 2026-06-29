@@ -357,6 +357,11 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .overview-grid{grid-template-columns:1fr 1fr;gap:8px}
   .court-split-grid{grid-template-columns:1fr;gap:14px}
   .court-panel{padding:10px;border-radius:12px}
+  .sched-table thead th:nth-child(5),.sc-cell{order:2;width:84px;text-align:left;padding-left:6px!important;padding-right:4px!important}
+  .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{order:3;width:58px}
+  .sched-table thead th:nth-child(4),.td-match{order:4}
+  .sched-table thead th:nth-child(2),.sched-table .td-gno{order:5}
+  .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){order:6}
 
   /* Division nav */
   .div-nav{padding:12px 14px;border-radius:16px;margin-bottom:20px}
@@ -380,7 +385,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{display:block;width:56px;padding:6px 2px;text-align:left}
   .tag-ko{margin-left:0;padding:2px 5px;font-size:.66em;white-space:nowrap}
   .sched-table thead th:nth-child(2),.sched-table .td-gno{display:block;width:44px;padding:6px 2px;font-size:1em}
-  .sched-table thead th:nth-child(5),.sc-cell{width:60px;padding:6px 3px !important;margin-left:0}
+  .sched-table thead th:nth-child(5),.sc-cell{order:2;width:72px;padding:6px 4px !important;margin-left:0;text-align:left}
   .sched-table thead th:nth-child(3),.sched-table tbody td:nth-child(3){width:44px;padding:6px 2px;display:flex;justify-content:flex-end;align-items:center}
   .court-split-grid .sched-table thead th:nth-child(3),.court-split-grid .sched-table tbody td:nth-child(3){display:none}
   .sched-table thead th:nth-child(4),.td-match{flex:1 1 0 !important;width:auto !important;min-width:0 !important}
@@ -471,8 +476,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .sched-table thead th:nth-child(4),.td-match{flex:1 1 0 !important;width:auto !important;min-width:0 !important}
   #day3 .td-match{font-size:1em;line-height:1.45}
   #day3 .match-meta{font-size:.72em}
-  .sched-table thead th:nth-child(5),.sc-cell{width:56px}
-  .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{width:48px}
+  .sched-table thead th:nth-child(5),.sc-cell{width:64px;padding-left:4px!important;padding-right:3px!important}
+  .sched-table thead th:nth-child(6),.sched-table tbody td:last-child{width:46px}
   .tag-ko{font-size:.62em;padding:2px 4px}
   .sc-inp{width:38px}
   .sc-btn{padding:5px 8px}
@@ -723,7 +728,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
         <tr><td class="td-time">15:36</td><td class="td-gno">#119</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U13 遺材賽 U13 5-10 抽籤 U13 5-10 抽籤</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr><td class="td-time">15:48</td><td class="td-gno">#120</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U11 遺材賽 U11 9-20 抽籤 U11 9-20 抽籤</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr><td class="td-time">15:48</td><td class="td-gno">#121</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U13 遺材賽 U13 5-10 抽籤 U13 5-10 抽籤</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
-        <tr><td class="td-time">16:00</td><td class="td-gno">#122</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U13 遺材賽 U13 5-10 抽籤 U13 5-10 抽籤</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
+        <tr><td class="td-time">16:00</td><td class="td-gno">#122</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U13 遺材賽 U13 5-10 抽籤 U13 5-10 抽籤</td><td><span class="tag-ko tag-rr">賽程</span></td></tr>
         <tr class="phase-break"><td colspan="5">16:12 &#183; End of Day 2 Matches Schedule</td></tr>
         <tr class="phase-break"><td colspan="5">16:30 &#183; 入球挑戰賽 ( 最快時間龍虎榜 ) (16:30 - 18:00) 街頭路人王 ( 勝利場次龍虎榜 ) (16:30 - 18:00)</td></tr>
 
@@ -753,8 +758,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
         <tr><td class="td-time">10:00</td><td class="td-gno">#127</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U13 四強 A 組首名 B組次名</td><td><span class="tag-ko tag-sf">四強</span></td></tr>
         <tr><td class="td-time">10:00</td><td class="td-gno">#128</td><td><span class="td-court">場區B</span></td><td class="td-match">明日之星盃 &#183; U13 四強 B組首名 A組次名</td><td><span class="tag-ko tag-sf">四強</span></td></tr>
         <tr class="phase-break"><td colspan="5">10:15 &#183; BREAK(5 mins )</td></tr>
-        <tr><td class="td-time">10:20</td><td class="td-gno">#129</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9 季軍賽 123 負方 124 負方</td><td><span class="tag-ko tag-3rd">季軍賽</span></td></tr>
-        <tr><td class="td-time">10:35</td><td class="td-gno">#130</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9 冠軍賽 123 勝方 124 勝方</td><td><span class="tag-ko tag-final">冠軍賽</span></td></tr>
+        <tr><td class="td-time">10:20</td><td class="td-gno">#129</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9 季軍賽 #123 負方 vs #124 負方</td><td><span class="tag-ko tag-3rd">季軍賽</span></td></tr>
+        <tr><td class="td-time">10:35</td><td class="td-gno">#130</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U9 冠軍賽 #123 勝方 vs #124 勝方</td><td><span class="tag-ko tag-final">冠軍賽</span></td></tr>
         <tr class="phase-break"><td colspan="5">10:50 &#183; BREAK(5 mins )</td></tr>
         <tr><td class="td-time">10:55</td><td class="td-gno">#131</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U11 季軍賽 125 負方 126 負方</td><td><span class="tag-ko tag-3rd">季軍賽</span></td></tr>
         <tr><td class="td-time">11:10</td><td class="td-gno">#132</td><td><span class="td-court">場區A</span></td><td class="td-match">明日之星盃 &#183; U11 冠軍賽 125 勝方 126 勝方</td><td><span class="tag-ko tag-final">冠軍賽</span></td></tr>
