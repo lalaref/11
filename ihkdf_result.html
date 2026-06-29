@@ -119,6 +119,10 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .tag-sf{background:#fff3cd;color:#856404}
 .tag-final{background:#cfe2ff;color:#084298}
 .tag-3rd{background:#f8d7da;color:#842029}
+.tag-ko.tag-qf{background:#e7f0ff;color:#184a8a;border:1px solid rgba(44,112,196,.35)}
+.tag-ko.tag-sf{background:#eee7ff;color:#4b2a86;border:1px solid rgba(112,80,168,.38)}
+.tag-ko.tag-3rd{background:#e1f6f1;color:#0f6659;border:1px solid rgba(31,142,124,.38)}
+.tag-ko.tag-final{background:#ffe1e8;color:#9d1238;border:1px solid rgba(210,49,91,.35)}
 .tn{color:#1a6635;font-weight:900}
 
 /* ── Score Column ── */
@@ -179,22 +183,30 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .bk-conn-h{width:18px;height:3px;background:rgba(212,165,116,.55);flex-shrink:0}
 .bk-sf{height:60px;padding:0 14px;background:rgba(212,165,116,.1);border:2px solid rgba(212,165,116,.4);border-radius:8px;display:flex;flex-direction:column;justify-content:center;min-width:112px;flex-shrink:0;text-align:center;box-sizing:border-box}
 .bk-qf{height:60px;padding:0 14px;background:rgba(42,157,143,.1);border:2px solid rgba(42,157,143,.35);border-radius:8px;display:flex;flex-direction:column;justify-content:center;min-width:112px;flex-shrink:0;text-align:center;box-sizing:border-box}
+.bk-qf{background:#eef5ff;border-color:#82aee8}
+.bk-sf{background:#f1ebff;border-color:#9270c7}
+.bk-final{background:linear-gradient(145deg,#ffe9ef,#fff7f2);border-color:#d2315b}
 .bk-sf-lbl{font-size:.78em;font-weight:800;color:#9a8a7a;text-transform:uppercase;letter-spacing:.2px}
 .bk-sf-sub{font-size:.82em;color:#7a6a5a;margin-top:1px}
 .bk-qf .bk-sf-lbl{color:#2a7d78}
 .bk-qf .bk-sf-sub{color:#3f8f89}
 .bk-final{padding:14px 18px;background:linear-gradient(145deg,rgba(212,165,116,.2),rgba(200,152,96,.1));border:3px solid rgba(212,165,116,.55);border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;min-width:112px;text-align:center;box-sizing:border-box}
+.bk-qf .bk-sf-lbl{color:#184a8a}
+.bk-qf .bk-sf-sub{color:#426b9d}
+.bk-sf .bk-sf-lbl{color:#4b2a86}
+.bk-sf .bk-sf-sub{color:#6b55a0}
+.bk-final{background:linear-gradient(145deg,#ffe9ef,#fff7f2);border-color:#d2315b}
 .bk-final-ico{font-size:1.6em;line-height:1}
-.bk-final-lbl{font-size:.86em;font-weight:800;color:#d4a574;white-space:nowrap}
+.bk-final-lbl{font-size:.86em;font-weight:800;color:#9d1238;white-space:nowrap}
 .bk-sf-winner{font-size:.82em;font-weight:800;margin-top:4px;max-width:160px;word-break:break-word;line-height:1.2}
 .bk-final-winner{font-size:.86em;font-weight:800;color:#1a6635;margin-top:4px;max-width:160px;word-break:break-word;text-align:center;line-height:1.2}
-.bk-final.bk-bronze{background:linear-gradient(145deg,rgba(180,180,180,.2),rgba(160,160,160,.1));border-color:rgba(160,160,160,.55)}
-.bk-final.bk-bronze .bk-final-lbl{color:#9a9a9a}
+.bk-final.bk-bronze{background:linear-gradient(145deg,#e1f6f1,#f4fffc);border-color:#1f8e7c}
+.bk-final.bk-bronze .bk-final-lbl{color:#0f6659}
 .bk-notes-bar{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .bk-note-pill{font-size:.86em;color:#9a8a7a;padding:4px 12px;background:rgba(255,255,255,.6);border-radius:20px}
 .bk-fifth-bar{margin-top:8px;padding:6px 12px;background:#fff3cd;border-radius:8px;font-size:.78em;color:#856404;font-weight:700}
-.bk-bronze-bar{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px;padding:8px 12px;background:linear-gradient(135deg,rgba(192,192,192,.15),rgba(160,160,160,.08));border:1.5px solid rgba(180,180,180,.4);border-radius:12px}
-.bk-bronze-label{font-size:.9em;font-weight:800;color:#888;flex-shrink:0}
+.bk-bronze-bar{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px;padding:8px 12px;background:linear-gradient(135deg,rgba(31,142,124,.13),rgba(225,246,241,.65));border:1.5px solid rgba(31,142,124,.34);border-radius:12px}
+.bk-bronze-label{font-size:.9em;font-weight:800;color:#0f6659;flex-shrink:0}
 .bk-bronze-team{font-size:.94em;color:#555;padding:3px 10px;background:rgba(255,255,255,.6);border-radius:8px;line-height:1.3}
 .bk-bronze-vs{font-size:.86em;color:#aaa;flex-shrink:0}
 .bk-bronze-arrow{font-size:.95em;color:#aaa;flex-shrink:0}
@@ -416,10 +428,29 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .st-rank{width:14px}
 
   /* Bracket */
-  .bk-box{min-width:110px;height:44px;padding:0 8px}
-  .bk-outer[data-bk-div="day3"] .bk{min-width:640px}
-  .bk-outer[data-bk-div="day3"] .bk-box{min-width:138px}
-  .bk-box-desc{font-size:.72em}
+  .bk-outer{margin:14px -6px 0;padding:12px 10px;border-radius:12px;scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+  .bk-outer.is-scrollable::after{content:'左右滑動查看完整晉級表';display:block;margin-top:8px;font-size:.72em;color:#9a8a7a;text-align:center;font-weight:800}
+  .bk{gap:0;scroll-snap-align:start}
+  .bk-outer[data-bk-div="day3"] .bk{min-width:max-content}
+  .bk-box{min-width:96px;max-width:118px;height:42px;padding:0 7px;border-width:1.5px}
+  .bk-outer[data-bk-div="day3"] .bk-box{min-width:112px;max-width:132px}
+  .bk-box-code{font-size:.62em}
+  .bk-box-desc{font-size:.7em}
+  .bk-pair{gap:5px}
+  .bk-conn{width:12px}
+  .bk-conn-h{width:10px;height:2px}
+  .bk-ct{border-top-width:2px;border-right-width:2px}
+  .bk-cb{border-bottom-width:2px;border-right-width:2px}
+  .bk-qf,.bk-sf{min-width:74px;height:42px;padding:0 7px;border-width:1.5px}
+  .bk-final{min-width:76px;padding:9px 8px;border-width:2px}
+  .bk-sf-lbl{font-size:.58em}
+  .bk-sf-sub{font-size:.62em}
+  .bk-final-ico{font-size:1.15em}
+  .bk-final-lbl{font-size:.64em}
+  .bk-sub-label{font-size:.78em;margin:12px 0 8px}
+  .bk-note-pill,.bk-fifth-bar{font-size:.72em}
+  .bk-bronze-bar{padding:7px 9px;gap:5px}
+  .bk-bronze-label,.bk-bronze-team,.bk-bronze-winner{font-size:.76em}
 
   /* Podium modal */
   .pt-modal-overlay{padding:10px}
@@ -479,9 +510,12 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .st-table th:nth-child(9),.st-table td:nth-child(9),
   .st-table th:nth-child(10),.st-table td:nth-child(10){width:30px}
   .st-group{flex:0 0 100%}
-  .bk-box{min-width:104px}
-  .bk-outer[data-bk-div="day3"] .bk{min-width:620px}
-  .bk-outer[data-bk-div="day3"] .bk-box{min-width:132px}
+  .bk-outer{margin-left:-8px;margin-right:-8px;padding:10px 8px}
+  .bk-box{min-width:88px;max-width:108px;height:40px;padding:0 6px}
+  .bk-outer[data-bk-div="day3"] .bk{min-width:max-content}
+  .bk-outer[data-bk-div="day3"] .bk-box{min-width:104px;max-width:120px}
+  .bk-qf,.bk-sf{min-width:68px;height:40px;padding:0 6px}
+  .bk-final{min-width:70px;padding:8px 7px}
   .pt-modal-overlay{padding:8px}
   .pt-modal{max-width:calc(100vw - 16px);border-radius:14px;max-height:94dvh}
   .pt-modal-header{padding:12px 14px 10px}
@@ -994,12 +1028,13 @@ function loadNames(){
 
 window.addEventListener('DOMContentLoaded', function(){
 
-  splitCourtSchedules(); loadNames(); loadScores(); initScoreCols(); initBrackets(); initDay1KnockoutData(); initDay3BracketData(); initStandings(); initRundownStandings(); colorCourts(); colorCupTags();
+  splitCourtSchedules(); loadNames(); loadScores(); initScoreCols(); initBrackets(); initDay1KnockoutData(); initDay3BracketData(); initStandings(); initRundownStandings(); colorCourts(); colorCupTags(); colorPhaseTags(); updateBracketScrollHints();
 
   initKnockouts();
   renderRundownVsInSchedule();
   refreshDay2RandomDraws();
   syncMatchColWidth();
+  window.addEventListener('resize', updateBracketScrollHints, {passive:true});
   setTimeout(openPodium, 350);
   setInterval(loadScores, 30000);
 
@@ -1031,6 +1066,28 @@ function colorCupTags(){
     var cupClass = cupClassFromText(el.textContent);
     el.classList.remove('cup-star','cup-dream');
     if(cupClass) el.classList.add(cupClass);
+  });
+}
+function colorPhaseTags(){
+  document.querySelectorAll('.tag-ko').forEach(function(el){
+    var text = el.textContent.trim();
+    el.classList.remove('tag-rr','tag-qf','tag-sf','tag-3rd','tag-final');
+    if(text.indexOf('冠軍') !== -1){
+      el.classList.add('tag-final');
+    } else if(text.indexOf('季軍') !== -1){
+      el.classList.add('tag-3rd');
+    } else if(text.indexOf('四強') !== -1 || text.indexOf('準決') !== -1 || text.indexOf('半決') !== -1){
+      el.classList.add('tag-sf');
+    } else if(text.indexOf('八強') !== -1){
+      el.classList.add('tag-qf');
+    } else if(!el.classList.contains('tag-rr')){
+      el.classList.add('tag-rr');
+    }
+  });
+}
+function updateBracketScrollHints(){
+  document.querySelectorAll('.bk-outer').forEach(function(outer){
+    outer.classList.toggle('is-scrollable', outer.scrollWidth > outer.clientWidth + 4);
   });
 }
 
