@@ -2382,7 +2382,7 @@ var SHEET_NAME = 'ihkdf_result_33';
 var API_URL = 'https://script.google.com/macros/s/AKfycbz91UrGglg8QMaw2MuqjoOcM0o1lNbPVdXcj74Qx8CvIm5K2jlqZE8yIgisOFPiwvCa6g/exec';
 
 function loadScores(){
-  fetch(API_URL + '?action=getAll&sheet=' + SHEET_NAME)
+  return fetch(API_URL + '?action=getAll&sheet=' + SHEET_NAME)
     .then(function(r){ return r.json(); })
     .then(function(res){
       if(!res.success) return;
@@ -2749,6 +2749,7 @@ function saveTnEditor(){
   var saveBtn = document.querySelector('#tn-modal-footer .tn-save-btn');
   var originalText = saveBtn ? saveBtn.textContent : '';
   if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = '儲存中...'; }
+  var before = JSON.parse(JSON.stringify(names || {}));
   var updates = [];
   document.querySelectorAll('#tn-modal-body .tn-input').forEach(function(inp){
     var divId = inp.getAttribute('data-div');
@@ -2756,10 +2757,15 @@ function saveTnEditor(){
     var val = inp.value.trim();
     if(!names[divId]) names[divId] = {};
     var effective = val || DEFAULT_NAMES[divId][code] || '';
+    var previous = before[divId] && before[divId][code] !== undefined ? before[divId][code] : (DEFAULT_NAMES[divId][code] || '');
     names[divId][code] = effective;
-    updates.push(pushNameToApi(divId, code, effective));
+    if(effective !== previous){
+      updates.push((function(saveDivId, saveCode, saveValue){
+        return function(){ return pushNameToApi(saveDivId, saveCode, saveValue); };
+      })(divId, code, effective));
+    }
   });
-  Promise.all(updates).then(function(){
+  updates.reduce(function(chain, update){ return chain.then(update); }, Promise.resolve()).then(function(){
     applyAllNames();
     renderRundownVsInSchedule();
     refreshRundownStandings();
@@ -2769,7 +2775,7 @@ function saveTnEditor(){
     refreshDay3BracketMatchups();
     refreshPodium();
     closeTnEditor();
-    loadScores();
+    return loadScores();
   }).catch(function(){
     alert('球隊名稱未能儲存到雲端，請檢查網絡後再試。');
   }).finally(function(){
