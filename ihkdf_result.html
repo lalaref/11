@@ -1137,7 +1137,9 @@ var BRACKET_DEFS = {
 };
 
 function buildBracketHtml(bk,bidx){
-  var PAIR=98,BGAP=16,TOTAL=212;
+  var BOX=60,BOX_GAP=8,PAIR=BOX*2+BOX_GAP,BGAP=16,TOTAL=(PAIR*2)+BGAP;
+  var SEED_CONN=BOX+BOX_GAP,SF_CONN=PAIR+BGAP;
+  function connHtml(height){ return '<div class="bk-conn" style="height:'+height+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>'; }
   var h='<div class="bk" data-bracket-idx="'+(bidx||0)+'">';
   // Seeds
   h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
@@ -1149,8 +1151,8 @@ function buildBracketHtml(bk,bidx){
   h+='</div>';
   // Pair connectors
   h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
-  h+='<div class="bk-conn" style="height:'+PAIR+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>';
-  h+='<div class="bk-conn" style="height:'+PAIR+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>';
+  h+='<div style="height:'+PAIR+'px;display:flex;align-items:center;flex-shrink:0">'+connHtml(SEED_CONN)+'</div>';
+  h+='<div style="height:'+PAIR+'px;display:flex;align-items:center;flex-shrink:0">'+connHtml(SEED_CONN)+'</div>';
   h+='</div>';
   // H-lines + SF boxes
   h+='<div style="display:flex;flex-direction:column;gap:'+BGAP+'px;flex-shrink:0">';
@@ -1162,9 +1164,7 @@ function buildBracketHtml(bk,bidx){
   });
   h+='</div>';
   // Final connector
-  h+='<div style="flex-shrink:0">';
-  h+='<div class="bk-conn" style="height:'+TOTAL+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>';
-  h+='</div>';
+  h+='<div style="height:'+TOTAL+'px;display:flex;align-items:center;flex-shrink:0">'+connHtml(SF_CONN)+'</div>';
   // H-line + final
   h+='<div style="height:'+TOTAL+'px;display:flex;align-items:center;flex-shrink:0">';
   h+='<div class="bk-conn-h"></div>';
