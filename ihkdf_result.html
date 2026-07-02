@@ -45,6 +45,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .div-btn.boys:hover{background:linear-gradient(145deg,#90caf9,#2196f3);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(33,150,243,.3)}
 .div-btn.mixed{background:linear-gradient(145deg,#c8e6c9,#a5d6a7);color:#1b5e20}
 .div-btn.mixed:hover{background:linear-gradient(145deg,#a5d6a7,#4caf50);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(76,175,80,.3)}
+.div-day-label.mixed{background:linear-gradient(145deg,#c8e6c9,#a5d6a7);color:#1b5e20;border-color:#7bbf80}
 .div-btn.day1{background:#fff3cd;color:#6b4e00;border-color:#e0aa28}
 .div-btn.day1:hover{background:#d89400;color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(216,148,0,.28)}
 .div-day-label.day1{background:#fff3cd;color:#6b4e00;border-color:#e0aa28}
@@ -58,6 +59,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .div-btn.court-a:hover{background:#2f86c7;color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(47,134,199,.28)}
 .div-btn.court-b{background:#dff3e6;color:#145a32;border-color:#58b77a}
 .div-btn.court-b:hover{background:#2f9d57;color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(47,157,87,.28)}
+.div-btn.standings{background:#fff0d9;color:#7a4d00;border-color:#d4a574}
+.div-btn.standings:hover{background:#d89400;color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(216,148,0,.28)}
 
 /* ── Division Section ── */
 .div-section{margin-bottom:36px;scroll-margin-top:100px}
@@ -280,7 +283,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .bk-vs{font-size:.82em;font-weight:900;color:#9a8a7a;padding:0 4px}
 
 /* ── Standings ── */
-.st-outer{margin-top:16px;padding:14px 16px;background:rgba(255,255,255,.35);border-radius:14px}
+.st-outer{margin-top:16px;padding:14px 16px;background:rgba(255,255,255,.35);border-radius:14px;scroll-margin-top:100px}
 .st-title{font-size:.8em;font-weight:700;color:#d4a574;margin-bottom:10px}
 .st-groups{display:flex;flex-wrap:wrap;gap:14px}
 .st-group{flex:0 0 calc(50% - 7px);min-width:0;overflow-x:auto}
@@ -577,6 +580,11 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
       <button class="div-day-label day3" onclick="jumpTo('day3')">Day 3 · 5/7/2026</button>
       <button class="div-btn court-a" onclick="jumpTo('day3-court-a')">Court A</button>
       <button class="div-btn court-b" onclick="jumpTo('day3-court-b')">Court B</button>
+    </div>
+    <div class="div-nav-row">
+      <button class="div-day-label mixed" type="button">分組排名 / Standings</button>
+      <button class="div-btn standings" onclick="jumpTo('day1-standings')">Day 1</button>
+      <button class="div-btn standings" onclick="jumpTo('day2-standings')">Day 2</button>
     </div>
   </div>
 </div>
@@ -880,7 +888,10 @@ document.querySelectorAll('.nk a').forEach(function(a){
 });
 function jumpTo(id){
   var el = document.getElementById(id);
-  if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); }
+  if(el){
+    var y = el.getBoundingClientRect().top + window.pageYOffset - 90;
+    window.scrollTo(0, Math.max(0, y));
+  }
 }
 
 function splitCourtSchedules(){
@@ -1767,6 +1778,7 @@ function initRundownStandings(){
     if(!card) return;
     var outer = document.createElement('div');
     outer.className = 'st-outer';
+    outer.id = divId + '-standings';
     outer.setAttribute('data-rundown-st', divId);
     outer.innerHTML = '<div class="st-title">📊 分組排名 / Standings</div><div class="st-groups"></div><div class="st-rule">📌 積分：勝3分，平2分，負1分，棄權0分。<br>同分排名：① 勝場數／勝率 › ② 對賽成績（只計勝負） › ③ 平均得分（不包括因對隊棄權而獲得的分數） › ④ 抽籤。</div>';
     var groups = outer.querySelector('.st-groups');
