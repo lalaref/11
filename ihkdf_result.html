@@ -1147,8 +1147,15 @@ var BRACKET_DEFS = {
   ]}
 };
 
+function bracketDims(){
+  var box = window.matchMedia && window.matchMedia('(max-width:420px)').matches ? 40 : (window.matchMedia && window.matchMedia('(max-width:768px)').matches ? 42 : 60);
+  var gap = window.matchMedia && window.matchMedia('(max-width:768px)').matches ? 5 : 8;
+  var branchGap = 16;
+  return {box:box, gap:gap, branchGap:branchGap, pair:box * 2 + gap};
+}
+
 function buildBracketHtml(bk,bidx){
-  var BOX=60,BOX_GAP=8,PAIR=BOX*2+BOX_GAP,BGAP=16,TOTAL=(PAIR*2)+BGAP;
+  var d=bracketDims(),BOX=d.box,BOX_GAP=d.gap,PAIR=d.pair,BGAP=d.branchGap,TOTAL=(PAIR*2)+BGAP;
   var SEED_CONN=BOX+BOX_GAP,SF_CONN=PAIR+BGAP;
   function connHtml(height){ return '<div class="bk-conn" style="height:'+height+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>'; }
   var h='<div class="bk" data-bracket-idx="'+(bidx||0)+'">';
@@ -1186,7 +1193,7 @@ function buildBracketHtml(bk,bidx){
 }
 
 function buildQuarterBracketHtml(bk,bidx){
-  var BOX=60,BOX_GAP=8,PAIR=BOX*2+BOX_GAP,BGAP=16,SFPAIR=(PAIR*2)+BGAP,TOTAL=(SFPAIR*2)+BGAP;
+  var d=bracketDims(),BOX=d.box,BOX_GAP=d.gap,PAIR=d.pair,BGAP=d.branchGap,SFPAIR=(PAIR*2)+BGAP,TOTAL=(SFPAIR*2)+BGAP;
   var SEED_CONN=BOX+BOX_GAP,QF_CONN=PAIR+BGAP,SF_CONN=SFPAIR+BGAP;
   function connHtml(height){ return '<div class="bk-conn" style="height:'+height+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>'; }
   var h='<div class="bk" data-bracket-idx="'+(bidx||0)+'">';
@@ -1229,7 +1236,8 @@ function buildQuarterBracketHtml(bk,bidx){
 }
 
 function buildDirectBracketHtml(bk){
-  var PAIR=98;
+  var d=bracketDims(),PAIR=d.pair,SEED_CONN=d.box+d.gap;
+  function connHtml(height){ return '<div class="bk-conn" style="height:'+height+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>'; }
   var h='<div style="display:flex;flex-direction:column;gap:14px">';
   var rows=[[0,1,"🏆","冠軍戰",""],
              [2,3,"🥉","季軍戰"," bk-bronze"]];
@@ -1239,7 +1247,7 @@ function buildDirectBracketHtml(bk){
     h+='<div class="bk-box" data-seed="'+bk.seeds[row[0]]+'" data-desc="'+bk.descs[row[0]]+'"><div class="bk-box-code">'+bk.seeds[row[0]]+'</div><div class="bk-box-desc">'+bk.descs[row[0]]+'</div></div>';
     h+='<div class="bk-box" data-seed="'+bk.seeds[row[1]]+'" data-desc="'+bk.descs[row[1]]+'"><div class="bk-box-code">'+bk.seeds[row[1]]+'</div><div class="bk-box-desc">'+bk.descs[row[1]]+'</div></div>';
     h+='</div></div>';
-    h+='<div class="bk-conn" style="height:'+PAIR+'px"><div class="bk-ct"></div><div class="bk-cb"></div></div>';
+    h+='<div style="height:'+PAIR+'px;display:flex;align-items:center;flex-shrink:0">'+connHtml(SEED_CONN)+'</div>';
     h+='<div style="height:'+PAIR+'px;display:flex;align-items:center;flex-shrink:0">';
     h+='<div class="bk-conn-h"></div>';
     h+='<div class="bk-final'+row[4]+'"><div class="bk-final-ico">'+row[2]+'</div><div class="bk-final-lbl">'+row[3]+'</div></div>';
