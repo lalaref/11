@@ -2440,11 +2440,34 @@ function refreshStandings(divId){
 
 // ── Score Management ──
 var ADMIN_PASSWORD = 'bkids2026';
+var RESULT_UPDATE_PASSWORD = 'day2';
+var RESULT_UPDATE_AUTH_KEY = 'ihkdf_result_update_unlocked';
 var isAdmin = false;
 var scores = {};
 var rankOverrides = {};
 var SHEET_NAME = 'ihkdf_result_33';
 var API_URL = 'https://script.google.com/macros/s/AKfycbz91UrGglg8QMaw2MuqjoOcM0o1lNbPVdXcj74Qx8CvIm5K2jlqZE8yIgisOFPiwvCa6g/exec';
+
+function isResultAdminUnlocked(){
+  try{ return sessionStorage.getItem(RESULT_UPDATE_AUTH_KEY) === '1'; }
+  catch(e){ return false; }
+}
+
+function setResultAdminUnlocked(){
+  try{ sessionStorage.setItem(RESULT_UPDATE_AUTH_KEY, '1'); }
+  catch(e){}
+}
+
+function ensureResultAdminUnlocked(){
+  if(isResultAdminUnlocked()) return true;
+  var input = window.prompt('請輸入更新賽果密碼');
+  if(input === RESULT_UPDATE_PASSWORD){
+    setResultAdminUnlocked();
+    return true;
+  }
+  if(input !== null) window.alert('密碼錯誤，未能更新賽果。');
+  return false;
+}
 
 function loadScores(){
   return fetch(API_URL + '?action=getAll&sheet=' + SHEET_NAME)
@@ -2692,6 +2715,7 @@ function renderScore(td, gno){
 
 
 function editScore(el){
+  if(!ensureResultAdminUnlocked()) return;
   var td = el.closest('.sc-cell');
   var gno = td.getAttribute('data-game');
   var s = scores[gno] || {a:'',b:''};
@@ -2714,6 +2738,7 @@ function editScore(el){
 }
 
 function saveScore(gno, sid){
+  if(!ensureResultAdminUnlocked()) return;
   var a = document.getElementById('sa-' + sid);
   var b = document.getElementById('sb-' + sid);
   if(!a || !b) return;
@@ -2733,6 +2758,7 @@ function saveScore(gno, sid){
 }
 
 function saveForfeitScore(gno, side){
+  if(!ensureResultAdminUnlocked()) return;
   scores[gno] = side === 0 ? {a:'F', b:'W'} : {a:'W', b:'F'};
   saveScores();
   pushScoreToApi(gno, scores[gno].a, scores[gno].b);
@@ -2749,6 +2775,7 @@ function saveForfeitScore(gno, side){
 }
 
 function clearScore(gno, btn){
+  if(!ensureResultAdminUnlocked()) return;
   if(btn){ btn.disabled = true; btn.textContent = '清除中'; }
   var td = btn ? btn.closest('.sc-cell') : document.querySelector('.sc-cell[data-game="' + gno + '"]');
   var divId = scoreStandingDivFromCell(td);
