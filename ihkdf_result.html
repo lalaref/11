@@ -148,6 +148,16 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sc-cancel{background:#9a8a7a}
 .sc-clear{background:#dc3545}
 .sc-forfeit-btn{background:#b42318}
+#admin-pass-overlay{display:flex;position:fixed;inset:0;z-index:1700;align-items:center;justify-content:center;background:rgba(0,0,0,.58);padding:16px}
+#admin-pass-modal{width:min(92vw,360px);background:#fffdf5;border-radius:14px;box-shadow:0 10px 36px rgba(0,0,0,.32);padding:20px;border:1px solid rgba(212,165,116,.35)}
+#admin-pass-modal h2{margin:0 0 10px;color:#5a3d00;font-size:1.15em}
+#admin-pass-modal label{display:block;font-weight:900;color:#3d2a00;margin-bottom:8px}
+#admin-pass-input{width:100%;box-sizing:border-box;border:1.5px solid #d4a574;border-radius:8px;padding:10px 12px;font-size:1em;font-family:inherit}
+#admin-pass-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+#admin-pass-actions button{border:none;border-radius:999px;padding:8px 16px;font-weight:900;cursor:pointer;font-family:inherit}
+#admin-pass-submit{background:#1a3a6e;color:#fff}
+#admin-pass-cancel{background:#eee;color:#444}
+#admin-pass-error{min-height:1.2em;margin-top:8px;color:#b00020;font-weight:800;font-size:.9em}
 
 /* ── Manual Ranking Editor ── */
 #rank-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1300;align-items:center;justify-content:center;padding:16px}
@@ -1033,7 +1043,7 @@ window.addEventListener('DOMContentLoaded', function(){
   setInterval(loadScores, 30000);
 
   if(new URLSearchParams(location.search).get('admin') === '1'){
-    document.body.classList.add('admin-mode'); initAdmin();
+    showAdminPasswordGate();
   }
 
 });
@@ -2442,6 +2452,7 @@ function refreshStandings(divId){
 var ADMIN_PASSWORD = 'bkids2026';
 var RESULT_UPDATE_PASSWORD = 'day2';
 var RESULT_UPDATE_AUTH_KEY = 'ihkdf_result_update_unlocked';
+var resultAdminUnlocked = false;
 var isAdmin = false;
 var scores = {};
 var rankOverrides = {};
@@ -2449,24 +2460,75 @@ var SHEET_NAME = 'ihkdf_result_33';
 var API_URL = 'https://script.google.com/macros/s/AKfycbz91UrGglg8QMaw2MuqjoOcM0o1lNbPVdXcj74Qx8CvIm5K2jlqZE8yIgisOFPiwvCa6g/exec';
 
 function isResultAdminUnlocked(){
-  try{ return sessionStorage.getItem(RESULT_UPDATE_AUTH_KEY) === '1'; }
-  catch(e){ return false; }
+  if(resultAdminUnlocked) return true;
+  try{
+    resultAdminUnlocked = sessionStorage.getItem(RESULT_UPDATE_AUTH_KEY) === '1';
+  }catch(e){}
+  return resultAdminUnlocked;
 }
 
 function setResultAdminUnlocked(){
+  resultAdminUnlocked = true;
   try{ sessionStorage.setItem(RESULT_UPDATE_AUTH_KEY, '1'); }
   catch(e){}
 }
 
 function ensureResultAdminUnlocked(){
   if(isResultAdminUnlocked()) return true;
-  var input = window.prompt('請輸入更新賽果密碼');
-  if(input === RESULT_UPDATE_PASSWORD){
-    setResultAdminUnlocked();
-    return true;
-  }
-  if(input !== null) window.alert('密碼錯誤，未能更新賽果。');
+  showAdminPasswordGate();
   return false;
+}
+
+function activateAdminMode(){
+  if(isAdmin) return;
+  document.body.classList.add('admin-mode');
+  initAdmin();
+}
+
+function showAdminPasswordGate(){
+  if(isResultAdminUnlocked()){
+    activateAdminMode();
+    return;
+  }
+  if(document.getElementById('admin-pass-overlay')){
+    var existing = document.getElementById('admin-pass-input');
+    if(existing) existing.focus();
+    return;
+  }
+  var overlay = document.createElement('div');
+  overlay.id = 'admin-pass-overlay';
+  overlay.innerHTML = '<form id="admin-pass-modal" onsubmit="submitAdminPasswordGate();return false">'
+    + '<h2>管理模式密碼</h2>'
+    + '<label for="admin-pass-input">請輸入更新賽果密碼</label>'
+    + '<input id="admin-pass-input" type="password" autocomplete="current-password">'
+    + '<div id="admin-pass-error" aria-live="polite"></div>'
+    + '<div id="admin-pass-actions"><button type="button" id="admin-pass-cancel" onclick="closeAdminPasswordGate()">取消</button><button type="submit" id="admin-pass-submit">進入</button></div>'
+    + '</form>';
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+  setTimeout(function(){
+    var input = document.getElementById('admin-pass-input');
+    if(input) input.focus();
+  }, 0);
+}
+
+function submitAdminPasswordGate(){
+  var input = document.getElementById('admin-pass-input');
+  var error = document.getElementById('admin-pass-error');
+  if(input && input.value === RESULT_UPDATE_PASSWORD){
+    setResultAdminUnlocked();
+    closeAdminPasswordGate();
+    activateAdminMode();
+    return;
+  }
+  if(error) error.textContent = '密碼錯誤，未能進入管理模式。';
+  if(input){ input.select(); input.focus(); }
+}
+
+function closeAdminPasswordGate(){
+  var overlay = document.getElementById('admin-pass-overlay');
+  if(overlay) overlay.remove();
+  document.body.style.overflow = '';
 }
 
 function loadScores(){
@@ -3143,6 +3205,16 @@ function initAdmin(){
   if(ct) ct.prepend(banner);
 
 }
+
+(function bootAdminGate(){
+  function run(){
+    if(new URLSearchParams(location.search).get('admin') === '1' && !isAdmin){
+      showAdminPasswordGate();
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else setTimeout(run, 0);
+})();
 
 </script>
 </body>
