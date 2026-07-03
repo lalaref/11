@@ -146,6 +146,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sc-btn:hover{filter:brightness(1.08)}
 .sc-ok{background:#1a6635}
 .sc-cancel{background:#9a8a7a}
+.sc-clear{background:#dc3545}
 .sc-forfeit-btn{background:#b42318}
 
 /* ── Manual Ranking Editor ── */
@@ -2602,8 +2603,27 @@ function pushScoreToApi(gno, a, b){
     scoreB: b,
     status: (isForfeitToken(a) || isForfeitToken(b)) ? 'forfeit' : ((a !== '' && b !== '') ? 'completed' : 'scheduled')
   });
-  fetch(API_URL + '?' + params.toString())
+  return fetch(API_URL + '?' + params.toString())
     .catch(function(e){ console.warn('Score push failed:', e); });
+}
+
+function clearScoreInApi(gno){
+  var params = new URLSearchParams({
+    action: 'clearKey',
+    pw: ADMIN_PASSWORD,
+    sheet: SHEET_NAME,
+    key: gno
+  });
+  return fetch(API_URL + '?' + params.toString(), {cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if(res && res.success === false) throw new Error(res.message || 'Clear failed');
+      return res;
+    })
+    .catch(function(e){
+      console.warn('Score clear failed, falling back to blank update:', e);
+      return pushScoreToApi(gno, '', '');
+    });
 }
 
 function initScoreCols(){
@@ -2695,6 +2715,7 @@ function editScore(el){
     '<button class="sc-btn sc-ok"  onclick="saveScore(\'' + gno + '\',\'' + sid + '\')">✓</button>' +
     '<button class="sc-btn sc-forfeit-btn" onclick="saveForfeitScore(\'' + gno + '\',0)" title="主隊棄權">主棄</button>' +
     '<button class="sc-btn sc-forfeit-btn" onclick="saveForfeitScore(\'' + gno + '\',1)" title="客隊棄權">客棄</button>' +
+    '<button class="sc-btn sc-clear" onclick="clearScore(\'' + gno + '\',this)" title="清除本場賽果">清除</button>' +
     '<button class="sc-btn sc-cancel" onclick="cancelScore(\'' + gno + '\')">✕</button>' +
     '</div>';
   var inp = document.getElementById('sa-' + sid);
@@ -2736,6 +2757,25 @@ function saveForfeitScore(gno, side){
   refreshDay2RandomDraws();
   refreshDay3BracketMatchups();
   refreshPodium();
+}
+
+function clearScore(gno, btn){
+  if(btn){ btn.disabled = true; btn.textContent = '清除中'; }
+  var td = btn ? btn.closest('.sc-cell') : document.querySelector('.sc-cell[data-game="' + gno + '"]');
+  var tbl = td ? td.closest('.sched-table') : null;
+  var divId = tbl ? tbl.getAttribute('data-div') : null;
+  clearScoreInApi(gno).finally(function(){
+    delete scores[gno];
+    saveScores();
+    if(td) renderScore(td, gno);
+    if(divId) refreshStandings(divId);
+    if(divId) refreshRundownStandings(divId);
+    renderRundownVsInSchedule();
+    refreshDay1KnockoutMatchups();
+    refreshDay2RandomDraws();
+    refreshDay3BracketMatchups();
+    refreshPodium();
+  });
 }
 
 function cancelScore(gno){
@@ -3080,7 +3120,7 @@ function initAdmin(){
 
   banner.className = 'admin-banner';
 
-  banner.innerHTML = '🔧 管理模式 — 點擊「+ 記分」或比更新結果（所有人即時可見）&nbsp;&nbsp;<button onclick="clearAllResults()" style="margin-left:12px;padding:4px 14px;background:#fff;color:#dc3545;border:1.5px solid #dc3545;border-radius:20px;font-size:.82em;font-weight:700;cursor:pointer">🗑️ 一鍵清除所有賽果</button>'
+  banner.innerHTML = '🔧 管理模式 — 點擊「+ 記分」或比更新結果（所有人即時可見）'
     + '&nbsp;&nbsp;<button onclick="openTnEditor()" style="margin-left:8px;padding:4px 14px;background:#fff;color:#1a3a6e;border:1.5px solid #1a3a6e;border-radius:20px;font-size:.82em;font-weight:700;cursor:pointer">✏️ '+tnTitle+'</button>';
 
   var ct = document.querySelector('.ct');

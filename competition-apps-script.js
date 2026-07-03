@@ -44,6 +44,7 @@ function handleAction(p) {
     if (action === 'update') {
       return ok(writeScore(p, sheet));
     }
+    if (action === 'clearKey') return ok(clearScoreKey(p, sheet));
     if (action === 'clearSheet') return ok(clearSheetData(sheet));
     return ok({success:false, message:'Unknown action: ' + action});
   } catch(err) {
@@ -124,6 +125,24 @@ function writeScore(p, sheetName) {
   s.getRange(newRow, 5).setNumberFormat('@').setValue(sB);
   s.getRange(newRow, 6).setValue(st);
   return {success:true, message:'已新增'};
+}
+
+function clearScoreKey(p, sheetName) {
+  var key = p.key;
+  if (!key) return {success:false, message:'Missing key'};
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var s = ss.getSheetByName(sheetName);
+  if (!s) return {success:true, message:'Sheet not found'};
+
+  var data = s.getDataRange().getDisplayValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === key) {
+      s.deleteRow(i + 1);
+      return {success:true, message:'已清除'};
+    }
+  }
+  return {success:true, message:'Record not found'};
 }
 
 /* ── CLEAR ── */
