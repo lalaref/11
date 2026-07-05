@@ -148,17 +148,6 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .sc-cancel{background:#9a8a7a}
 .sc-clear{background:#dc3545}
 .sc-forfeit-btn{background:#b42318}
-#admin-pass-overlay{display:flex;position:fixed;inset:0;z-index:1700;align-items:center;justify-content:center;background:rgba(0,0,0,.58);padding:16px}
-#admin-pass-modal{width:min(92vw,360px);background:#fffdf5;border-radius:14px;box-shadow:0 10px 36px rgba(0,0,0,.32);padding:20px;border:1px solid rgba(212,165,116,.35)}
-#admin-pass-modal h2{margin:0 0 10px;color:#5a3d00;font-size:1.15em}
-#admin-pass-modal label{display:block;font-weight:900;color:#3d2a00;margin-bottom:8px}
-#admin-pass-input{width:100%;box-sizing:border-box;border:1.5px solid #d4a574;border-radius:8px;padding:10px 12px;font-size:1em;font-family:inherit}
-#admin-pass-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
-#admin-pass-actions button{border:none;border-radius:999px;padding:8px 16px;font-weight:900;cursor:pointer;font-family:inherit}
-#admin-pass-submit{background:#1a3a6e;color:#fff}
-#admin-pass-cancel{background:#eee;color:#444}
-#admin-pass-error{min-height:1.2em;margin-top:8px;color:#b00020;font-weight:800;font-size:.9em}
-#admin-pass-view-hint{margin-top:12px;color:#d00000;font-size:1.18em;font-weight:900;line-height:1.35;text-align:center}
 
 /* ── Manual Ranking Editor ── */
 #rank-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1300;align-items:center;justify-content:center;padding:16px}
@@ -262,6 +251,27 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 .pt-second{color:#505050;font-weight:800}
 .pt-third{color:#7a4500;font-weight:800}
 .pt-dash{color:#b8aa9a;font-style:italic;font-size:.95em}
+.pt-carousel{display:flex;flex-direction:column;min-height:0;flex:1}
+.pt-carousel-stage{position:relative;overflow:hidden;background:#fff8ee;min-height:520px;flex:1}
+.pt-slide{display:none;padding:22px;min-height:520px}
+.pt-slide.active{display:block}
+.pt-slide-title{font-size:1.18em;font-weight:900;color:#7c5800;margin-bottom:16px;text-align:center}
+.pt-photo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:stretch}
+.pt-photo-card{background:#fffdf5;border:1px solid #f0e0c0;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-width:0;box-shadow:0 6px 18px rgba(90,61,0,.08)}
+.pt-photo-frame{aspect-ratio:4/3;background:linear-gradient(145deg,#f3ead8,#fff9ef);display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:1px solid #f0e0c0}
+.pt-photo-frame img{width:100%;height:100%;object-fit:cover;display:block}
+.pt-photo-placeholder{padding:18px;text-align:center;color:#b08a4a;font-size:.88em;font-weight:800;line-height:1.45}
+.pt-photo-meta{padding:12px 14px 14px;text-align:center;min-height:96px;display:flex;flex-direction:column;justify-content:center}
+.pt-medal{font-size:1.6em;line-height:1;margin-bottom:6px}
+.pt-rank-label{font-size:.78em;font-weight:900;color:#9a7a55;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.pt-team-name{font-size:1em;font-weight:900;color:#5a4a3a;line-height:1.35;word-break:break-word}
+.pt-carousel-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#fff3d6;border-top:1px solid #f0e0c0;flex-shrink:0}
+.pt-nav-btn{border:none;border-radius:999px;background:#7c5800;color:#fff3d0;width:42px;height:42px;font-size:1.3em;font-weight:900;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s}
+.pt-nav-btn:hover{background:#a07000;transform:translateY(-1px)}
+.pt-dots{display:flex;align-items:center;justify-content:center;gap:8px;flex:1;flex-wrap:wrap}
+.pt-dot{width:10px;height:10px;border-radius:50%;border:none;background:#d5bd8a;cursor:pointer;padding:0;transition:transform .15s,background .15s}
+.pt-dot.active{background:#7c5800;transform:scale(1.35)}
+.pt-counter{font-size:.82em;font-weight:900;color:#8a6000;min-width:48px;text-align:right}
 .div-btn.podium-btn{background:linear-gradient(135deg,#7c5800,#c98b00);color:#fff3d0;border:none;font-weight:700}
 .podium-fab{position:fixed;right:16px;bottom:156px;z-index:1100;background:linear-gradient(135deg,#7c5800,#c98b00);color:#fff3d0;border:none;border-radius:50px;padding:10px 18px;font-size:.92em;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.3);cursor:pointer;display:flex;align-items:center;gap:6px;transition:transform .15s,box-shadow .15s;font-family:inherit}
 .podium-fab:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.38)}
@@ -474,6 +484,17 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .pt-modal-title{font-size:1.12em}
   .pt-modal-close{width:36px;height:36px;font-size:1.35em}
   .pt-modal-body{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+  .pt-carousel-stage{min-height:0}
+  .pt-slide{padding:14px;min-height:0}
+  .pt-slide-title{font-size:1.02em;margin-bottom:12px}
+  .pt-photo-grid{grid-template-columns:1fr;gap:12px}
+  .pt-photo-card{border-radius:12px}
+  .pt-photo-frame{aspect-ratio:16/10}
+  .pt-photo-meta{min-height:74px;padding:10px 12px 12px}
+  .pt-medal{font-size:1.35em;margin-bottom:4px}
+  .pt-carousel-controls{padding:10px 12px;gap:8px}
+  .pt-nav-btn{width:36px;height:36px;font-size:1.1em}
+  .pt-counter{font-size:.76em;min-width:40px}
   .pt-table,.pt-table thead,.pt-table tbody,.pt-table tr,.pt-table th,.pt-table td{display:block;width:100%}
   .pt-table{font-size:1em;table-layout:auto}
   .pt-table thead{display:none}
@@ -534,6 +555,11 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
   .pt-modal-overlay{padding:8px}
   .pt-modal{max-width:calc(100vw - 16px);border-radius:14px;max-height:94dvh}
   .pt-modal-header{padding:12px 14px 10px}
+  .pt-slide{padding:12px 10px}
+  .pt-photo-grid{gap:10px}
+  .pt-photo-frame{aspect-ratio:4/3}
+  .pt-photo-placeholder{padding:14px;font-size:.82em}
+  .pt-team-name{font-size:.94em}
   .pt-table tbody tr{margin:8px 8px}
   .pt-table tbody td{padding:9px 12px;gap:10px}
   .pt-table tbody td::before{flex-basis:58px}
@@ -556,7 +582,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
 <div class="ph">
   <h1>🏀 IHKDF 明日之星盃 / 凝動夢攻防盃</h1>
   <div class="sub">Day 1: 3/7/2026 · Day 2: 4/7/2026 · Day 3: 5/7/2026 · Court A / Court B</div>
-  <span class="badge upcoming">即將舉行</span>
+  <span class="badge completed">完美結束</span>
 </div>
 
 <!-- ═══════════ INFO ═══════════ -->
@@ -854,10 +880,15 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Microsoft JhengHei
       <button class="pt-modal-close" onclick="closePodium()" aria-label="閘門">&times;</button>
     </div>
     <div class="pt-modal-body">
-      <table class="pt-table">
-        <thead><tr><th>組別</th><th>🥇 冠軍</th><th>🥈 亞軍</th><th>🥉 季軍</th></tr></thead>
-        <tbody id="pt-body"></tbody>
-      </table>
+      <div class="pt-carousel" id="pt-carousel">
+        <div class="pt-carousel-stage" id="pt-carousel-stage"></div>
+        <div class="pt-carousel-controls">
+          <button class="pt-nav-btn" type="button" onclick="movePodiumSlide(-1)" aria-label="上一個">‹</button>
+          <div class="pt-dots" id="pt-dots" aria-label="頒獎台分頁"></div>
+          <button class="pt-nav-btn" type="button" onclick="movePodiumSlide(1)" aria-label="下一個">›</button>
+          <div class="pt-counter" id="pt-counter">1 / 1</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1044,7 +1075,7 @@ window.addEventListener('DOMContentLoaded', function(){
   setInterval(loadScores, 30000);
 
   if(new URLSearchParams(location.search).get('admin') === '1'){
-    showAdminPasswordGate();
+    activateAdminMode();
   }
 
 });
@@ -2336,13 +2367,49 @@ function refreshRankingMatch(divId){
   });
 }
 
-function openPodium(){ refreshPodium(); document.getElementById('pt-modal-overlay').classList.add('open'); document.body.style.overflow='hidden'; }
+var podiumCarouselIndex = 0;
+var PODIUM_PHOTOS = {
+  '明日之星盃 U9': {champion:'images/podium/U91.jpeg', second:'images/podium/U92.jpeg', third:'images/podium/U93.jpeg'},
+  '明日之星盃 U11': {champion:'images/podium/U111.jpeg', second:'images/podium/U112.jpeg', third:'images/podium/U113.jpeg'},
+  '明日之星盃 U13': {champion:'images/podium/U131.jpeg', second:'images/podium/U132.jpeg', third:'images/podium/U133.jpeg'},
+  '凝動夢攻防盃 U9': {champion:'', second:'', third:''},
+  '凝動夢攻防盃 U11': {champion:'', second:'', third:''},
+  '凝動夢攻防盃 U13': {champion:'', second:'', third:''}
+};
+
+function openPodium(){ refreshPodium(); document.getElementById('pt-modal-overlay').classList.add('open'); document.body.style.overflow='hidden'; setPodiumSlide(podiumCarouselIndex); }
 function closePodium(){ document.getElementById('pt-modal-overlay').classList.remove('open'); document.body.style.overflow=''; }
 function closePodiumIfOutside(e){ if(e.target===document.getElementById('pt-modal-overlay')) closePodium(); }
 
+function setPodiumSlide(idx){
+  var slides = Array.from(document.querySelectorAll('.pt-slide'));
+  if(!slides.length) return;
+  podiumCarouselIndex = ((idx % slides.length) + slides.length) % slides.length;
+  slides.forEach(function(slide, i){ slide.classList.toggle('active', i === podiumCarouselIndex); });
+  document.querySelectorAll('.pt-dot').forEach(function(dot, i){ dot.classList.toggle('active', i === podiumCarouselIndex); });
+  var counter = document.getElementById('pt-counter');
+  if(counter) counter.textContent = (podiumCarouselIndex + 1) + ' / ' + slides.length;
+}
+
+function movePodiumSlide(step){ setPodiumSlide(podiumCarouselIndex + step); }
+
+function podiumPhotoCard(label, medal, team, photoSrc, cls){
+  var photo = photoSrc
+    ? '<img src="' + escHtml(photoSrc) + '" alt="' + escHtml(label + ' ' + (team || '')) + '">'
+    : '<div class="pt-photo-placeholder">相片位置<br>把圖片路徑填入 PODIUM_PHOTOS</div>';
+  return '<div class="pt-photo-card">'
+    + '<div class="pt-photo-frame">' + photo + '</div>'
+    + '<div class="pt-photo-meta">'
+    + '<div class="pt-medal">' + medal + '</div>'
+    + '<div class="pt-rank-label ' + cls + '">' + escHtml(label) + '</div>'
+    + '<div class="pt-team-name ' + cls + '">' + escHtml(team || '—') + '</div>'
+    + '</div></div>';
+}
+
 function refreshPodium(){
-  var tbody=document.getElementById('pt-body');
-  if(!tbody) return;
+  var stage=document.getElementById('pt-carousel-stage');
+  var dots=document.getElementById('pt-dots');
+  if(!stage || !dots) return;
   var GAME_PARTICIPANTS={
     '#19':['明日之星盃 U9-A首名','明日之星盃 U9-B次名'], '#20':['明日之星盃 U9-A次名','明日之星盃 U9-B首名'], '#21':['明日之星盃 U9-C首名','明日之星盃 U9-D次名'], '#22':['明日之星盃 U9-C次名','明日之星盃 U9-D首名'],
     '#47':['明日之星盃 U11-A首名','明日之星盃 U11-B首名'], '#48':['明日之星盃 U11-A次名','明日之星盃 U11-C首名'], '#49':['明日之星盃 U11-D首名','明日之星盃 U11-F首名'], '#50':['明日之星盃 U11-E首名','明日之星盃 U11-F次名'],
@@ -2419,17 +2486,20 @@ function refreshPodium(){
     return {label:def.label,ch:ch,sec:sec,thr:thr};
   }
   var rows=PODIUM_DEFS.map(podiumFor);
-  function cell(label,val,cls){
-    return '<td data-label="'+escHtml(label)+'" class="'+(val?cls:'pt-dash')+'">'+(val?escHtml(val):'—')+'</td>';
-  }
-  tbody.innerHTML=rows.map(function(r){
-    return '<tr>'
-      +'<td data-label="組別" class="pt-div-label">'+escHtml(r.label)+'</td>'
-      +cell('冠軍',r.ch,'pt-champ')
-      +cell('亞軍',r.sec,'pt-second')
-      +cell('季軍',r.thr,'pt-third')
-      +'</tr>';
+  stage.innerHTML=rows.map(function(r, idx){
+    var photos = PODIUM_PHOTOS[r.label] || {};
+    return '<div class="pt-slide' + (idx === podiumCarouselIndex ? ' active' : '') + '" data-slide-idx="' + idx + '">'
+      + '<div class="pt-slide-title">' + escHtml(r.label) + '</div>'
+      + '<div class="pt-photo-grid">'
+      + podiumPhotoCard('冠軍', '🥇', r.ch, photos.champion, 'pt-champ')
+      + podiumPhotoCard('亞軍', '🥈', r.sec, photos.second, 'pt-second')
+      + podiumPhotoCard('季軍', '🥉', r.thr, photos.third, 'pt-third')
+      + '</div></div>';
   }).join('');
+  dots.innerHTML=rows.map(function(r, idx){
+    return '<button class="pt-dot' + (idx === podiumCarouselIndex ? ' active' : '') + '" type="button" onclick="setPodiumSlide(' + idx + ')" aria-label="' + escHtml(r.label) + '"></button>';
+  }).join('');
+  setPodiumSlide(Math.min(podiumCarouselIndex, Math.max(0, rows.length - 1)));
 }
 
 function refreshStandings(divId){
@@ -2451,85 +2521,21 @@ function refreshStandings(divId){
 
 // ── Score Management ──
 var ADMIN_PASSWORD = 'bkids2026';
-var RESULT_UPDATE_PASSWORD = 'day2';
-var RESULT_UPDATE_AUTH_KEY = 'ihkdf_result_update_unlocked';
-var resultAdminUnlocked = false;
+var RESULTS_LOCKED = true;
 var isAdmin = false;
 var scores = {};
 var rankOverrides = {};
 var SHEET_NAME = 'ihkdf_result_33';
 var API_URL = 'https://script.google.com/macros/s/AKfycbz91UrGglg8QMaw2MuqjoOcM0o1lNbPVdXcj74Qx8CvIm5K2jlqZE8yIgisOFPiwvCa6g/exec';
 
-function isResultAdminUnlocked(){
-  if(resultAdminUnlocked) return true;
-  try{
-    resultAdminUnlocked = sessionStorage.getItem(RESULT_UPDATE_AUTH_KEY) === '1';
-  }catch(e){}
-  return resultAdminUnlocked;
-}
-
-function setResultAdminUnlocked(){
-  resultAdminUnlocked = true;
-  try{ sessionStorage.setItem(RESULT_UPDATE_AUTH_KEY, '1'); }
-  catch(e){}
-}
-
 function ensureResultAdminUnlocked(){
-  if(isResultAdminUnlocked()) return true;
-  showAdminPasswordGate();
-  return false;
+  return !RESULTS_LOCKED;
 }
 
 function activateAdminMode(){
   if(isAdmin) return;
   document.body.classList.add('admin-mode');
   initAdmin();
-}
-
-function showAdminPasswordGate(){
-  if(isResultAdminUnlocked()){
-    activateAdminMode();
-    return;
-  }
-  if(document.getElementById('admin-pass-overlay')){
-    var existing = document.getElementById('admin-pass-input');
-    if(existing) existing.focus();
-    return;
-  }
-  var overlay = document.createElement('div');
-  overlay.id = 'admin-pass-overlay';
-  overlay.innerHTML = '<form id="admin-pass-modal" onsubmit="submitAdminPasswordGate();return false">'
-    + '<h2>管理模式密碼</h2>'
-    + '<input id="admin-pass-input" type="password" autocomplete="current-password">'
-    + '<div id="admin-pass-error" aria-live="polite"></div>'
-    + '<div id="admin-pass-view-hint">請按取消直接觀看賽果</div>'
-    + '<div id="admin-pass-actions"><button type="button" id="admin-pass-cancel" onclick="closeAdminPasswordGate()">取消</button><button type="submit" id="admin-pass-submit">進入</button></div>'
-    + '</form>';
-  document.body.appendChild(overlay);
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){
-    var input = document.getElementById('admin-pass-input');
-    if(input) input.focus();
-  }, 0);
-}
-
-function submitAdminPasswordGate(){
-  var input = document.getElementById('admin-pass-input');
-  var error = document.getElementById('admin-pass-error');
-  if(input && input.value === RESULT_UPDATE_PASSWORD){
-    setResultAdminUnlocked();
-    closeAdminPasswordGate();
-    activateAdminMode();
-    return;
-  }
-  if(error) error.textContent = '密碼錯誤，未能進入管理模式。';
-  if(input){ input.select(); input.focus(); }
-}
-
-function closeAdminPasswordGate(){
-  var overlay = document.getElementById('admin-pass-overlay');
-  if(overlay) overlay.remove();
-  document.body.style.overflow = '';
 }
 
 function loadScores(){
@@ -2736,15 +2742,11 @@ function renderScore(td, gno){
 
   var s = scores[gno];
 
-  var oc = isAdmin ? ' onclick="editScore(this)"' : '';
+  var oc = '';
 
   if(!s || (s.a === '' && s.b === '')){
 
-    td.innerHTML = isAdmin
-
-      ? '<span class="sc-empty" onclick="editScore(this)">+ 記分</span>'
-
-      : '<span style="color:#c8b8a8">–</span>';
+    td.innerHTML = '<span style="color:#c8b8a8">–</span>';
 
   } else {
 
@@ -2778,6 +2780,7 @@ function renderScore(td, gno){
 
 
 function editScore(el){
+  if(RESULTS_LOCKED) return;
   if(!ensureResultAdminUnlocked()) return;
   var td = el.closest('.sc-cell');
   var gno = td.getAttribute('data-game');
@@ -2801,6 +2804,7 @@ function editScore(el){
 }
 
 function saveScore(gno, sid){
+  if(RESULTS_LOCKED) return;
   if(!ensureResultAdminUnlocked()) return;
   var a = document.getElementById('sa-' + sid);
   var b = document.getElementById('sb-' + sid);
@@ -2821,6 +2825,7 @@ function saveScore(gno, sid){
 }
 
 function saveForfeitScore(gno, side){
+  if(RESULTS_LOCKED) return;
   if(!ensureResultAdminUnlocked()) return;
   scores[gno] = side === 0 ? {a:'F', b:'W'} : {a:'W', b:'F'};
   saveScores();
@@ -2838,6 +2843,7 @@ function saveForfeitScore(gno, side){
 }
 
 function clearScore(gno, btn){
+  if(RESULTS_LOCKED) return;
   if(!ensureResultAdminUnlocked()) return;
   if(btn){ btn.disabled = true; btn.textContent = '清除中'; }
   var td = btn ? btn.closest('.sc-cell') : document.querySelector('.sc-cell[data-game="' + gno + '"]');
@@ -2872,6 +2878,7 @@ function scKey(e, gno, sid){
   }
 }
 function clearAllResults(){
+  if(RESULTS_LOCKED) return;
   if(!confirm('確定清除所有賽果？此操作不可復原。')) return;
   var params = new URLSearchParams({action:'clearSheet', sheet:SHEET_NAME});
   fetch(API_URL + '?' + params.toString())
@@ -3182,7 +3189,6 @@ function initAdmin(){
 
   isAdmin = true;
 
-  ensureTnEditorModal();
   ensureRankEditorModal();
 
   document.querySelectorAll('.sc-cell').forEach(function(td){
@@ -3193,24 +3199,12 @@ function initAdmin(){
 
   });
 
-  var banner = document.createElement('div');
-  var tnTitle = '更改' + '球隊' + '名稱';
-
-  banner.className = 'admin-banner';
-
-  banner.innerHTML = '🔧 管理模式 — 點擊「+ 記分」或比更新結果（所有人即時可見）'
-    + '&nbsp;&nbsp;<button onclick="openTnEditor()" style="margin-left:8px;padding:4px 14px;background:#fff;color:#1a3a6e;border:1.5px solid #1a3a6e;border-radius:20px;font-size:.82em;font-weight:700;cursor:pointer">✏️ '+tnTitle+'</button>';
-
-  var ct = document.querySelector('.ct');
-
-  if(ct) ct.prepend(banner);
-
 }
 
 (function bootAdminGate(){
   function run(){
     if(new URLSearchParams(location.search).get('admin') === '1' && !isAdmin){
-      showAdminPasswordGate();
+      activateAdminMode();
     }
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
