@@ -2365,7 +2365,7 @@ function doPost(e) {
             const saved = JSON.parse(localStorage.getItem('savedQuotations') || '{}');
             const data = saved[quoteNum];
             if (!data) {
-                showMessage('invoice-message', '找不到此報價單編號，請先在報價單分頁生成 PDF', 'error');
+                showMessage('invoice-message', '找不到此報價單編號，請先在報價單或簡易報價分頁生成 PDF', 'error');
                 document.getElementById('invoice-preview').style.display = 'none';
                 return;
             }
@@ -2399,6 +2399,39 @@ function doPost(e) {
             const invoiceNumber = 'INV' + quoteNum.replace('Q', '');
             
             const formatMoney = (amount) => parseFloat(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            const hasHours = data.services.some(s => s.hours !== undefined && s.hours !== null && s.hours !== '');
+            const servicesRows = hasHours ? data.services.map(s => `
+                <tr>
+                    <td style="padding:10px;border:1px solid #ddd;">${s.name}${s.notes ? `<br><span style="font-size:12px;color:#666;">(${s.notes})</span>` : ''}</td>
+                    <td style="padding:10px;text-align:center;border:1px solid #ddd;">${s.quantity}</td>
+                    <td style="padding:10px;text-align:center;border:1px solid #ddd;">${s.hours}</td>
+                    <td style="padding:10px;text-align:right;border:1px solid #ddd;">${formatMoney(s.price)}</td>
+                    <td style="padding:10px;text-align:right;border:1px solid #ddd;">${formatMoney(s.subtotal)}</td>
+                </tr>
+            `).join('') : data.services.map(s => `
+                <tr>
+                    <td style="padding:10px;border:1px solid #ddd;">${s.name}${s.notes ? `<br><span style="font-size:12px;color:#666;">(${s.notes})</span>` : ''}</td>
+                    <td style="padding:10px;text-align:center;border:1px solid #ddd;">${s.quantity}</td>
+                    <td style="padding:10px;text-align:right;border:1px solid #ddd;">${formatMoney(s.price)}</td>
+                    <td style="padding:10px;text-align:right;border:1px solid #ddd;">${formatMoney(s.subtotal)}</td>
+                </tr>
+            `).join('');
+            const servicesTableHead = hasHours ? `
+                <tr style="background:#d4a574;color:white;">
+                    <th style="padding:10px;text-align:left;border:1px solid #c89860;">服務名稱</th>
+                    <th style="padding:10px;text-align:center;border:1px solid #c89860;width:70px;">球證/裁判數量</th>
+                    <th style="padding:10px;text-align:center;border:1px solid #c89860;width:70px;">小時</th>
+                    <th style="padding:10px;text-align:right;border:1px solid #c89860;width:90px;">單價<br>(HKD/小時)</th>
+                    <th style="padding:10px;text-align:right;border:1px solid #c89860;width:100px;">小計 (HKD)</th>
+                </tr>
+            ` : `
+                <tr style="background:#d4a574;color:white;">
+                    <th style="padding:10px;text-align:left;border:1px solid #c89860;">服務名稱</th>
+                    <th style="padding:10px;text-align:center;border:1px solid #c89860;width:80px;">數量</th>
+                    <th style="padding:10px;text-align:right;border:1px solid #c89860;width:110px;">單價 (HKD)</th>
+                    <th style="padding:10px;text-align:right;border:1px solid #c89860;width:110px;">小計 (HKD)</th>
+                </tr>
+            `;
             
             // Load logo
             let logoBase64 = '';
@@ -2451,24 +2484,10 @@ function doPost(e) {
                         <h3 style="color:#5a4a3a;font-size:18px;margin-bottom:10px;">服務項目 Services:</h3>
                         <table style="width:100%;border-collapse:collapse;">
                             <thead>
-                                <tr style="background:#d4a574;color:white;">
-                                    <th style="padding:10px;text-align:left;border:1px solid #c89860;">服務名稱</th>
-                                    <th style="padding:10px;text-align:center;border:1px solid #c89860;width:70px;">球證/裁判數量</th>
-                                    <th style="padding:10px;text-align:center;border:1px solid #c89860;width:70px;">小時</th>
-                                    <th style="padding:10px;text-align:right;border:1px solid #c89860;width:90px;">單價<br>(HKD/小時)</th>
-                                    <th style="padding:10px;text-align:right;border:1px solid #c89860;width:100px;">小計 (HKD)</th>
-                                </tr>
+                                ${servicesTableHead}
                             </thead>
                             <tbody>
-                                ${data.services.map(s => `
-                                    <tr>
-                                        <td style="padding:10px;border:1px solid #ddd;">${s.name}${s.notes ? `<br><span style="font-size:12px;color:#666;">(${s.notes})</span>` : ''}</td>
-                                        <td style="padding:10px;text-align:center;border:1px solid #ddd;">${s.quantity}</td>
-                                        <td style="padding:10px;text-align:center;border:1px solid #ddd;">${s.hours}</td>
-                                        <td style="padding:10px;text-align:right;border:1px solid #ddd;">${formatMoney(s.price)}</td>
-                                        <td style="padding:10px;text-align:right;border:1px solid #ddd;">${formatMoney(s.subtotal)}</td>
-                                    </tr>
-                                `).join('')}
+                                ${servicesRows}
                             </tbody>
                         </table>
                     </div>
@@ -3055,6 +3074,10 @@ LaLaRef 急單王
         async function sqGeneratePDF() {
             const data = sqGetData();
             if (!data) return;
+
+            const savedQuotations = JSON.parse(localStorage.getItem('savedQuotations') || '{}');
+            savedQuotations[data.quoteNumber] = data;
+            localStorage.setItem('savedQuotations', JSON.stringify(savedQuotations));
 
             const formatMoney = (a) => parseFloat(a).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
