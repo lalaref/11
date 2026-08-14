@@ -2041,6 +2041,8 @@
                             <div style="min-width: 100%; height: 100%;"><img src="pitch-photos/photo7.jpg" alt="球場實況 7" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"></div>
                             <div style="min-width: 100%; height: 100%;"><img src="pitch-photos/photo8.jpg" alt="球場實況 8" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"></div>
                             <div style="min-width: 100%; height: 100%;"><img src="pitch-photos/photo9.jpg" alt="球場實況 9" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                            <div style="min-width: 100%; height: 100%;"><img src="pitch-photos/photo10.jpg" alt="球場實況 10" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                            <div style="min-width: 100%; height: 100%;"><img src="pitch-photos/photo11.jpg" alt="球場實況 11" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"></div>
                         </div>
                     </div>
                     <button onclick="pitchNav(-1)" aria-label="上一張" style="position: absolute; top: 50%; left: -18px; transform: translateY(-50%); width: 44px; height: 44px; border: none; border-radius: 50%; background: linear-gradient(145deg, #f0dcc8, #e8d4b8); color: #5a4a3a; font-size: 1.5em; font-weight: 900; cursor: pointer; box-shadow: 8px 8px 16px rgba(0,0,0,0.15), -8px -8px 16px rgba(255,255,255,0.7); z-index: 2; display: flex; align-items: center; justify-content: center; line-height: 1; transition: all 0.3s ease;">‹</button>
@@ -2049,7 +2051,7 @@
                 </div>
                 <script>
                 (function(){
-                    var idx=0, total=9, track=document.getElementById('pitchGalleryTrack'), dotsC=document.getElementById('pitchDots');
+                    var idx=0, total=11, track=document.getElementById('pitchGalleryTrack'), dotsC=document.getElementById('pitchDots');
                     for(var i=0;i<total;i++){
                         var d=document.createElement('button');
                         d.style.cssText='width:12px;height:12px;border-radius:50%;border:none;cursor:pointer;padding:0;transition:all 0.3s ease;';
@@ -2060,7 +2062,7 @@
                     }
                     function go(n){idx=((n%total)+total)%total;track.style.transform='translateX(-'+idx*100+'%)';var dots=dotsC.children;for(var j=0;j<dots.length;j++){dots[j].style.background=j===idx?'linear-gradient(145deg,#d4a574,#c89860)':'linear-gradient(145deg,#e8d4b8,#dcc8ac)';dots[j].style.transform=j===idx?'scale(1.2)':'scale(1)';dots[j].style.boxShadow=j===idx?'inset 3px 3px 6px rgba(0,0,0,0.2),inset -3px -3px 6px rgba(255,255,255,0.3)':'4px 4px 8px rgba(0,0,0,0.1),-4px -4px 8px rgba(255,255,255,0.7)';}}
                     window.pitchNav=function(d){go(idx+d);};
-                    go(0);
+                    go(Math.floor(Math.random()*total));
                     setInterval(function(){go(idx+1);},4000);
                 })();
                 </script>
