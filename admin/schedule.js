@@ -29,9 +29,17 @@
   var rrPublishBtn = document.getElementById('btn-rr-publish-all');
   var rrCloseBtn = document.getElementById('btn-rr-close');
 
+  // Season 2 playoff graph elements
+  var playoffPanel = document.getElementById('playoff-panel');
+  var playoffStatusEl = document.getElementById('playoff-status');
+  var playoffBracketsEl = document.getElementById('playoff-brackets');
+
   var teams = [];
+  var seasonOneTeams = [];
   var editingGameId = null;
   var rrMatchups = []; // generated round-robin matchups
+  var SEASON2_TARGET_GAMES = 5;
+  var SEASON1_ID = '845ca40d-4346-448f-bbe2-06b4104bdbda';
 
   // ============================================================
   // localStorage persistence for round-robin state
@@ -78,15 +86,37 @@
   function loadSeasons() {
     API.getSeasons().then(function (seasons) {
       seasonSelect.innerHTML = '<option value="">--</option>';
-      var activeId = '';
+      var defaultSeason = getDefaultSeason(seasons || []);
       (seasons || []).forEach(function (s) {
         var o = document.createElement('option');
         o.value = s.id; o.textContent = s.name;
-        if (s.status === 'active' && !activeId) activeId = s.id;
         seasonSelect.appendChild(o);
       });
-      if (activeId) { seasonSelect.value = activeId; onSeasonChange(); }
+      if (defaultSeason) { seasonSelect.value = defaultSeason.id; onSeasonChange(); }
     }).catch(function () { showMsg(I18n.t('error.loadFailed'), 'error'); });
+  }
+
+  function getDefaultSeason(seasons) {
+    for (var s1 = 0; s1 < seasons.length; s1++) {
+      if (isActiveSeason(seasons[s1]) && isSeasonOne(seasons[s1])) return seasons[s1];
+    }
+    for (var i = seasons.length - 1; i >= 0; i--) {
+      if (isActiveSeason(seasons[i])) return seasons[i];
+    }
+    return seasons[seasons.length - 1];
+  }
+
+  function isActiveSeason(season) {
+    return season && String(season.status || '').toLowerCase() === 'active';
+  }
+
+  function isSeasonOne(season) {
+    if (!season) return false;
+    var name = String(season.name || season.id || '').toLowerCase();
+    return season.id === '845ca40d-4346-448f-bbe2-06b4104bdbda'
+      || /season\s*1/.test(name)
+      || name.indexOf('第一') !== -1
+      || String(season.minGamesForRanking || '') === '7';
   }
 
   function onSeasonChange() {
@@ -96,23 +126,31 @@
     rrBtn.disabled = !sid;
     hideForm();
     if (sid) {
-      // Load teams and games together, then reconstruct RR panel
+      // Load schedule, standings, and playoffs together so the graph is always current.
       Promise.all([
         API.getTeams(sid),
-        API.getGames(sid)
+        API.getGames(sid),
+        API.getTeams(SEASON1_ID).catch(function () { return []; }),
+        API.getStandings(sid).catch(function () { return []; }),
+        API.getPlayoffs(sid).catch(function () { return { brackets: [] }; })
       ]).then(function (results) {
         teams = results[0] || [];
         var games = results[1] || [];
+        seasonOneTeams = results[2] || [];
         populateTeamSelects();
         renderGamesTable(games);
         restoreRRFromGames(games);
+        renderPlayoffGraph(results[3], results[4]);
       }).catch(function () {
         showMsg(I18n.t('error.loadFailed'), 'error');
       });
     } else {
       gamesBody.innerHTML = '';
       teams = [];
+      seasonOneTeams = [];
       hideRoundRobinPanel();
+      playoffPanel.hidden = true;
+      playoffBracketsEl.innerHTML = '';
     }
   }
 
@@ -139,6 +177,7 @@
     var publishedMatchups = regularGames.map(function (g, i) {
       return {
         round: g.round || 0,
+        division: getMatchDivision(g.homeTeamId, g.awayTeamId),
         homeId: g.homeTeamId,
         awayId: g.awayTeamId,
         homeName: g.homeTeamName || getTeamName(g.homeTeamId),
@@ -440,10 +479,19 @@
 
   function handleGeneratePlayoffs() {
     if (!confirm(I18n.t('admin.generatePlayoffsConfirm'))) return;
+    var sid = seasonSelect.value;
     playoffsBtn.disabled = true;
-    API.post('generatePlayoffs', { seasonId: seasonSelect.value }).then(function () {
+    API.post('generatePlayoffs', { seasonId: sid }).then(function () {
       showMsg(I18n.t('admin.playoffsGenerated'), 'success');
-      loadGames(seasonSelect.value);
+      return Promise.all([
+        API.getGames(sid),
+        API.getStandings(sid),
+        API.getPlayoffs(sid)
+      ]);
+    }).then(function (results) {
+      renderGamesTable(results[0] || []);
+      restoreRRFromGames(results[0] || []);
+      renderPlayoffGraph(results[1] || [], results[2] || { brackets: [] });
     }).catch(function (err) {
       showMsg(err.message || I18n.t('error.submitFailed'), 'error');
     }).finally(function () { playoffsBtn.disabled = false; });
@@ -486,7 +534,7 @@
    * @param {Array} teamList - array of {id, name}
    * @returns {Array} array of {round, homeId, awayId, homeName, awayName, date, time, venue}
    */
-  function generateRoundRobin(teamList) {
+  function generateSingleRoundRobin(teamList, division) {
     var n = teamList.length;
     var list = teamList.slice(); // copy
     // If odd number of teams, add a BYE placeholder
@@ -509,6 +557,7 @@
         if (home.id === '__BYE__' || away.id === '__BYE__') continue;
         matchups.push({
           round: r + 1,
+          division: division || '',
           homeId: home.id,
           awayId: away.id,
           homeName: home.name,
@@ -524,10 +573,243 @@
     return matchups;
   }
 
+  function generateRoundRobin(teamList) {
+    var divisionGroups = {};
+    var hasDivision = teamList.some(function (t) { return !!(t.division || '').trim(); });
+    if (!hasDivision) return generateSingleRoundRobin(teamList, '');
+
+    teamList.forEach(function (t) {
+      var division = (t.division || 'Unassigned').trim().toUpperCase();
+      if (!divisionGroups[division]) divisionGroups[division] = [];
+      divisionGroups[division].push(t);
+    });
+
+    var allMatchups = generateSeason2FiveGameSchedule(divisionGroups);
+    return allMatchups;
+  }
+
+  function generateSeason2FiveGameSchedule(divisionGroups) {
+    var allMatchups = [];
+    var counts = {};
+    var usedPairs = {};
+    var allTeams = [];
+    var divisions = Object.keys(divisionGroups).sort();
+
+    divisions.forEach(function (division) {
+      divisionGroups[division].forEach(function (team) {
+        counts[team.id] = 0;
+        allTeams.push(team);
+      });
+    });
+
+    if ((allTeams.length * SEASON2_TARGET_GAMES) % 2 !== 0) showMsg('警告：目前總隊數 ' + allTeams.length + ' 支時，每隊 5 場在數學上無法完全平均；請加入另一支隊伍或調整分組。', 'error');
+
+    divisions.forEach(function (division) {
+      var group = divisionGroups[division].slice().sort(compareTeamName);
+      var divisionPairs = generatePreferredDivisionPairs(group, division);
+      divisionPairs.forEach(function (matchup) { addMatchup(matchup); });
+    });
+
+    addCrossDivisionFillers();
+    assignRounds(allMatchups);
+    return allMatchups;
+
+    function generatePreferredDivisionPairs(group, division) {
+      if (group.length <= SEASON2_TARGET_GAMES + 1) {
+        return generateSingleRoundRobin(group, division);
+      }
+      if (group.length === 7) {
+        return generateSevenTeamDivisionPairs(group, division);
+      }
+      return generateGreedyDivisionPairs(group, division, SEASON2_TARGET_GAMES - 1);
+    }
+
+    function addMatchup(matchup) {
+      var key = pairKey(matchup.homeId, matchup.awayId);
+      if (usedPairs[key]) return false;
+      if ((counts[matchup.homeId] || 0) >= SEASON2_TARGET_GAMES) return false;
+      if ((counts[matchup.awayId] || 0) >= SEASON2_TARGET_GAMES) return false;
+      usedPairs[key] = true;
+      counts[matchup.homeId] = (counts[matchup.homeId] || 0) + 1;
+      counts[matchup.awayId] = (counts[matchup.awayId] || 0) + 1;
+      allMatchups.push(matchup);
+      return true;
+    }
+
+    function addCrossDivisionFillers() {
+      var needs = allTeams.filter(function (team) { return (counts[team.id] || 0) < SEASON2_TARGET_GAMES; });
+      var safety = 0;
+      while (needs.length >= 2 && safety < 500) {
+        safety++;
+        needs.sort(function (a, b) {
+          return (counts[a.id] || 0) - (counts[b.id] || 0) || compareTeamName(a, b);
+        });
+        var home = needs[0];
+        var away = null;
+        for (var i = 1; i < needs.length; i++) {
+          if (normalizeDivision(needs[i]) !== normalizeDivision(home) && !usedPairs[pairKey(home.id, needs[i].id)]) {
+            away = needs[i];
+            break;
+          }
+        }
+        if (!away) break;
+        addMatchup({
+          round: 0,
+          division: 'Cross',
+          homeId: home.id,
+          awayId: away.id,
+          homeName: home.name,
+          awayName: away.name,
+          date: '',
+          time: '',
+          venue: ''
+        });
+        needs = allTeams.filter(function (team) { return (counts[team.id] || 0) < SEASON2_TARGET_GAMES; });
+      }
+      if (needs.length > 0) {
+        showMsg('提示：仍有 ' + needs.length + ' 支球隊未達 5 場，請確認是否只有單一 7 隊分組或總隊數為奇數。', 'error');
+      }
+    }
+  }
+
+  function generateCircularDivisionPairs(group, division, offsets) {
+    var matchups = [];
+    var n = group.length;
+    var used = {};
+    offsets.forEach(function (offset) {
+      for (var i = 0; i < n; i++) {
+        var j = (i + offset) % n;
+        var key = pairKey(group[i].id, group[j].id);
+        if (!used[key]) {
+          used[key] = true;
+          matchups.push(makeMatchup(group[i], group[j], division));
+        }
+      }
+    });
+    return matchups;
+  }
+
+  function generateSevenTeamDivisionPairs(group, division) {
+    var skipped = chooseSkippedCycle(group);
+    var skippedKeys = {};
+    skipped.forEach(function (pair) { skippedKeys[pairKey(pair[0].id, pair[1].id)] = true; });
+    var matchups = [];
+    for (var i = 0; i < group.length; i++) {
+      for (var j = i + 1; j < group.length; j++) {
+        if (!skippedKeys[pairKey(group[i].id, group[j].id)]) matchups.push(makeMatchup(group[i], group[j], division));
+      }
+    }
+    return matchups;
+  }
+
+  function chooseSkippedCycle(group) {
+    var bestCycle = null;
+    var bestScore = -Infinity;
+    var first = group[0];
+    var rest = group.slice(1);
+    permute(rest, 0);
+    return bestCycle || buildCycle(group);
+
+    function permute(items, index) {
+      if (index === items.length) {
+        var cycle = buildCycle([first].concat(items));
+        var score = scoreSkippedCycle(cycle);
+        if (score > bestScore) {
+          bestScore = score;
+          bestCycle = cycle;
+        }
+        return;
+      }
+      for (var i = index; i < items.length; i++) {
+        var tmp = items[index];
+        items[index] = items[i];
+        items[i] = tmp;
+        permute(items, index + 1);
+        items[i] = items[index];
+        items[index] = tmp;
+      }
+    }
+  }
+
+  function buildCycle(order) {
+    var cycle = [];
+    for (var i = 0; i < order.length; i++) cycle.push([order[i], order[(i + 1) % order.length]]);
+    return cycle;
+  }
+
+  function scoreSkippedCycle(cycle) {
+    return cycle.reduce(function (score, pair) {
+      var homeReturning = isReturningTeam(pair[0]);
+      var awayReturning = isReturningTeam(pair[1]);
+      if (homeReturning && awayReturning) return score + 10;
+      if (homeReturning || awayReturning) return score + 2;
+      return score;
+    }, 0);
+  }
+
+  function isReturningTeam(team) {
+    if (!team) return false;
+    var parentId = String(team.parentTeamId || '').trim();
+    if (parentId && seasonOneTeams.some(function (t) { return String(t.id || '').trim() === parentId; })) return true;
+    var nameKey = normalizeTeamName(team.name);
+    return !!nameKey && seasonOneTeams.some(function (t) { return normalizeTeamName(t.name) === nameKey; });
+  }
+
+  function normalizeTeamName(name) {
+    return String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  function generateGreedyDivisionPairs(group, division, targetGames) {
+    var counts = {};
+    var matchups = [];
+    group.forEach(function (team) { counts[team.id] = 0; });
+    for (var i = 0; i < group.length; i++) {
+      for (var j = i + 1; j < group.length; j++) {
+        if (counts[group[i].id] < targetGames && counts[group[j].id] < targetGames) {
+          matchups.push(makeMatchup(group[i], group[j], division));
+          counts[group[i].id]++;
+          counts[group[j].id]++;
+        }
+      }
+    }
+    return matchups;
+  }
+
+  function makeMatchup(home, away, division) {
+    return {
+      round: 0,
+      division: division || '',
+      homeId: home.id,
+      awayId: away.id,
+      homeName: home.name,
+      awayName: away.name,
+      date: '',
+      time: '',
+      venue: ''
+    };
+  }
+
+  function pairKey(a, b) {
+    return [a, b].sort().join('_');
+  }
+
+  function compareTeamName(a, b) {
+    return (a.name || '').localeCompare(b.name || '');
+  }
+
+  function normalizeDivision(team) {
+    return String((team && team.division) || 'Unassigned').trim().toUpperCase();
+  }
+
   function showRoundRobinPanel() {
     if (teams.length < 2) {
       showMsg(I18n.t('admin.rrNeedTeams'), 'error');
       return;
+    }
+    var divisionCounts = getDivisionCounts();
+    var warnings = Object.keys(divisionCounts).filter(function (division) { return divisionCounts[division] < 6 || divisionCounts[division] > 7; });
+    if (warnings.length > 0 && Object.keys(divisionCounts).length > 1) {
+      showMsg('提示：Season 2 建議每組 6-7 隊；7 隊分組會略過部分同組對戰，Season 1 舊隊之間優先略過。', 'info');
     }
     rrMatchups = generateRoundRobin(teams);
     saveRRState();
@@ -547,15 +829,16 @@
    */
   function renderRoundRobin() {
     rrMatchupsEl.innerHTML = '';
-    var currentRound = 0;
+    var currentKey = '';
 
     rrMatchups.forEach(function (m, idx) {
       // Round header
-      if (m.round !== currentRound) {
-        currentRound = m.round;
+      var groupKey = (m.division || '') + ':' + m.round;
+      if (groupKey !== currentKey) {
+        currentKey = groupKey;
         var header = document.createElement('div');
         header.className = 'rr-round-header';
-        header.textContent = I18n.t('admin.rrRound') + ' ' + currentRound;
+        header.textContent = (m.division ? (formatDivisionName(m.division) + ' - ') : '') + I18n.t('admin.rrRound') + ' ' + m.round;
         rrMatchupsEl.appendChild(header);
       }
 
@@ -564,9 +847,9 @@
       row.setAttribute('data-idx', idx);
 
       // Home team select
-      var homeSelHtml = buildTeamSelectHtml('rr-home-' + idx, m.homeId);
+      var homeSelHtml = buildTeamSelectHtml('rr-home-' + idx, m.homeId, m.division);
       // Away team select
-      var awaySelHtml = buildTeamSelectHtml('rr-away-' + idx, m.awayId);
+      var awaySelHtml = buildTeamSelectHtml('rr-away-' + idx, m.awayId, m.division);
 
       var publishedClass = m.published ? ' rr-published' : '';
       var publishBtnHtml = m.published
@@ -608,9 +891,9 @@
     updatePublishAllBtn();
   }
 
-  function buildTeamSelectHtml(id, selectedId) {
+  function buildTeamSelectHtml(id, selectedId, division) {
     var html = '<select id="' + id + '" class="admin-select rr-team-select">';
-    teams.forEach(function (t) {
+    getTeamsForDivision(division).forEach(function (t) {
       html += '<option value="' + t.id + '"' + (t.id === selectedId ? ' selected' : '') + '>' + esc(t.name) + '</option>';
     });
     html += '</select>';
@@ -625,13 +908,13 @@
   }
 
   // ============================================================
-  // Team Swap — regenerate remaining matchups to keep 7 games each
+  // Team Swap — regenerate remaining matchups to match the selected division format
   // ============================================================
 
   /**
    * When admin changes a team in a matchup, we need to:
    * 1. Update that specific matchup
-   * 2. Regenerate all unpublished matchups to ensure every team still plays 7 games
+  * 2. Regenerate all unpublished matchups so each team plays every team in its division once
    */
   function handleTeamSwap(changedIdx, side, newTeamId) {
     var m = rrMatchups[changedIdx];
@@ -659,11 +942,16 @@
       m.awayName = getTeamName(newTeamId);
     }
 
-    // Collect locked (published) matchups
+    var targetDivision = m.division || '';
+    var otherDivisionMatchups = [];
+
+    // Collect locked (published) matchups for this division only
     var locked = [];
     var unlocked = [];
     rrMatchups.forEach(function (match, i) {
-      if (match.published) {
+      if ((match.division || '') !== targetDivision) {
+        otherDivisionMatchups.push(match);
+      } else if (match.published) {
         locked.push(match);
       } else if (i === changedIdx) {
         locked.push(match); // treat the just-changed one as locked too
@@ -674,7 +962,8 @@
 
     // Count games per team from locked matchups
     var gameCount = {};
-    teams.forEach(function (t) { gameCount[t.id] = 0; });
+    var eligibleTeams = getTeamsForDivision(m.division);
+    eligibleTeams.forEach(function (t) { gameCount[t.id] = 0; });
     var playedPairs = {};
     locked.forEach(function (match) {
       gameCount[match.homeId] = (gameCount[match.homeId] || 0) + 1;
@@ -683,15 +972,15 @@
       playedPairs[pairKey] = true;
     });
 
-    var maxGames = teams.length - 1; // 7 for 8 teams
+    var maxGames = Math.min(SEASON2_TARGET_GAMES, Math.max(0, eligibleTeams.length - 1));
 
     // Generate all possible remaining pairs that haven't been played
     var neededPairs = [];
-    for (var i = 0; i < teams.length; i++) {
-      for (var j = i + 1; j < teams.length; j++) {
-        var pKey = [teams[i].id, teams[j].id].sort().join('_');
-        if (!playedPairs[pKey] && gameCount[teams[i].id] < maxGames && gameCount[teams[j].id] < maxGames) {
-          neededPairs.push({ homeId: teams[i].id, awayId: teams[j].id });
+    for (var i = 0; i < eligibleTeams.length; i++) {
+      for (var j = i + 1; j < eligibleTeams.length; j++) {
+        var pKey = [eligibleTeams[i].id, eligibleTeams[j].id].sort().join('_');
+        if (!playedPairs[pKey] && gameCount[eligibleTeams[i].id] < maxGames && gameCount[eligibleTeams[j].id] < maxGames) {
+          neededPairs.push({ homeId: eligibleTeams[i].id, awayId: eligibleTeams[j].id });
         }
       }
     }
@@ -699,12 +988,13 @@
     // Greedily assign pairs ensuring no team exceeds maxGames
     var newMatchups = [];
     var tempCount = {};
-    teams.forEach(function (t) { tempCount[t.id] = gameCount[t.id]; });
+    eligibleTeams.forEach(function (t) { tempCount[t.id] = gameCount[t.id]; });
 
     neededPairs.forEach(function (pair) {
       if (tempCount[pair.homeId] < maxGames && tempCount[pair.awayId] < maxGames) {
         newMatchups.push({
           round: 0,
+          division: m.division || '',
           homeId: pair.homeId,
           awayId: pair.awayId,
           homeName: getTeamName(pair.homeId),
@@ -727,7 +1017,7 @@
     newMatchups.forEach(function (m) { m.round += maxLockedRound; });
 
     // Merge: locked first, then new
-    rrMatchups = locked.concat(newMatchups);
+    rrMatchups = otherDivisionMatchups.concat(locked).concat(newMatchups);
     saveRRState();
     renderRoundRobin();
     showMsg(I18n.t('admin.rrRegenerated'), 'success');
@@ -758,6 +1048,43 @@
       if (teams[i].id === teamId) return teams[i].name;
     }
     return teamId;
+  }
+
+  function getTeamById(teamId) {
+    for (var i = 0; i < teams.length; i++) {
+      if (teams[i].id === teamId) return teams[i];
+    }
+    return null;
+  }
+
+  function getMatchDivision(homeTeamId, awayTeamId) {
+    var home = getTeamById(homeTeamId);
+    var away = getTeamById(awayTeamId);
+    var homeDivision = home && home.division ? String(home.division).trim().toUpperCase() : '';
+    var awayDivision = away && away.division ? String(away.division).trim().toUpperCase() : '';
+    return homeDivision && homeDivision === awayDivision ? homeDivision : homeDivision || awayDivision || '';
+  }
+
+  function formatDivisionName(division) {
+    var name = String(division || '').trim();
+    if (name.toLowerCase() === 'cross') return 'Cross-Division';
+    return /^division\b/i.test(name) ? name : 'Division ' + name;
+  }
+
+  function getTeamsForDivision(division) {
+    if (!division) return teams;
+    var normalized = String(division).trim().toUpperCase();
+    if (normalized === 'CROSS') return teams;
+    return teams.filter(function (t) { return String(t.division || '').trim().toUpperCase() === normalized; });
+  }
+
+  function getDivisionCounts() {
+    var counts = {};
+    teams.forEach(function (t) {
+      var division = String(t.division || 'Unassigned').trim().toUpperCase();
+      counts[division] = (counts[division] || 0) + 1;
+    });
+    return counts;
   }
 
   // ============================================================
@@ -840,6 +1167,118 @@
     }).catch(function (err) {
       showMsg(err.message || I18n.t('error.submitFailed'), 'error');
     }).finally(function () { rrPublishBtn.disabled = false; });
+  }
+
+  // ============================================================
+  // Season 2 playoff / consolation bracket graph
+  // ============================================================
+
+  function renderPlayoffGraph(standings, playoffData) {
+    var stored = {};
+    ((playoffData && playoffData.brackets) || []).forEach(function (bracket) {
+      stored[bracket.id] = bracket;
+    });
+    var hasStoredGames = ['champions', 'consolation'].some(function (id) {
+      return stored[id] && stored[id].rounds && stored[id].rounds.some(function (round) {
+        return round.games && round.games.length;
+      });
+    });
+    var preview = buildPlayoffPreview(standings || []);
+
+    playoffPanel.hidden = false;
+    playoffStatusEl.textContent = hasStoredGames
+      ? '已發佈的季後賽對陣；完成比賽及建立下一輪後，圖表會自動更新。'
+      : '根據目前分組排名預覽；按「一鍵生成季後賽」發佈 8 場首輪比賽。';
+
+    if (!hasStoredGames && !preview) {
+      playoffStatusEl.textContent = '需要 Clutch 及 Fastbreak 每組至少 8 支球隊，才可建立季後賽及安慰賽對陣。';
+      playoffBracketsEl.innerHTML = '<div class="admin-bracket-empty">暫時未能產生對陣圖</div>';
+      return;
+    }
+
+    playoffBracketsEl.innerHTML =
+      renderAdminBracket('champions', '🏆 季後賽（排名 1–4）', stored.champions, preview && preview.champions) +
+      renderAdminBracket('consolation', '🥈 安慰賽（排名 5–8）', stored.consolation, preview && preview.consolation);
+  }
+
+  function buildPlayoffPreview(standings) {
+    var divisions = {};
+    standings.forEach(function (team) {
+      var key = String(team.division || '').trim().toUpperCase();
+      if (!divisions[key]) divisions[key] = [];
+      divisions[key].push(team);
+    });
+    var keys = Object.keys(divisions);
+    var clutchKey = keys.filter(function (key) { return key.indexOf('CLUTCH') !== -1; })[0];
+    var fastbreakKey = keys.filter(function (key) { return key.indexOf('FASTBREAK') !== -1; })[0];
+    if (!clutchKey || !fastbreakKey || divisions[clutchKey].length < 8 || divisions[fastbreakKey].length < 8) return null;
+
+    var clutch = divisions[clutchKey];
+    var fastbreak = divisions[fastbreakKey];
+    function game(home, away, homeRank, awayRank) {
+      return {
+        homeTeamName: home.teamName,
+        awayTeamName: away.teamName,
+        homeScore: null,
+        awayScore: null,
+        label: 'Clutch #' + homeRank + ' vs Fastbreak #' + awayRank
+      };
+    }
+    return {
+      champions: [
+        game(clutch[0], fastbreak[3], 1, 4),
+        game(clutch[1], fastbreak[2], 2, 3),
+        game(clutch[2], fastbreak[1], 3, 2),
+        game(clutch[3], fastbreak[0], 4, 1)
+      ],
+      consolation: [
+        game(clutch[4], fastbreak[7], 5, 8),
+        game(clutch[5], fastbreak[6], 6, 7),
+        game(clutch[6], fastbreak[5], 7, 6),
+        game(clutch[7], fastbreak[4], 8, 5)
+      ]
+    };
+  }
+
+  function renderAdminBracket(id, title, storedBracket, previewGames) {
+    var rounds = (storedBracket && storedBracket.rounds) || [];
+    var quarterfinals = rounds[0] && rounds[0].games && rounds[0].games.length ? rounds[0].games : (previewGames || []);
+    var semifinals = rounds[1] && rounds[1].games && rounds[1].games.length
+      ? rounds[1].games
+      : [placeholderGame('首輪勝方 1', '首輪勝方 2'), placeholderGame('首輪勝方 3', '首輪勝方 4')];
+    var finals = rounds[2] && rounds[2].games && rounds[2].games.length
+      ? rounds[2].games
+      : [placeholderGame('準決賽勝方 1', '準決賽勝方 2')];
+
+    return '<section class="admin-bracket admin-bracket--' + id + '">' +
+      '<h3 class="admin-bracket-title">' + title + '</h3>' +
+      '<div class="admin-bracket-grid">' +
+        renderAdminRound('首輪', quarterfinals) +
+        renderAdminRound('準決賽', semifinals) +
+        renderAdminRound('決賽', finals) +
+      '</div>' +
+    '</section>';
+  }
+
+  function placeholderGame(home, away) {
+    return { homeTeamName: home, awayTeamName: away, homeScore: null, awayScore: null, placeholder: true, label: '待定' };
+  }
+
+  function renderAdminRound(title, games) {
+    var html = '<div class="admin-bracket-round"><div class="admin-bracket-round-title">' + title + '</div><div class="admin-bracket-games">';
+    (games || []).forEach(function (game) {
+      var placeholderClass = game.placeholder ? ' admin-bracket-team--placeholder' : '';
+      html += '<div class="admin-bracket-game">' +
+        '<div class="admin-bracket-label">' + esc(game.label || '') + '</div>' +
+        '<div class="admin-bracket-team' + placeholderClass + '"><span>' + esc(game.homeTeamName || '待定') + '</span><strong>' + formatBracketScore(game.homeScore) + '</strong></div>' +
+        '<div class="admin-bracket-team' + placeholderClass + '"><span>' + esc(game.awayTeamName || '待定') + '</span><strong>' + formatBracketScore(game.awayScore) + '</strong></div>' +
+      '</div>';
+    });
+    return html + '</div></div>';
+  }
+
+  function formatBracketScore(score) {
+    return score === null || score === undefined || score === '' ? '–' : esc(String(score));
   }
 
   // ============================================================
