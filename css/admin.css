@@ -128,6 +128,71 @@
 /* --- Box Score 表格 --- */
 .admin-boxscore-table {
     margin-bottom: var(--spacing-md);
+    overflow-x: visible !important; /* override .table-wrapper scroll */
+}
+
+#boxscore-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#boxscore-table th,
+#boxscore-table td {
+    overflow: hidden;
+}
+
+#boxscore-table th.stat-col-fga,
+#boxscore-table td.stat-col-fga,
+.admin-stat-item.stat-col-fga {
+    background-color: #fff8e6;
+}
+
+#boxscore-table th.stat-col-oreb,
+#boxscore-table td.stat-col-oreb,
+.admin-stat-item.stat-col-oreb {
+    background-color: #eef7ff;
+}
+
+#boxscore-table th.stat-col-dreb,
+#boxscore-table td.stat-col-dreb,
+.admin-stat-item.stat-col-dreb {
+    background-color: #f0fbf3;
+}
+
+#boxscore-table th.stat-col-fga,
+#boxscore-table th.stat-col-oreb,
+#boxscore-table th.stat-col-dreb {
+    color: var(--color-primary);
+}
+
+#boxscore-table th.stat-col-pts,
+#boxscore-table td.stat-col-pts,
+.admin-stat-item.stat-col-pts {
+    background-color: #fff1f1;
+}
+
+#boxscore-table td.stat-col-fga .admin-stat-input,
+#boxscore-table td.stat-col-oreb .admin-stat-input,
+#boxscore-table td.stat-col-dreb .admin-stat-input,
+.admin-stat-item.stat-col-fga .admin-stat-input,
+.admin-stat-item.stat-col-oreb .admin-stat-input,
+.admin-stat-item.stat-col-dreb .admin-stat-input {
+    background-color: rgba(255, 255, 255, 0.86);
+}
+
+/* Player name: fixed width; stat cols share remaining space equally */
+#boxscore-table th:first-child,
+#boxscore-table td:first-child {
+    width: 13%;
+    min-width: 90px;
+}
+
+/* Op (remove) column */
+#boxscore-table th:last-child,
+#boxscore-table td:last-child {
+    width: 36px;
+    min-width: 36px;
+    text-align: center;
 }
 
 .admin-team-header-row {
@@ -143,24 +208,52 @@
     letter-spacing: 0.05em;
 }
 
+.admin-team-total-row td {
+    background-color: #fafafa;
+    border-top: 2px solid var(--color-border);
+    font-weight: var(--font-weight-bold);
+}
+
+.admin-team-total-label {
+    color: var(--color-text);
+    text-align: right;
+}
+
+.admin-team-total-row td.stat-col-pts {
+    background-color: #ffe2e2;
+    color: #b91c1c;
+    text-align: center;
+}
+
+.admin-team-total-points {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    min-height: 26px;
+    border-radius: var(--radius-sm);
+    background-color: #fff;
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-bold);
+}
+
 .admin-player-name {
     font-weight: var(--font-weight-medium);
     white-space: nowrap;
-    min-width: 120px;
-    position: sticky;
-    left: 0;
-    background-color: var(--color-surface);
-    z-index: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .admin-input-cell {
     position: relative;
-    padding: var(--spacing-xs) !important;
+    padding: 2px !important;
 }
 
 .admin-stat-input {
-    width: 56px;
-    padding: var(--spacing-xs) var(--spacing-sm);
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: var(--spacing-xs) 2px;
     background-color: var(--color-bg);
     color: var(--color-text);
     border: 1px solid var(--color-border);
@@ -236,6 +329,36 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-sm);
+}
+
+.admin-mobile-team-totals {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-mobile-team-totals > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-md);
+    background-color: #fff1f1;
+}
+
+.admin-mobile-team-totals span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+.admin-mobile-team-totals strong {
+    color: #b91c1c;
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-lg);
 }
 
 .admin-stat-item {
@@ -794,7 +917,147 @@
     line-height: var(--line-height-relaxed);
 }
 
+/* --- Season 2 playoff bracket graph --- */
+.admin-playoff-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+}
+
+.admin-playoff-heading .admin-hint {
+    margin: var(--spacing-xs) 0 var(--spacing-md);
+}
+
+.admin-playoff-format {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    border: 1px solid var(--color-accent);
+    border-radius: 999px;
+    color: var(--color-accent);
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.04em;
+}
+
+.admin-playoff-brackets {
+    display: grid;
+    gap: var(--spacing-lg);
+}
+
+.admin-bracket {
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: rgba(0, 0, 0, 0.14);
+    overflow-x: auto;
+}
+
+.admin-bracket--champions { border-top: 3px solid #f5b942; }
+.admin-bracket--consolation { border-top: 3px solid #5dade2; }
+
+.admin-bracket-title {
+    margin: 0 0 var(--spacing-md);
+    color: var(--color-text);
+    font-size: var(--font-size-lg);
+}
+
+.admin-bracket-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(210px, 1fr));
+    gap: 42px;
+    min-width: 760px;
+    align-items: stretch;
+}
+
+.admin-bracket-round {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-bracket-round:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -42px;
+    width: 42px;
+    border-top: 2px solid var(--color-border);
+}
+
+.admin-bracket-round-title {
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.admin-bracket-games {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: var(--spacing-md);
+}
+
+.admin-bracket-game {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.admin-bracket-label {
+    padding: 5px 9px;
+    background: rgba(245, 185, 66, 0.1);
+    color: var(--color-accent);
+    font-size: 0.68rem;
+    font-weight: var(--font-weight-bold);
+}
+
+.admin-bracket-team {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--spacing-xs);
+    padding: 8px 9px;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+}
+
+.admin-bracket-team span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-bracket-team strong { color: var(--color-text-muted); }
+.admin-bracket-team--placeholder { color: var(--color-text-muted); font-style: italic; }
+.admin-bracket-empty { padding: var(--spacing-md); color: var(--color-text-muted); text-align: center; }
+
 @media (max-width: 767px) {
+    .admin-playoff-heading {
+        flex-direction: column;
+    }
+    .admin-playoff-format {
+        align-self: flex-start;
+    }
+    .admin-bracket {
+        padding: var(--spacing-sm);
+    }
+    .admin-bracket-grid {
+        gap: 28px;
+        min-width: 680px;
+    }
+    .admin-bracket-round:not(:last-child)::after {
+        right: -28px;
+        width: 28px;
+    }
     .rr-match-row {
         flex-direction: column;
         align-items: stretch;
@@ -814,6 +1077,207 @@
     .rr-match-details .rr-time,
     .rr-match-details .rr-venue {
         max-width: none;
+    }
+}
+
+/* --- Team self-management mobile layout --- */
+.team-manage-page .admin-input[type="file"] {
+    min-height: auto;
+    padding: 10px;
+    line-height: 1.35;
+}
+
+.team-manage-page #team-section {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.team-manage-page .admin-color-picker {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.team-manage-page .admin-color-input {
+    width: 48px;
+    height: var(--touch-target-min);
+    padding: 2px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+}
+
+@media (max-width: 767px) {
+    .team-manage-page .header-top-inner {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .team-manage-page .ht-right {
+        min-width: 0;
+    }
+
+    .team-manage-page .ht-info-wrap {
+        display: none;
+    }
+
+    .team-manage-page .logo-text {
+        max-width: 96px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .team-manage-page .main-content .section {
+        padding: var(--spacing-lg) 0 calc(var(--spacing-2xl) + 56px);
+    }
+
+    .team-manage-page .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .team-manage-page .section-title {
+        font-size: 1.35rem;
+        line-height: 1.25;
+        margin-bottom: var(--spacing-md);
+        overflow-wrap: anywhere;
+    }
+
+    .team-manage-page .admin-card {
+        padding: var(--spacing-md);
+        border-radius: var(--radius-md);
+    }
+
+    .team-manage-page #player-form {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: var(--spacing-md) !important;
+    }
+
+    .team-manage-page .admin-card-title,
+    .team-manage-page #player-form-title {
+        font-size: 1.1rem;
+        line-height: 1.3;
+    }
+
+    .team-manage-page .admin-toolbar,
+    .team-manage-page .admin-actions {
+        align-items: stretch;
+    }
+
+    .team-manage-page .btn,
+    .team-manage-page .admin-toolbar .btn,
+    .team-manage-page .admin-actions .btn,
+    .team-manage-page #btn-save-team {
+        width: 100%;
+        justify-content: center;
+        min-height: 46px;
+    }
+
+    .team-manage-page .admin-message {
+        position: sticky;
+        top: 8px;
+        z-index: 20;
+        box-shadow: var(--shadow-md);
+    }
+
+    .team-manage-page .table-wrapper {
+        overflow: visible;
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    .team-manage-page .data-table,
+    .team-manage-page .data-table tbody,
+    .team-manage-page .data-table tr,
+    .team-manage-page .data-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .team-manage-page .data-table thead {
+        display: none;
+    }
+
+    .team-manage-page .data-table tr {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: var(--spacing-sm);
+        padding: var(--spacing-sm);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: var(--color-surface);
+    }
+
+    .team-manage-page .data-table td {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding: 7px 0;
+        border-top: 0;
+        white-space: normal;
+        min-height: 34px;
+        overflow-wrap: anywhere;
+    }
+
+    .team-manage-page .data-table td::before {
+        content: attr(data-label);
+        color: var(--color-text-secondary);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0;
+    }
+
+    .team-manage-page .data-table td[colspan] {
+        display: block;
+        text-align: center;
+        padding: var(--spacing-md);
+    }
+
+    .team-manage-page .data-table td[colspan]::before {
+        content: none;
+    }
+
+    .team-manage-page .data-table td:last-child {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        align-items: stretch;
+        padding-top: var(--spacing-sm);
+    }
+
+    .team-manage-page .data-table td:last-child::before {
+        content: none;
+    }
+
+    .team-manage-page .data-table td:last-child .btn {
+        width: 100%;
+        margin: 0;
+    }
+
+    .team-manage-page .site-footer {
+        padding-bottom: calc(var(--spacing-xl) + 48px);
+    }
+}
+
+@media (max-width: 380px) {
+    .team-manage-page .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .team-manage-page .admin-card {
+        padding: 12px;
+    }
+
+    .team-manage-page .data-table td {
+        grid-template-columns: 64px minmax(0, 1fr);
     }
 }
 
