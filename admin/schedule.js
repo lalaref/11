@@ -1227,14 +1227,14 @@
     return {
       champions: [
         game(clutch[0], fastbreak[3], 1, 4),
-        game(clutch[1], fastbreak[2], 2, 3),
         game(clutch[2], fastbreak[1], 3, 2),
+        game(clutch[1], fastbreak[2], 2, 3),
         game(clutch[3], fastbreak[0], 4, 1)
       ],
       consolation: [
         game(clutch[4], fastbreak[7], 5, 8),
-        game(clutch[5], fastbreak[6], 6, 7),
         game(clutch[6], fastbreak[5], 7, 6),
+        game(clutch[5], fastbreak[6], 6, 7),
         game(clutch[7], fastbreak[4], 8, 5)
       ]
     };
@@ -1243,9 +1243,12 @@
   function renderAdminBracket(id, title, storedBracket, previewGames) {
     var rounds = (storedBracket && storedBracket.rounds) || [];
     var quarterfinals = rounds[0] && rounds[0].games && rounds[0].games.length ? rounds[0].games : (previewGames || []);
+    var semifinalPlaceholders = id === 'champions'
+      ? [placeholderGame('第1場勝方', '第3場勝方'), placeholderGame('第2場勝方', '第4場勝方')]
+      : [placeholderGame('第5場勝方', '第7場勝方'), placeholderGame('第6場勝方', '第8場勝方')];
     var semifinals = rounds[1] && rounds[1].games && rounds[1].games.length
       ? rounds[1].games
-      : [placeholderGame('首輪勝方 1', '首輪勝方 2'), placeholderGame('首輪勝方 3', '首輪勝方 4')];
+      : semifinalPlaceholders;
     var finals = rounds[2] && rounds[2].games && rounds[2].games.length
       ? rounds[2].games
       : [placeholderGame('準決賽勝方 1', '準決賽勝方 2')];
