@@ -14,6 +14,10 @@ html{font-size:18px}body{overflow-x:hidden}.table-wrap,.bk{-webkit-overflow-scro
   .pt-modal-overlay{padding:8px}.pt-modal{max-height:92dvh;border-radius:16px}.pt-modal-header{padding:13px 15px}.pt-modal-body{-webkit-overflow-scrolling:touch}.pt-table{min-width:660px}.podium-fab{right:10px}.top{right:12px}.wa{right:10px}
 }
 @media(max-width:420px){.info{grid-template-columns:1fr}.hero,.card{padding:16px 13px}.quick{margin-left:0;margin-right:0}.bk-final-pool-title{display:block}.bk-final-pool-badge{display:inline-block;margin-top:6px}section[id*="-court-"] tbody tr{padding:9px 8px}}
+
+/* ── Admin score editing ── */
+.admin-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 18px;padding:12px 16px;background:linear-gradient(135deg,#b91c1c,#dc2626);border-radius:14px;color:#fff;box-shadow:0 6px 18px #7f1d1d33;font-weight:800}.admin-banner small{display:block;margin-top:2px;color:#fee2e2;font-weight:600}.admin-exit{flex-shrink:0;padding:7px 12px;border:1px solid #fff8;border-radius:20px;background:#fff;color:#991b1b;font:inherit;font-size:.78rem;font-weight:800;cursor:pointer}.result.is-editable{color:#7c5800}.score-edit-trigger{display:inline-flex;align-items:center;justify-content:center;min-width:74px;padding:6px 10px;border:1.5px dashed #c98b00;border-radius:9px;background:#fff9df;color:#7c5800;font:inherit;font-weight:900;cursor:pointer}.score-edit-trigger.has-score{border-style:solid;background:#fff;color:#155724}.score-editor{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.score-input{width:52px;padding:6px 4px;border:2px solid #d4a574;border-radius:8px;background:#fff;color:#514438;font:inherit;font-weight:900;text-align:center;-moz-appearance:textfield}.score-input::-webkit-outer-spin-button,.score-input::-webkit-inner-spin-button{-webkit-appearance:none}.score-input:focus{outline:0;border-color:#9a6b18;box-shadow:0 0 0 3px #d4a57433}.score-dash{color:#9a8a7a;font-weight:900}.score-action{padding:7px 9px;border:0;border-radius:8px;font:inherit;font-size:.8rem;font-weight:900;cursor:pointer}.score-save{background:#198754;color:#fff}.score-cancel{background:#e5e7eb;color:#4b5563}.score-action:disabled{opacity:.55;cursor:wait}.score-error{flex-basis:100%;color:#b91c1c;font-size:.72rem;font-weight:800;white-space:normal}
+@media(max-width:680px){.admin-banner{align-items:flex-start;padding:11px 12px}.admin-banner small{font-size:.72rem}.admin-exit{padding:6px 9px}.score-editor{padding-top:3px}.score-input{width:48px}.score-edit-trigger{min-width:68px}section[id*="-court-"] .result.is-editable::before{content:'賽果：'}}
 </style>
 </head>
 <body><nav class="nav"><div class="nav-in"><a class="brand" href="index.html">LaLaRef 急單王</a><div class="links"><a href="index.html">首頁</a><a href="service.html">服務資訊</a><a href="leagues.html">聯賽列表</a><a href="online-results.html">網上賽果</a></div></div></nav>
@@ -130,7 +134,80 @@ function render(){document.getElementById('divisions').innerHTML=divisions.map(d
 function standingsHtml(d){return Object.keys(d.teams).map(group=>{const standing=calculateGroupStandings(d,group);let previous=null,shownRank=0;const rows=standing.rows.map((r,i)=>{const same=previous&&r.pts===previous.pts&&r.miniDiff===previous.miniDiff&&r.miniGf===previous.miniGf;if(!same)shownRank=i+1;previous=r;const diff=r.gf-r.ga,diffText=r.gp?(diff>0?'+':'')+diff:'—';return '<tr><td>'+(standing.hasGames?shownRank:'—')+'</td><td class="match"><span class="code">'+r.code+'</span>'+escHtml(r.name)+'</td><td>'+r.gp+'</td><td>'+r.w+'</td><td>'+r.l+'</td><td><strong>'+(r.gp?r.pts:'—')+'</strong></td><td>'+(r.gp?r.gf:'—')+'</td><td>'+(r.gp?r.ga:'—')+'</td><td>'+diffText+'</td></tr>'}).join('');return '<div style="margin:14px 0 20px"><div class="group-title">'+group+' 組</div><div class="table-wrap"><table style="min-width:620px"><thead><tr><th>排名</th><th>球隊</th><th>賽</th><th>勝</th><th>負</th><th>積分</th><th>得分</th><th>失分</th><th>得失差</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>'}).join('')}
 function refreshStandings(){divisions.forEach(d=>{const el=document.getElementById('standings-'+d.id);if(el)el.innerHTML=standingsHtml(d)})}
 function refreshMatchups(){divisions.forEach(d=>d.fixtures.forEach(f=>{document.querySelectorAll('.match[data-div="'+d.id+'"][data-no="'+f[2]+'"]').forEach(el=>{el.innerHTML=matchupHtml(d,f)})}))}
-function refreshResults(){document.querySelectorAll('.result[data-key]').forEach(el=>{const v=scores[el.dataset.key];el.textContent=v&&v.scoreA!==''&&v.scoreB!==''&&v.scoreA!==undefined&&v.scoreB!==undefined?v.scoreA+' – '+v.scoreB:'—'})}
+const ADMIN_MODE=new URLSearchParams(location.search).get('admin')==='1',ADMIN_PASSWORD='bkids2026';
+let activeScoreKey=null;
+function scoreDisplay(v){return v&&v.scoreA!==''&&v.scoreB!==''&&v.scoreA!==undefined&&v.scoreB!==undefined?v.scoreA+' – '+v.scoreB:'—'}
+function renderResultCell(el){
+  const value=scores[el.dataset.key],display=scoreDisplay(value);
+  if(!ADMIN_MODE){el.classList.remove('is-editable');el.textContent=display;return}
+  el.classList.add('is-editable');
+  const button=document.createElement('button');
+  button.type='button';button.className='score-edit-trigger'+(display!=='—'?' has-score':'');
+  button.textContent=display==='—'?'+ 記分':display;button.setAttribute('aria-label','修改比分 '+display);
+  button.addEventListener('click',()=>openScoreEditor(el.dataset.key,el));
+  el.replaceChildren(button);
+}
+function refreshResults(){document.querySelectorAll('.result[data-key]').forEach(renderResultCell)}
+function ensureScoreEditorModal(){
+  if(document.getElementById('score-editor-overlay'))return;
+  const overlay=document.createElement('div');
+  overlay.className='pt-modal-overlay';overlay.id='score-editor-overlay';overlay.setAttribute('aria-hidden','true');
+  overlay.innerHTML='<div class="pt-modal" role="dialog" aria-modal="true" aria-labelledby="score-editor-title" style="max-width:460px">'
+    +'<div class="pt-modal-header"><span class="pt-modal-title" id="score-editor-title">✏️ 更新比分</span><button class="pt-modal-close" id="score-editor-close" type="button" aria-label="關閉">&times;</button></div>'
+    +'<div class="pt-modal-body" style="padding:22px"><div id="score-editor-match" style="margin-bottom:16px;font-weight:900;text-align:center;color:#7c5800"></div>'
+    +'<div class="score-editor" style="justify-content:center"><input class="score-input" id="score-editor-a" type="number" min="0" max="99" inputmode="numeric" aria-label="左方球隊比分"><span class="score-dash">–</span><input class="score-input" id="score-editor-b" type="number" min="0" max="99" inputmode="numeric" aria-label="右方球隊比分"></div>'
+    +'<div id="score-editor-error" class="score-error" role="alert" style="min-height:22px;margin-top:10px;text-align:center"></div>'
+    +'<div style="display:flex;justify-content:center;gap:9px;margin-top:10px"><button class="score-action score-cancel" id="score-editor-cancel" type="button">取消</button><button class="score-action score-save" id="score-editor-save" type="button">儲存比分</button></div></div></div>';
+  document.body.appendChild(overlay);
+  document.getElementById('score-editor-close').addEventListener('click',closeScoreEditor);
+  document.getElementById('score-editor-cancel').addEventListener('click',closeScoreEditor);
+  document.getElementById('score-editor-save').addEventListener('click',saveScoreEditor);
+  overlay.addEventListener('click',event=>{if(event.target===overlay)closeScoreEditor()});
+  ['score-editor-a','score-editor-b'].forEach(id=>document.getElementById(id).addEventListener('keydown',event=>{
+    if(event.key==='Enter')saveScoreEditor();if(event.key==='Escape')closeScoreEditor();
+  }));
+}
+function openScoreEditor(key,cell){
+  activeScoreKey=key;ensureScoreEditorModal();
+  const value=scores[key]||{},row=cell.closest('tr'),match=row&&row.querySelector('.match');
+  document.getElementById('score-editor-match').textContent=match?match.textContent.trim():key;
+  document.getElementById('score-editor-a').value=value.scoreA!==undefined?value.scoreA:'';
+  document.getElementById('score-editor-b').value=value.scoreB!==undefined?value.scoreB:'';
+  document.getElementById('score-editor-error').textContent='';
+  document.getElementById('score-editor-save').disabled=false;
+  const overlay=document.getElementById('score-editor-overlay');overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';requestAnimationFrame(()=>document.getElementById('score-editor-a').focus());
+}
+function closeScoreEditor(){
+  const overlay=document.getElementById('score-editor-overlay');if(!overlay)return;
+  overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');document.body.style.overflow='';activeScoreKey=null;
+}
+function refreshAllScoreViews(){refreshResults();refreshStandings();refreshMatchups();refreshBrackets();refreshPodium()}
+function saveScoreEditor(){
+  if(!activeScoreKey)return;
+  const inputA=document.getElementById('score-editor-a'),inputB=document.getElementById('score-editor-b');
+  const a=inputA.value.trim(),b=inputB.value.trim(),error=document.getElementById('score-editor-error'),save=document.getElementById('score-editor-save');
+  const bothBlank=a===''&&b==='',validA=/^\d+$/.test(a)&&Number(a)<=99,validB=/^\d+$/.test(b)&&Number(b)<=99;
+  if(!bothBlank&&(!validA||!validB)){error.textContent='請輸入 0–99 的整數；如要清除賽果，請將兩格留空。';return}
+  const key=activeScoreKey,params=new URLSearchParams({action:'update',pw:ADMIN_PASSWORD,sheet:SHEET_NAME,key,scoreA:a,scoreB:b,status:bothBlank?'scheduled':'completed'});
+  save.disabled=true;error.textContent='儲存中…';
+  fetch(API_URL+'?'+params.toString()).then(response=>response.json()).then(result=>{
+    if(result&&result.success===false)throw new Error(result.message||'更新失敗');
+    scores[key]={scoreA:a,scoreB:b,status:bothBlank?'scheduled':'completed'};
+    closeScoreEditor();refreshAllScoreViews();
+  }).catch(err=>{error.textContent=err.message||'網絡錯誤，請稍後再試。';save.disabled=false});
+}
+function initAdmin(){
+  ensureScoreEditorModal();
+  const divisionsEl=document.getElementById('divisions');
+  if(divisionsEl&&!document.getElementById('admin-score-banner')){
+    const banner=document.createElement('div');banner.id='admin-score-banner';banner.className='admin-banner';
+    banner.innerHTML='<div>🔧 比分管理模式<small>點擊任何賽果即可新增或修改；儲存後所有人即時可見。</small></div><button type="button" class="admin-exit">離開管理模式</button>';
+    banner.querySelector('.admin-exit').addEventListener('click',()=>{const url=new URL(location.href);url.searchParams.delete('admin');location.href=url.pathname+(url.searchParams.toString()?'?'+url.searchParams.toString():'')+url.hash});
+    divisionsEl.before(banner);
+  }
+  refreshResults();
+}
 function refreshBrackets(){divisions.forEach(d=>{const el=document.getElementById('bracket-'+d.id);if(el)el.innerHTML=bracketHtml(d)})}
 function fixtureOutcome(d,f,winner){if(!f)return null;const score=scoreForFixture(d,f);if(!score||score.a===score.b)return null;const left=resolveParticipant(d,f[3]),right=resolveParticipant(d,f[4]),leftWins=score.a>score.b;return winner?(leftWins?left:right):(leftWins?right:left)}
 function refreshPodium(){const body=document.getElementById('pt-body');if(!body)return;const rows=[];divisions.forEach(d=>[1,2,3].forEach(divisionNo=>{if(d.id==='g10'){const standing=g10FinalStandings(d,divisionNo),ready=standing.complete&&standing.resolved;rows.push({label:d.name.replace(' 組','')+' · Division '+divisionNo,champion:ready?standing.rows[0].participant:null,second:ready?standing.rows[1].participant:null,thirds:ready?[standing.rows[2].participant]:[]});return}const prefix='D'+divisionNo,final=d.fixtures.find(f=>f[5]===prefix+'冠軍戰'),bronze=d.fixtures.find(f=>f[5]===prefix+'季軍戰'),semis=d.fixtures.filter(f=>f[5]===prefix+'四強'),champion=fixtureOutcome(d,final,true),second=fixtureOutcome(d,final,false);let thirds=[];if(bronze){const third=fixtureOutcome(d,bronze,true);if(third)thirds=[third]}else{thirds=semis.map(f=>fixtureOutcome(d,f,false)).filter(Boolean)}rows.push({label:d.name.replace(' 組','')+' · Division '+divisionNo,champion,second,thirds})}));const cell=(participant,cls)=>'<td class="'+(participant?cls:'pt-dash')+'">'+(participant?escHtml(participant.name):'—')+'</td>';body.innerHTML=rows.map(row=>'<tr><td class="pt-div-label">'+escHtml(row.label)+'</td>'+cell(row.champion,'pt-champ')+cell(row.second,'pt-second')+'<td class="'+(row.thirds.length?'pt-third':'pt-dash')+'">'+(row.thirds.length?row.thirds.map(p=>escHtml(p.name)).join(' / '):'—')+'</td></tr>').join('')}
@@ -168,5 +245,5 @@ function initPodiumModal(){
   if(overlay)overlay.addEventListener('click',closePodiumIfOutside);
 }
 function loadScores(){fetch(API_URL+'?action=getAll&sheet='+encodeURIComponent(SHEET_NAME)).then(r=>r.json()).then(r=>{if(!r.success)return;scores=r.scores||{};refreshResults();refreshStandings();refreshMatchups();refreshBrackets();refreshPodium()}).catch(()=>{})}
-render();refreshStandings();refreshMatchups();refreshBrackets();refreshPodium();initPodiumModal();loadScores();openPodium();setInterval(loadScores,30000);document.addEventListener('keydown',event=>{if(event.key==='Escape')closePodium()});
+render();refreshStandings();refreshMatchups();refreshBrackets();refreshPodium();initPodiumModal();if(ADMIN_MODE)initAdmin();loadScores();if(!ADMIN_MODE)openPodium();setInterval(loadScores,30000);document.addEventListener('keydown',event=>{if(event.key==='Escape'){closePodium();closeScoreEditor()}});
 </script></body></html>
