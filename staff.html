@@ -241,10 +241,14 @@ body { margin: 16px; }
   }
   const isActive = item => ['scheduled','ongoing'].includes(projectStatus(item));
   let saveTimer = null;
-  function scheduleSave() {
+  function scheduleSave(immediate) {
     if (!cloudLoaded || !cloudToken) return;
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => cloudSaveState(), 800);
+    if (immediate) {
+      cloudSaveState();
+    } else {
+      saveTimer = setTimeout(() => cloudSaveState(), 800);
+    }
   }
   async function cloudSaveState(force) {
     if (!cloudToken || cloudBusy) { if (!cloudBusy) pendingSave = true; return; }
@@ -524,6 +528,7 @@ body { margin: 16px; }
       projects.push(item); selectedProject = id; viewingHistory = false;
       el('event-editor').hidden = true; el('assignment-editor').hidden = true; el('wa-preview').hidden = true; waId = null;
       renderAll();
+      scheduleSave(true);
       flash(timestamp(end) <= Date.now() ? '項目已建立並自動歸檔，正在新增預訂。' : '項目已建立，正在新增預訂。');
       await syncProjectBooking(item);
     } finally {
@@ -569,7 +574,7 @@ body { margin: 16px; }
     const conflict = assignments.find(item => item.id !== candidate.id && item.staff === memberId && item.status !== 'declined' && candidate.status !== 'declined' && timestamp(item.start) < timestamp(end) && timestamp(item.end) > timestamp(start));
     if (conflict) { el('assignment-error').textContent = '時間重疊：'+person(memberId).name+' 已獲分派「'+project(conflict.project).name+'」。請調整時段或改派其他人。'; return; }
     if (existing) Object.assign(existing,candidate); else assignments.push(candidate);
-    el('assignment-editor').hidden = true; renderAll(); flash('分派已更新，時薪獨立保留。');
+    el('assignment-editor').hidden = true; renderAll(); scheduleSave(true); flash('分派已更新，時薪獨立保留。');
   };
   root.addEventListener('change',event => {
     const control = event.target.closest('[data-status]');
@@ -578,7 +583,7 @@ body { margin: 16px; }
     if (item.verified) return;
     const conflict = next !== 'declined' && assignments.find(other => other.id !== item.id && other.staff === item.staff && other.status !== 'declined' && timestamp(other.start) < timestamp(item.end) && timestamp(other.end) > timestamp(item.start));
     if (conflict) { control.value = item.status; flash('此人有時間重疊的其他分派，請先調整時段。'); return; }
-    item.status = next; renderAll(); flash('接單狀態已手動更新；不代表系統收到 WhatsApp 回覆。');
+    item.status = next; renderAll(); scheduleSave(true); flash('接單狀態已手動更新；不代表系統收到 WhatsApp 回覆。');
   });
   function renderWhatsApp() {
     const item = task(waId), member = person(item.staff), event = project(item.project);
@@ -628,7 +633,7 @@ body { margin: 16px; }
     if (staff.some(item => item.id !== editingStaff && item.phone === phone)) { el('staff-error').textContent = '此電話已有工作人員檔案，請先核對，避免重複建立。'; return; }
     const data = {id:editingStaff || 's'+(++counter),name,phone,role:el('staff-role').value,rate:Math.round(rate*100),active:el('staff-active').value==='yes',note:el('staff-note').value.trim()};
     if (editingStaff) Object.assign(person(editingStaff),data); else staff.push(data);
-    el('staff-editor').hidden = true; el('assignment-editor').hidden = true; renderAll(); flash('人員檔案已暫存；已有分派的時薪及金額保持不變。');
+    el('staff-editor').hidden = true; el('assignment-editor').hidden = true; renderAll(); scheduleSave(true); flash('人員檔案已儲存；已有分派的時薪及金額保持不變。');
   };
   ['pay-project','pay-staff','pay-month'].forEach(id => { el(id).onchange = () => { el('payment-editor').hidden = true; paymentId = null; renderPayroll(); }; });
   el('show-statement').onclick = () => { renderPayroll(); el('statement-area').hidden = false; el('statement').focus(); };
@@ -640,7 +645,7 @@ body { margin: 16px; }
     const paidDate = el('payment-date').value;
     if (!paidDate || paidDate < item.end.slice(0,10)) { el('payment-error').textContent = '請選擇工作結束當日或之後的付款日期。'; return; }
     item.payment = {date:paidDate,method:el('payment-method').value,reference:el('payment-ref').value.trim()};
-    el('payment-editor').hidden = true; paymentId = null; renderAll(); flash('已模擬登記此筆全額付款並鎖定紀錄；沒有進行任何轉帳。');
+    el('payment-editor').hidden = true; paymentId = null; renderAll(); scheduleSave(true); flash('已模擬登記此筆全額付款並鎖定紀錄；沒有進行任何轉帳。');
   };
   root.addEventListener('click',event => {
     const button = event.target.closest('button');
@@ -657,7 +662,7 @@ body { margin: 16px; }
     if (button.dataset.verify) {
       const item = task(button.dataset.verify);
       if (item.status !== 'confirmed' || item.verified) return;
-      item.verified = true; renderAll(); flash('已模擬核實 '+person(item.staff).name+' 的 '+hours(duration(item))+'，本次時薪及工時已鎖定。正式操作前請先完成實際工時核對。');
+      item.verified = true; renderAll(); scheduleSave(true); flash('已模擬核實 '+person(item.staff).name+' 的 '+hours(duration(item))+'，本次時薪及工時已鎖定。正式操作前請先完成實際工時核對。');
     }
     if (button.dataset.pay) {
       paymentId = button.dataset.pay; const item = task(paymentId);
