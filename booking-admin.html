@@ -1219,6 +1219,38 @@ function doPost(e) {
         let sheetUrl = localStorage.getItem('sheetUrl') || '';
         let editingId = null;
 
+        function cacheStaffBookings(rows, source = sheetUrl) {
+            try {
+                const raw = localStorage.getItem('lalarefStaffBookings');
+                let cached = null;
+                try {
+                    cached = raw ? JSON.parse(raw) : null;
+                } catch (error) {
+                    console.warn('Invalid staff bookings cache:', error);
+                }
+                const previous = cached && cached.source === source && Array.isArray(cached.bookings) ? cached.bookings : [];
+                const fields = ['matchDate', 'matchTime', 'matchEndTime', 'matchType', 'venue', 'refereeCount', 'status'];
+                const bookings = new Map();
+                [...previous, ...rows].forEach(row => {
+                    if (!row || typeof row !== 'object') return;
+                    const code = String(row.code ?? '').trim();
+                    if (!code) return;
+                    const booking = bookings.get(code) || { code };
+                    fields.forEach(field => {
+                        if (Object.prototype.hasOwnProperty.call(row, field) && row[field] !== undefined) {
+                            booking[field] = row[field];
+                        }
+                    });
+                    bookings.set(code, booking);
+                });
+                localStorage.setItem('lalarefStaffBookings', JSON.stringify({
+                    source, updatedAt: Date.now(), bookings: Array.from(bookings.values())
+                }));
+            } catch (error) {
+                console.warn('Could not cache staff bookings:', error);
+            }
+        }
+
         // Helper: escape HTML to prevent XSS and template breakage
         function esc(str) {
             if (str === null || str === undefined) return '';
@@ -1349,9 +1381,10 @@ function doPost(e) {
             
             data.code = generateBookingCode();
             data.createdAt = new Date().toISOString();
+            const requestSource = sheetUrl;
             
             try {
-                const response = await fetch(sheetUrl, {
+                const response = await fetch(requestSource, {
                     method: 'POST',
                     body: JSON.stringify(data)
                 });
@@ -1359,6 +1392,7 @@ function doPost(e) {
                 const result = await response.json();
                 
                 if (result.success) {
+                    cacheStaffBookings([data], requestSource);
                     showMessage('create-message', result.message, 'success');
                     document.getElementById('code-display').textContent = data.code;
                     document.getElementById('generated-code').classList.add('show');
@@ -1387,6 +1421,7 @@ function doPost(e) {
 
         async function syncAdminToSheet(code, data) {
             if (!sheetUrl) return { success: false, message: 'No Sheet URL' };
+            const requestSource = sheetUrl;
             try {
                 // Use GET with URL params - this is RELIABLE for Google Apps Script
                 // POST body gets lost during the 302 redirect, but URL params survive
@@ -1401,7 +1436,7 @@ function doPost(e) {
                     }
                 });
                 
-                const url = sheetUrl + '?' + params.toString();
+                const url = requestSource + '?' + params.toString();
                 console.log('syncToSheet GET:', url.substring(0, 200));
                 
                 const response = await fetch(url, { redirect: 'follow' });
@@ -1417,6 +1452,7 @@ function doPost(e) {
                         console.error('syncToSheet: Got READ response instead of UPDATE — Apps Script 需要重新部署！');
                         return { success: false, message: '⚠️ Apps Script 未更新！請到「設定」分頁複製最新程式碼，然後在 Google Apps Script 重新部署。' };
                     }
+                    if (result.success === true) cacheStaffBookings([{ code, ...data }], requestSource);
                     return result;
                 } catch(e) {
                     // Google Apps Script often returns HTML after redirect - treat as success if HTTP was OK
@@ -1444,8 +1480,9 @@ function doPost(e) {
                 return;
             }
             
+            const requestSource = sheetUrl;
             try {
-                const bookingsRes = await fetch(sheetUrl);
+                const bookingsRes = await fetch(requestSource);
                 const text = await bookingsRes.text();
                 let data;
                 try {
@@ -1457,6 +1494,7 @@ function doPost(e) {
                 }
                 
                 if (data.success && data.bookings && Array.isArray(data.bookings)) {
+                    cacheStaffBookings(data.bookings, requestSource);
                     // Store for re-render after admin data sync
                     lastBookingsData = data.bookings;
                     // Render immediately using localStorage data
@@ -1679,7 +1717,8 @@ function doPost(e) {
             
             // Delete from Google Sheets (row is actually deleted)
             if (sheetUrl) {
-                fetch(sheetUrl, {
+                const requestSource = sheetUrl;
+                fetch(requestSource, {
                     method: 'POST',
                     redirect: 'follow',
                     body: JSON.stringify({ action: 'deleteBooking', code: code })
@@ -1687,6 +1726,7 @@ function doPost(e) {
                 .then(text => {
                     try {
                         const result = JSON.parse(text);
+                        if (result.success === true) cacheStaffBookings([{ code, status: 'cancelled' }], requestSource);
                         console.log('Delete result:', result);
                     } catch(e) {
                         console.log('Delete response (non-JSON):', text.substring(0, 200));
@@ -2761,8 +2801,13 @@ function doPost(e) {
                     <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center;padding-top:15px;border-top:1px solid #ddd;">
                         <div style="text-align:center;font-size:11px;color:#999;flex:1;">
                             <div style="margin-bottom:5px;"><strong>LaLaRef - 專業籃球球證/裁判服務</strong></div>
+                            <div style="margin-bottom:5px;">Lala Xolutions Co.</div>
                             <div>Professional Basketball Referee Service</div>
                             <div style="margin-top:5px;">電話 Tel: +852 8482 8484 | 網站 Web: www.lalaref.com</div>
+                        </div>
+                        <div style="width:180px;margin:0 20px;text-align:center;align-self:flex-end;">
+                            <div style="height:45px;border-bottom:1px solid #5a4a3a;"></div>
+                            <div style="margin-top:6px;font-size:10px;color:#5a4a3a;">授權簽署 Authorized Signature</div>
                         </div>
                         <div style="width:90px;height:90px;border:3px solid #1a5276;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(-8deg);opacity:0.85;flex-shrink:0;">
                             <div style="width:78px;height:78px;border:1.5px solid #1a5276;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
@@ -2776,7 +2821,7 @@ function doPost(e) {
 
                     <!-- Official Receipt Notice -->
                     <div style="margin-top:12px;text-align:center;font-size:12px;font-weight:bold;color:#5a4a3a;">
-                        此電子版收據為正式收據
+                        此收據為本公司的正式收據, 如有問題請與本公司聯絡
                     </div>
                 </div>
             `;
