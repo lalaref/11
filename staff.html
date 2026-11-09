@@ -86,7 +86,6 @@ body { margin: 16px; }
       <ol>
         <li>以 <a href="booking-admin.html">預訂管理頁「設定」</a> 的最新程式碼更新原本主程式，保留既有預訂；預訂資料工作表必須命名為 <code>Bookings</code>。</li>
         <li>在原本預訂試算表的 Apps Script 專案，以 <code>schedule-apps-script.js</code> 的完整內容取代主程式（已包含工作人員雲端功能）。</li>
-        <li>在 Apps Script「專案設定 → 指令碼屬性」新增 <code>STAFF_ADMIN_PASSWORD</code>，值為至少 20 個字元的強密碼。不要把密碼寫入網頁或提供在對話中。</li>
         <li>在「部署 → 管理部署」編輯既有網頁應用程式，選擇新版本並部署，以保留原有網址。試算表本身必須保持私人，不可公開發布工作人員資料。</li>
       </ol>
       <p>後端更新後才可登入；私有工作表會由後端自動建立。已有本機紀錄可在登入後按「匯入舊紀錄」，只限雲端尚無資料時使用。</p>
