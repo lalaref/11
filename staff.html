@@ -206,11 +206,11 @@ body { margin: 16px; }
   const el = id => root.querySelector('#lr-' + id);
   const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
   const money = cents => 'HK$ ' + (cents / 100).toLocaleString('en-HK', {minimumFractionDigits:2,maximumFractionDigits:2});
-  const hours = minutes => (minutes / 60).toLocaleString('en-HK', {maximumFractionDigits:2}) + ' 小時';
+  const hours = minutes => Math.ceil(minutes / 60) + ' 小時';
   const date = value => value.slice(0,10).replaceAll('-','/');
   const timestamp = value => Date.parse(value + '+08:00');
   const duration = assignment => Math.round((timestamp(assignment.end) - timestamp(assignment.start)) / 60000) - assignment.breakMinutes;
-  const amount = assignment => assignment.status === 'declined' ? 0 : Math.round(duration(assignment) * assignment.rate / 60);
+  const amount = assignment => assignment.status === 'declined' ? 0 : Math.ceil(duration(assignment) / 60) * assignment.rate;
   const flash = text => { el('flash').textContent = text; };
   const stateKey = 'lalarefStaffState';
   const defaultSheetUrl = 'https://script.google.com/macros/s/AKfycbwObVDmTIBfRYm-zoQn2TYKGyryfjHqhF0sy_NMG6iou82XvjQ8dBwU3mi8335G2ikOfg/exec';
@@ -538,7 +538,7 @@ body { margin: 16px; }
   function estimate() {
     const start = el('shift-start').value, end = el('shift-end').value, rest = Number(el('break').value), rate = Number(el('rate').value);
     const minutes = start && end ? Math.round((timestamp(end)-timestamp(start))/60000)-rest : NaN;
-    el('pay-estimate').textContent = Number.isFinite(minutes) && minutes > 0 && rest >= 0 && Number.isFinite(rate) && rate >= 0 ? '計薪時間 '+hours(minutes)+' × '+money(Math.round(rate*100))+' / 小時 = '+money(Math.round(minutes*Math.round(rate*100)/60)) : '請輸入有效時段、休息時間及時薪。';
+    el('pay-estimate').textContent = Number.isFinite(minutes) && minutes > 0 && rest >= 0 && Number.isFinite(rate) && rate >= 0 ? '計薪時間 '+hours(minutes)+' × '+money(Math.round(rate*100))+' / 小時 = '+money(Math.ceil(minutes/60)*Math.round(rate*100)) : '請輸入有效時段、休息時間及時薪。';
   }
   function openAssignment(id) {
     const selected = project(selectedProject);
