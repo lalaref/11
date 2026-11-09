@@ -347,10 +347,9 @@
             <h1>📋 預訂管理系統</h1>
             <p>使用 Google Sheets 管理球證/裁判預訂</p>
             <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap;">
-                <button type="button" id="sync-staff-projects" class="btn" onclick="syncStaffProjects()">同步預訂至工作項目</button>
                 <a href="staff.html" style="color:#5a4a3a;">開啟工作人員管理</a>
             </div>
-            <p id="staff-sync-status" role="status" aria-live="polite" style="margin-top:12px;font-size:0.9em;">新增或更新預訂成功後，自動同步至工作項目；既有預訂可按上方按鈕同步。請在同一瀏覽器及網站開啟工作人員頁。</p>
+            <p style="margin-top:12px;font-size:0.9em;">在工作人員管理「新增項目」並成功儲存至 Google Sheets 後，項目會顯示於預訂列表。同一瀏覽器及網站開啟的列表會即時接收新增通知；資料以 Google Sheets 為準。</p>
         </div>
 
         <div class="setup-notice" id="setup-notice">
@@ -1224,56 +1223,6 @@ function doPost(e) {
         let sheetUrl = localStorage.getItem('sheetUrl') || '';
         let editingId = null;
 
-        function cacheStaffBookings(rows, source = sheetUrl) {
-            try {
-                const raw = localStorage.getItem('lalarefStaffBookings');
-                let cached = null;
-                try {
-                    cached = raw ? JSON.parse(raw) : null;
-                } catch (error) {
-                    console.warn('Invalid staff bookings cache:', error);
-                }
-                const previous = cached && cached.source === source && Array.isArray(cached.bookings) ? cached.bookings : [];
-                const fields = ['matchDate', 'matchTime', 'matchEndTime', 'matchType', 'venue', 'refereeCount', 'status'];
-                const bookings = new Map();
-                [...previous, ...rows].forEach(row => {
-                    if (!row || typeof row !== 'object') return;
-                    const code = String(row.code ?? '').trim();
-                    if (!code) return;
-                    const booking = bookings.get(code) || { code };
-                    fields.forEach(field => {
-                        if (Object.prototype.hasOwnProperty.call(row, field) && row[field] !== undefined) {
-                            booking[field] = row[field];
-                        }
-                    });
-                    bookings.set(code, booking);
-                });
-                localStorage.setItem('lalarefStaffBookings', JSON.stringify({
-                    source, updatedAt: Date.now(), bookings: Array.from(bookings.values())
-                }));
-                document.getElementById('staff-sync-status').textContent = '預訂已發送至工作項目；同一瀏覽器及網站的工作人員頁會自動接收。';
-                return true;
-            } catch (error) {
-                console.warn('Could not cache staff bookings:', error);
-                document.getElementById('staff-sync-status').textContent = '預訂資料未能同步至工作項目，請檢查瀏覽器儲存設定後重試。';
-                return false;
-            }
-        }
-
-        async function syncStaffProjects() {
-            const button = document.getElementById('sync-staff-projects');
-            if (button.disabled) return;
-            button.disabled = true;
-            document.getElementById('staff-sync-status').textContent = '正在從預訂管理同步至工作項目…';
-            try {
-                if (!await loadBookings()) {
-                    document.getElementById('staff-sync-status').textContent = '同步未完成，工作人員頁的既有紀錄會保留；請檢查 Google Sheets 連線及瀏覽器儲存設定。';
-                }
-            } finally {
-                button.disabled = false;
-            }
-        }
-
         // Helper: escape HTML to prevent XSS and template breakage
         function esc(str) {
             if (str === null || str === undefined) return '';
@@ -1415,7 +1364,6 @@ function doPost(e) {
                 const result = await response.json();
                 
                 if (result.success) {
-                    cacheStaffBookings([data], requestSource);
                     showMessage('create-message', result.message, 'success');
                     document.getElementById('code-display').textContent = data.code;
                     document.getElementById('generated-code').classList.add('show');
@@ -1439,8 +1387,51 @@ function doPost(e) {
             return 'LR' + dateStr + randomNum;
         }
 
-        // Global bookings data cache
+        // Current list and notifications scoped to requests already in flight.
         let lastBookingsData = null;
+        let lastBookingsSource = '';
+        const bookingsLoads = new Set();
+
+        function mergeStaffBookings(rows, notifications) {
+            const bookings = new Map();
+            rows.forEach(row => {
+                const code = String(row?.code ?? '').trim();
+                if (code && !bookings.has(code)) bookings.set(code, row);
+            });
+            notifications.forEach((booking, code) => {
+                if (booking === null) bookings.delete(code);
+                else bookings.set(code, { ...bookings.get(code), ...booking });
+            });
+            return Array.from(bookings.values());
+        }
+
+        window.addEventListener('storage', event => {
+            if (event.key !== 'lalarefStaffCreatedBooking' || !event.newValue || event.storageArea !== localStorage) return;
+            let notification;
+            try {
+                notification = JSON.parse(event.newValue);
+            } catch (error) {
+                console.warn('Invalid staff booking notification:', error);
+                return;
+            }
+            if (!notification || typeof notification !== 'object' || Array.isArray(notification) ||
+                !sheetUrl || notification.source !== sheetUrl) return;
+            const incoming = notification.booking;
+            if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming) ||
+                typeof incoming.code !== 'string' || !incoming.code.trim()) return;
+            const booking = { ...incoming, code: incoming.code.trim() };
+
+            if (Array.isArray(lastBookingsData) && lastBookingsSource === sheetUrl) {
+                lastBookingsData = mergeStaffBookings(lastBookingsData, new Map([[booking.code, booking]]));
+                renderBookings(lastBookingsData);
+            } else if (![...bookingsLoads].some(load => load.source === sheetUrl)) {
+                loadBookings();
+            }
+            // A stale response must not drop a POST-confirmed row received while loading.
+            bookingsLoads.forEach(load => {
+                if (load.source === sheetUrl) load.pending.set(booking.code, booking);
+            });
+        });
 
         async function syncAdminToSheet(code, data) {
             if (!sheetUrl) return { success: false, message: 'No Sheet URL' };
@@ -1475,7 +1466,6 @@ function doPost(e) {
                         console.error('syncToSheet: Got READ response instead of UPDATE — Apps Script 需要重新部署！');
                         return { success: false, message: '⚠️ Apps Script 未更新！請到「設定」分頁複製最新程式碼，然後在 Google Apps Script 重新部署。' };
                     }
-                    if (result.success === true) cacheStaffBookings([{ code, ...data }], requestSource);
                     return result;
                 } catch(e) {
                     // Google Apps Script often returns HTML after redirect - treat as success if HTTP was OK
@@ -1504,6 +1494,8 @@ function doPost(e) {
             }
             
             const requestSource = sheetUrl;
+            const load = { source: requestSource, pending: new Map() };
+            bookingsLoads.add(load);
             try {
                 const bookingsRes = await fetch(requestSource, { cache: 'no-store', signal: AbortSignal.timeout(15000) });
                 if (!bookingsRes.ok) throw new Error('Google Sheets 回應失敗');
@@ -1517,22 +1509,25 @@ function doPost(e) {
                     return;
                 }
                 
-                if (data.success === true && Array.isArray(data.bookings)) {
-                    const staffSynced = cacheStaffBookings(data.bookings, requestSource);
-                    // Store for re-render after admin data sync
-                    lastBookingsData = data.bookings;
-                    // Render immediately using localStorage data
-                    renderBookings(data.bookings);
+                if (requestSource !== sheetUrl) return;
+                if (data && data.success === true && Array.isArray(data.bookings)) {
+                    // Apply only notifications received during this request, never replay localStorage.
+                    lastBookingsData = mergeStaffBookings(data.bookings, load.pending);
+                    lastBookingsSource = requestSource;
+                    renderBookings(lastBookingsData);
                     
                     // Then try to sync admin data from Google Sheets in background (don't await)
                     fetchAdminDataInBackground();
-                    return staffSynced;
+                    return true;
                 } else {
-                    showMessage('list-message', '載入失敗: ' + (data.message || '未知錯誤'), 'error');
+                    showMessage('list-message', '載入失敗: ' + (data?.message || '未知錯誤'), 'error');
                 }
             } catch (error) {
                 console.error('Error loading bookings:', error);
                 showMessage('list-message', '載入時發生錯誤: ' + error.message, 'error');
+            } finally {
+                load.pending.clear();
+                bookingsLoads.delete(load);
             }
         }
         
@@ -1633,12 +1628,13 @@ function doPost(e) {
                 const rc = booking.refereeCost || saved.refereeCost || '';
                 const profit = (parseFloat(tc) || 0) - (parseFloat(rc) || 0);
                 const profitColor = profit > 0 ? '#25d366' : profit < 0 ? '#ff4444' : '#5a4a3a';
+                const projectName = /^項目名稱：([^\r\n]+)/.exec(String(booking.notes ?? ''))?.[1].trim() || '';
                 
                 return `
                 <div class="booking-item" id="booking-${esc(code)}" style="position:relative;">
                     <button onclick="removeBooking('${esc(code)}')" style="position:absolute;top:12px;right:12px;background:#ff4444;color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-weight:bold;font-size:1em;line-height:28px;text-align:center;box-shadow:3px 3px 6px rgba(0,0,0,0.15);" title="移除此預訂">×</button>
                     <div class="booking-info">
-                        <h3>${esc(code) || 'N/A'}<span class="status-badge status-${esc(booking.status) || 'pending'}">${getStatusText(booking.status)}</span></h3>
+                        <h3>${projectName ? esc(projectName) + ' · ' : ''}${esc(code) || 'N/A'}<span class="status-badge status-${esc(booking.status) || 'pending'}">${getStatusText(booking.status)}</span></h3>
                         <div class="booking-details">
                             <div class="booking-detail"><strong>日期：</strong>${formatDate(booking.matchDate)}</div>
                             <div class="booking-detail"><strong>開始時間：</strong>${formatTime(booking.matchTime)}</div>
@@ -1649,7 +1645,7 @@ function doPost(e) {
                             <div class="booking-detail"><strong>電話：</strong>${esc(booking.contactPhone) || 'N/A'}</div>
                             <div class="booking-detail"><strong>付款：</strong>${esc(booking.paymentStatus) || 'N/A'}</div>
                             ${booking.refereeInfo ? `<div class="booking-detail"><strong>球證/裁判：</strong>${esc(booking.refereeInfo)}</div>` : `<div class="booking-detail"><strong>球證/裁判：</strong><span style="color:#999;">未安排</span></div>`}
-                            ${booking.notes ? `<div class="booking-detail" style="grid-column:1/-1;"><strong>備註：</strong>${esc(booking.notes)}</div>` : ''}
+                            ${booking.notes ? `<div class="booking-detail" style="grid-column:1/-1;white-space:pre-wrap;"><strong>備註：</strong>${esc(booking.notes)}</div>` : ''}
                         </div>
                         <button onclick="toggleEdit('${esc(code)}')" style="margin-top:10px;padding:6px 16px;background:linear-gradient(145deg,#f0dcc8,#e8d4b8);border:none;border-radius:12px;color:#5a4a3a;font-size:0.85em;font-weight:700;cursor:pointer;box-shadow:4px 4px 8px rgba(0,0,0,0.1),-4px -4px 8px rgba(255,255,255,0.7);">✏️ 編輯</button>
                         <div id="edit-${esc(code)}" style="display:none;margin-top:12px;padding:15px;background:linear-gradient(145deg,#f5e6d3,#ede0cc);border-radius:15px;">
@@ -1681,7 +1677,7 @@ function doPost(e) {
                             </div>
                             <div style="margin-top:10px;">
                                 <label style="font-size:0.8em;color:#7a6a5a;display:block;margin-bottom:4px;">📝 備註</label>
-                                <input type="text" id="edit-notes-${esc(code)}" value="${esc(booking.notes)}" placeholder="備註" style="width:100%;padding:8px 10px;border:none;border-radius:12px;background:white;font-size:0.9em;">
+                                <textarea id="edit-notes-${esc(code)}" rows="4" placeholder="備註" style="width:100%;padding:8px 10px;border:none;border-radius:12px;background:white;font-size:0.9em;">${esc(booking.notes)}</textarea>
                             </div>
                             <button onclick="saveBookingEdit('${esc(code)}')" style="margin-top:10px;padding:8px 20px;background:linear-gradient(145deg,#d4a574,#c89860);border:none;border-radius:12px;color:white;font-weight:700;cursor:pointer;font-size:0.9em;">💾 儲存</button>
                         </div>
@@ -1736,6 +1732,10 @@ function doPost(e) {
             if (lastBookingsData) {
                 lastBookingsData = lastBookingsData.filter(b => String(b.code).trim() !== code);
             }
+            // Suppress this row only in requests already running; never replay a creation after deletion.
+            bookingsLoads.forEach(load => {
+                if (load.source === sheetUrl) load.pending.set(code, null);
+            });
             
             updateEarningsSummary();
             showMessage('list-message', '預訂 ' + code + ' 已移除', 'success');
@@ -1751,7 +1751,6 @@ function doPost(e) {
                 .then(text => {
                     try {
                         const result = JSON.parse(text);
-                        if (result.success === true) cacheStaffBookings([{ code, status: 'cancelled' }], requestSource);
                         console.log('Delete result:', result);
                     } catch(e) {
                         console.log('Delete response (non-JSON):', text.substring(0, 200));
