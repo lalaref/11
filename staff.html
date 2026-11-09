@@ -73,8 +73,36 @@ body { margin: 16px; }
     <div class="brand"><span class="monogram" aria-hidden="true">LR</span><div><h2>LaLaRef · 工作人員管理</h2><p class="small">籃球項目分派 / 工作紀錄 / 薪金結算</p></div></div>
     <span class="tag">工作人員管理</span>
   </header>
-  <div class="notice">新增項目會自動加入預訂列表；人員、分派及結算紀錄只儲存在此瀏覽器，不會上傳至預訂試算表。此頁尚未設登入保護，請勿在共用裝置輸入敏感資料；WhatsApp 仍只提供訊息預覽，不會付款。</div>
+  <div class="notice">管理員登入後，人員、項目、分派及結算紀錄統一儲存在 Google Sheets 私有工作表，各裝置共用；不再將新紀錄存入瀏覽器。新增項目仍會自動加入預訂列表，但人員電話及薪酬不會出現在公開預訂資料中。WhatsApp 目前只提供訊息預覽，不會轉帳。</div>
+  <form id="lr-cloud-login" class="pane">
+    <h3>管理員登入</h3>
+    <div class="form-grid two">
+      <label>Google Apps Script 網址<input id="lr-cloud-url" type="url" required autocomplete="url"></label>
+      <label>管理員密碼<input id="lr-cloud-password" type="password" required autocomplete="current-password"></label>
+    </div>
+    <button id="lr-login" type="submit" class="primary">登入並載入雲端紀錄</button>
+    <p class="small">密碼及登入憑證不會儲存在此瀏覽器；登入有效期一小時。任何裝置使用同一網址及密碼，即可共用紀錄。</p>
+    <details><summary>首次啟用雲端儲存</summary>
+      <ol>
+        <li>以 <a href="booking-admin.html">預訂管理頁「設定」</a> 的最新程式碼更新原本主程式，保留既有預訂；預訂資料工作表必須命名為 <code>Bookings</code>。</li>
+        <li>在原本預訂試算表的 Apps Script 專案，以 <code>schedule-apps-script.js</code> 的完整內容取代主程式（已包含工作人員雲端功能）。</li>
+        <li>在 Apps Script「專案設定 → 指令碼屬性」新增 <code>STAFF_ADMIN_PASSWORD</code>，值為至少 20 個字元的強密碼。不要把密碼寫入網頁或提供在對話中。</li>
+        <li>在「部署 → 管理部署」編輯既有網頁應用程式，選擇新版本並部署，以保留原有網址。試算表本身必須保持私人，不可公開發布工作人員資料。</li>
+      </ol>
+      <p>後端更新後才可登入；私有工作表會由後端自動建立。已有本機紀錄可在登入後按「匯入舊紀錄」，只限雲端尚無資料時使用。</p>
+    </details>
+  </form>
+  <div class="notice">
+    <p id="lr-cloud-status" role="status" aria-live="polite">尚未登入，未載入任何工作人員資料。</p>
+    <div class="actions" id="lr-cloud-actions" hidden>
+      <button id="lr-cloud-refresh" type="button">重新載入雲端</button>
+      <button id="lr-cloud-retry" type="button" hidden>重試儲存</button>
+      <button id="lr-cloud-import" type="button" hidden>匯入此瀏覽器舊紀錄</button>
+      <button id="lr-cloud-logout" type="button">登出</button>
+    </div>
+  </div>
   <div id="lr-storage-error" class="notice" role="alert" hidden></div>
+  <fieldset id="lr-cloud-workspace" disabled hidden style="border:0;padding:0;margin:0;min-width:0;">
   <nav class="tabs" role="tablist" aria-label="工作人員管理">
     <button id="lr-tab-events" role="tab" aria-controls="lr-pane-events" aria-selected="true" data-tab="events">項目與分派</button>
     <button id="lr-tab-staff" role="tab" aria-controls="lr-pane-staff" aria-selected="false" data-tab="staff">工作人員檔案</button>
@@ -167,7 +195,8 @@ body { margin: 16px; }
     <div id="lr-statement-area" class="form-area" hidden><div class="row"><h4>結算單內容預覽</h4><button id="lr-close-statement">關閉</button></div><label>目前篩選結果<textarea id="lr-statement" rows="10" readonly></textarea></label><p class="small">正式版建議提供 CSV 匯出及可列印的個人結算單。</p></div>
     <p class="small">核實後鎖定工作時間及時薪，已付紀錄不可覆寫。此頁整理工作報酬，不包含法定供款、稅務或銀行付款功能。</p>
   </section>
-  <footer class="footer">設計規則：電話及薪酬僅限內部存取 · 分派保留當次時薪 · 同時段衝突提示 · 停用人員保留歷史 · 已付帳目鎖定 · 正式版保留修改紀錄</footer>
+  </fieldset>
+  <footer class="footer">管理員登入存取 · 雲端共用紀錄 · 分派保留當次時薪 · 多裝置版本衝突保護 · 已付帳目鎖定</footer>
 </div>
 <script>
 (() => {
@@ -182,34 +211,27 @@ body { margin: 16px; }
   const amount = assignment => assignment.status === 'declined' ? 0 : Math.round(duration(assignment) * assignment.rate / 60);
   const flash = text => { el('flash').textContent = text; };
   const stateKey = 'lalarefStaffState';
-  const bookingNoticeKey = 'lalarefStaffCreatedBooking';
   const defaultSheetUrl = 'https://script.google.com/macros/s/AKfycbwObVDmTIBfRYm-zoQn2TYKGyryfjHqhF0sy_NMG6iou82XvjQ8dBwU3mi8335G2ikOfg/exec';
   const bookingSyncBusy = new Set();
-  let canSave = true;
-  let saved = null;
-  function storageError(message) {
-    el('storage-error').hidden = false;
-    el('storage-error').textContent = message;
-  }
-  try {
-    saved = JSON.parse(localStorage.getItem(stateKey) || 'null');
-    if (saved && (!Array.isArray(saved.staff) || !Array.isArray(saved.projects) || !Array.isArray(saved.assignments) || !Number.isSafeInteger(saved.counter))) throw new Error('Invalid staff state');
-  } catch (error) {
-    saved = null;
-    canSave = false;
-    storageError('無法讀取本機紀錄。本次變更不會儲存，也不會覆寫原有資料；請檢查瀏覽器儲存設定。');
-  }
-  const staff = saved ? saved.staff : [];
-  const projects = saved ? saved.projects : [];
-  const assignments = saved ? saved.assignments : [];
+  let cloudSource = '';
+  let cloudToken = '';
+  let cloudRevision = 0;
+  let cloudLoaded = false;
+  let cloudBusy = false;
+  let pendingSave = null;
+  let lastSaved = '';
+  const staff = [];
+  const projects = [];
+  const assignments = [];
+  try { el('cloud-url').value = localStorage.getItem('sheetUrl') || defaultSheetUrl; }
+  catch (error) { el('cloud-url').value = defaultSheetUrl; }
   let selectedProject = '';
   let viewingHistory = false;
   let editingAssignment = null;
   let editingStaff = null;
   let waId = null;
   let paymentId = null;
-  let counter = saved ? saved.counter : 0;
-  let lastSaved = JSON.stringify({staff,projects,assignments,counter});
+  let counter = 0;
   const hkDate = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Hong_Kong',year:'numeric',month:'2-digit',day:'2-digit'});
   const statusLabels = {scheduled:'未開始',ongoing:'進行中',completed:'已完成',cancelled:'已取消'};
   function projectStatus(item) {
@@ -218,12 +240,113 @@ body { margin: 16px; }
     return timestamp(item.start) <= Date.now() ? 'ongoing' : 'scheduled';
   }
   const isActive = item => ['scheduled','ongoing'].includes(projectStatus(item));
-  function saveState() {
-    if (!canSave) return false;
-    const next = JSON.stringify({staff,projects,assignments,counter});
-    if (next === lastSaved) return true;
-    try { localStorage.setItem(stateKey,next); lastSaved = next; return true; }
-    catch (error) { storageError('本次變更未能儲存。請勿關閉頁面，並檢查瀏覽器儲存空間及設定。'); return false; }
+  let saveTimer = null;
+  function scheduleSave() {
+    if (!cloudLoaded || !cloudToken) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => cloudSaveState(), 800);
+  }
+  async function cloudSaveState(force) {
+    if (!cloudToken || cloudBusy) { if (!cloudBusy) pendingSave = true; return; }
+    const snapshot = JSON.stringify({staff,projects,assignments,counter});
+    if (!force && snapshot === lastSaved) { pendingSave = null; return; }
+    cloudBusy = true;
+    pendingSave = null;
+    const mutationId = crypto.randomUUID();
+    try {
+      const response = await fetch(cloudSource,{method:'POST',body:JSON.stringify({action:'staffSave',token:cloudToken,baseRevision:cloudRevision,mutationId,state:{staff,projects,assignments,counter}}),signal:AbortSignal.timeout(15000)});
+      if (!response.ok) throw new Error('伺服器回應失敗');
+      const result = await response.json();
+      if (result.success === true) { cloudRevision = result.revision; lastSaved = snapshot; el('cloud-status').textContent = '雲端紀錄已儲存。'; }
+      else if (result.code === 'CONFLICT') { cloudRevision = result.revision; el('cloud-status').textContent = '其他裝置已修改紀錄，請按「重新載入雲端」以取得最新版本。'; el('cloud-retry').hidden = false; }
+      else if (result.code === 'UNAUTHORIZED') { handleCloudLogout('登入已過期，請重新登入。'); }
+      else throw new Error(result.message || '儲存失敗');
+    } catch (error) {
+      el('cloud-status').textContent = '儲存失敗：'+error.message+'。按「重試儲存」再試。';
+      el('cloud-retry').hidden = false;
+      pendingSave = snapshot;
+    } finally { cloudBusy = false; if (pendingSave) scheduleSave(); }
+  }
+  async function cloudLoadState() {
+    cloudBusy = true;
+    try {
+      const response = await fetch(cloudSource,{method:'POST',body:JSON.stringify({action:'staffLoad',token:cloudToken}),signal:AbortSignal.timeout(15000)});
+      if (!response.ok) throw new Error('伺服器回應失敗');
+      const result = await response.json();
+      if (result.success === true) {
+        staff.length = 0; staff.push(...result.state.staff);
+        projects.length = 0; projects.push(...result.state.projects);
+        assignments.length = 0; assignments.push(...result.state.assignments);
+        counter = result.state.counter;
+        cloudRevision = result.revision;
+        lastSaved = JSON.stringify(result.state);
+        cloudLoaded = true;
+        el('cloud-status').textContent = '雲端紀錄已載入（'+staff.length+' 人員 · '+projects.length+' 項目 · '+assignments.length+' 分派）。';
+        el('cloud-workspace').disabled = false;
+        el('cloud-workspace').hidden = false;
+        el('cloud-login').hidden = true;
+        el('cloud-actions').hidden = false;
+        try { el('cloud-import').hidden = !localStorage.getItem(stateKey); } catch { el('cloud-import').hidden = true; }
+        renderAll();
+      } else if (result.code === 'UNAUTHORIZED') { handleCloudLogout('登入憑證無效，請重新登入。'); }
+      else throw new Error(result.message || '載入失敗');
+    } catch (error) { el('cloud-status').textContent = '載入失敗：'+error.message; }
+    finally { cloudBusy = false; }
+  }
+  async function handleCloudLogin(event) {
+    event.preventDefault();
+    const url = el('cloud-url').value.trim();
+    const password = el('cloud-password').value;
+    if (!url || !password) return;
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'https:' || parsed.hostname !== 'script.google.com' || !/^\/macros\/s\/[^/]+\/exec$/.test(parsed.pathname)) { el('cloud-status').textContent = '請輸入有效的 Google Apps Script 網址。'; return; }
+    } catch { el('cloud-status').textContent = '網址格式不正確。'; return; }
+    el('login').disabled = true;
+    el('cloud-status').textContent = '正在登入…';
+    try {
+      const response = await fetch(url,{method:'POST',body:JSON.stringify({action:'staffLogin',password}),signal:AbortSignal.timeout(15000)});
+      if (!response.ok) throw new Error('伺服器回應失敗');
+      const result = await response.json();
+      if (result.success === true) {
+        cloudSource = url;
+        cloudToken = result.token;
+        try { localStorage.setItem('sheetUrl',url); } catch {}
+        await cloudLoadState();
+      } else {
+        el('cloud-status').textContent = result.code === 'RATE_LIMITED' ? '登入嘗試過多，請五分鐘後再試。' : result.code === 'SETUP_REQUIRED' ? '後端尚未設定管理員密碼，請聯絡管理員。' : '密碼不正確，請重試。';
+      }
+    } catch (error) { el('cloud-status').textContent = '登入失敗：'+error.message; }
+    finally { el('login').disabled = false; }
+  }
+  function handleCloudLogout(message) {
+    if (cloudToken) { try { fetch(cloudSource,{method:'POST',body:JSON.stringify({action:'staffLogout',token:cloudToken})}); } catch {} }
+    cloudToken = ''; cloudLoaded = false; cloudRevision = 0; lastSaved = '';
+    staff.length = 0; projects.length = 0; assignments.length = 0; counter = 0;
+    selectedProject = ''; viewingHistory = false; editingAssignment = null; editingStaff = null; waId = null; paymentId = null;
+    el('cloud-workspace').disabled = true; el('cloud-workspace').hidden = true;
+    el('cloud-actions').hidden = true; el('cloud-login').hidden = false;
+    el('cloud-password').value = ''; el('cloud-retry').hidden = true;
+    el('cloud-status').textContent = message || '已登出。';
+  }
+  function importFromLocalStorage() {
+    if (!cloudLoaded || cloudBusy) return;
+    try {
+      const saved = JSON.parse(localStorage.getItem(stateKey) || 'null');
+      if (!saved || !Array.isArray(saved.staff) || !Array.isArray(saved.projects) || !Array.isArray(saved.assignments)) { el('cloud-status').textContent = '找不到此瀏覽器的舊紀錄。'; return; }
+      if (staff.length || projects.length || assignments.length) { if (!confirm('雲端已有資料，匯入舊紀錄會加入現有的資料中。確定要繼續嗎？')) return; }
+      const existingStaff = new Set(staff.map(s => s.id));
+      const existingProjects = new Set(projects.map(p => p.id));
+      const existingAssignments = new Set(assignments.map(a => a.id));
+      let imported = 0;
+      saved.staff.forEach(s => { if (!existingStaff.has(s.id)) { staff.push(s); imported++; } });
+      saved.projects.forEach(p => { if (!existingProjects.has(p.id)) { projects.push(p); imported++; } });
+      saved.assignments.forEach(a => { if (!existingAssignments.has(a.id)) { assignments.push(a); imported++; } });
+      counter = Math.max(counter, saved.counter || 0);
+      el('cloud-import').hidden = true;
+      if (imported) { cloudSaveState(true); renderAll(); el('cloud-status').textContent = '已匯入 '+imported+' 筆舊紀錄至雲端。'; }
+      else { el('cloud-status').textContent = '舊紀錄已全部存在雲端，無需匯入。'; }
+    } catch (error) { el('cloud-status').textContent = '匯入失敗：'+error.message; }
   }
   function newBookingCode() {
     const random = crypto.getRandomValues(new Uint32Array(2));
@@ -240,21 +363,19 @@ body { margin: 16px; }
   function confirmProjectBooking(item,booking) {
     item.bookingSync = 'synced';
     item.bookingSyncMessage = '';
-    saveState();
+    scheduleSave();
     el('sync-status').textContent = '「'+item.name+'」已加入預訂列表，預訂編號：'+item.bookingCode+'。';
     flash('項目已建立並加入預訂列表。');
-    try { localStorage.setItem(bookingNoticeKey,JSON.stringify({source:item.bookingSource,booking,updatedAt:Date.now()})); }
-    catch (error) { el('sync-status').textContent += ' 已寫入 Google Sheets，但未能通知已開啟的預訂頁；請在預訂頁重新載入列表。'; }
   }
   async function syncProjectBooking(item) {
     if (bookingSyncBusy.has(item.id) || item.bookingSync === 'synced') return;
     bookingSyncBusy.add(item.id);
     let uncertain = ['sending','uncertain'].includes(item.bookingSync);
     try {
-      if (!item.bookingAttempted) item.bookingSource = localStorage.getItem('sheetUrl') || defaultSheetUrl;
+      if (!item.bookingAttempted) item.bookingSource = cloudSource;
       const url = new URL(item.bookingSource);
       if (url.protocol !== 'https:' || url.hostname !== 'script.google.com' || !/^\/macros\/s\/[^/]+\/exec$/.test(url.pathname)) throw new Error('請先在預訂管理頁設定有效的 Google Apps Script 網址');
-      if (!saveState()) throw new Error('無法儲存本機項目，尚未發出預訂要求');
+      scheduleSave();
       if (item.bookingAttempted) {
         el('sync-status').textContent = '正在核對預訂 '+item.bookingCode+'，不會直接重複建立。';
         const checkUrl = new URL(url.href);
@@ -270,7 +391,7 @@ body { margin: 16px; }
       }
       item.bookingSync = 'sending';
       item.bookingAttempted = true;
-      if (!saveState()) throw new Error('無法儲存預訂編號，尚未發出預訂要求');
+      scheduleSave();
       renderBookingSync();
       el('sync-status').textContent = '正在將「'+item.name+'」加入預訂列表…';
       const booking = projectBooking(item);
@@ -375,7 +496,7 @@ body { margin: 16px; }
     el('pay-details').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+date(item.start)+' · '+escape(project(item.project).name)+'</span></td><td><span class="tag '+(item.verified?'good':'warn')+'">'+(item.verified?'已核實':'待核實')+'</span></td><td class="num">'+money(amount(item))+'</td><td>'+(item.payment?'<span class="tag good">已付</span><span class="small">'+escape(item.payment.date)+' · '+escape(item.payment.method)+'</span><span class="small">'+escape(item.payment.reference || '無參考編號')+'</span>':'未付款')+'</td><td>'+(item.payment?'已鎖定':item.verified?'<button data-pay="'+item.id+'">登記付款</button>':'<button data-verify="'+item.id+'" '+(item.status !== 'confirmed'?'disabled':'')+'>核實實際工時</button>'+(item.status !== 'confirmed'?'<span class="small">先確認接單狀態</span>':''))+'</td></tr>').join('') : '<tr><td colspan="5" class="empty">沒有待結算紀錄。</td></tr>';
     el('statement').value = 'LaLaRef 工作報酬結算（示範）\n'+(el('pay-month').value || '所有月份')+' · HKD\n\n'+groups.map(item => person(item.staff).name+'｜'+project(item.project).name+'\n'+hours(item.minutes)+'｜合計 '+money(item.total)+'｜已付 '+money(item.paid)+'｜未付 '+money(item.total-item.paid)).join('\n\n')+'\n\n合計 '+money(total)+'；已登記付款 '+money(paid)+'；未付 '+money(total-paid)+'\n未核實工時屬預計金額，不代表已出糧。';
   }
-  function renderAll() { refreshOptions(); renderEvents(); renderHistory(); renderBookingSync(); renderStaff(); renderPayroll(); if (waId) renderWhatsApp(); saveState(); }
+  function renderAll() { refreshOptions(); renderEvents(); renderHistory(); renderBookingSync(); renderStaff(); renderPayroll(); if (waId) renderWhatsApp(); scheduleSave(); }
   function openTab(name) {
     root.querySelectorAll('[data-tab]').forEach(button => button.setAttribute('aria-selected',String(button.dataset.tab === name)));
     ['events','staff','payroll'].forEach(tab => { el('pane-'+tab).hidden = tab !== name; });
@@ -452,7 +573,7 @@ body { margin: 16px; }
     const conflict = assignments.find(item => item.id !== candidate.id && item.staff === memberId && item.status !== 'declined' && candidate.status !== 'declined' && timestamp(item.start) < timestamp(end) && timestamp(item.end) > timestamp(start));
     if (conflict) { el('assignment-error').textContent = '時間重疊：'+person(memberId).name+' 已獲分派「'+project(conflict.project).name+'」。請調整時段或改派其他人。'; return; }
     if (existing) Object.assign(existing,candidate); else assignments.push(candidate);
-    el('assignment-editor').hidden = true; renderAll(); flash('分派已更新，時薪獨立保留；紀錄僅儲存於此瀏覽器。');
+    el('assignment-editor').hidden = true; renderAll(); flash('分派已更新，時薪獨立保留。');
   };
   root.addEventListener('change',event => {
     const control = event.target.closest('[data-status]');
@@ -532,12 +653,16 @@ body { margin: 16px; }
     }
   });
   el('pay-month').value = hkDate.format(new Date()).slice(0,7);
-  document.addEventListener('visibilitychange',() => { if (!document.hidden) renderAll(); });
-  window.addEventListener('focus',renderAll);
+  el('cloud-login').addEventListener('submit',handleCloudLogin);
+  el('cloud-refresh').onclick = () => { if (cloudBusy) return; el('cloud-retry').hidden = true; cloudLoadState(); };
+  el('cloud-retry').onclick = () => { el('cloud-retry').hidden = true; cloudSaveState(true); };
+  el('cloud-import').onclick = importFromLocalStorage;
+  el('cloud-logout').onclick = () => { if (confirm('確定登出？未儲存的變更仍會保留在雲端。')) handleCloudLogout(); };
+  document.addEventListener('visibilitychange',() => { if (!document.hidden && cloudLoaded) renderAll(); });
+  window.addEventListener('focus',() => { if (cloudLoaded) renderAll(); });
   setInterval(() => {
-    if (!document.hidden && projects.some(item => item.status !== projectStatus(item))) renderAll();
+    if (cloudLoaded && !document.hidden && projects.some(item => item.status !== projectStatus(item))) renderAll();
   },30000);
-  renderAll();
 })();
 </script>
 </body>
