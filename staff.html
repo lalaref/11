@@ -189,7 +189,7 @@ body { margin: 16px; }
     <div class="note">應付金額 =（結束 − 開始 − 不計薪休息）÷ 60 × 本次時薪。逐筆四捨五入至港幣仙再加總；婉拒不計薪。先核實實際工時，再登記付款，避免把預計金額當作已出糧。</div>
     <div class="table-wrap"><table><thead><tr><th>人員 / 項目</th><th class="num">工時</th><th class="num">項目合計</th><th class="num">已付</th><th class="num">未付</th></tr></thead><tbody id="lr-pay-summary"></tbody></table></div>
     <h4 class="section-title">逐筆核實及付款紀錄</h4>
-    <div class="table-wrap"><table><thead><tr><th>工作人員 / 日期</th><th class="num">工時</th><th class="num">金額</th><th>已付</th></tr></thead><tbody id="lr-pay-details"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>工作人員 / 日期</th><th class="num">工時</th><th class="num">金額</th><th>已付</th><th>操作</th></tr></thead><tbody id="lr-pay-details"></tbody></table></div>
     <div id="lr-statement-area" class="form-area" hidden><div class="row"><h4>結算單內容預覽</h4><button id="lr-close-statement">關閉</button></div><label>目前篩選結果<textarea id="lr-statement" rows="10" readonly></textarea></label><p class="small">正式版建議提供 CSV 匯出及可列印的個人結算單。</p></div>
     <p class="small">核實後鎖定工作時間及時薪，已付紀錄不可覆寫。此頁整理工作報酬，不包含法定供款、稅務或銀行付款功能。</p>
   </section>
@@ -502,7 +502,7 @@ body { margin: 16px; }
     el('pay-metrics').innerHTML = metric('工作報酬合計',money(total),'所有分派的金額總和')+metric('未付款',money(payable),'尚未標記為已付')+metric('已付款',money(paid),'已標記為已付');
     const groups = grouped(rows);
     el('pay-summary').innerHTML = groups.length ? groups.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+escape(project(item.project).name)+'</span></td><td class="num">'+hours(item.minutes)+'</td><td class="num">'+money(item.total)+'</td><td class="num">'+money(item.paid)+'</td><td class="num">'+money(item.total-item.paid)+'</td></tr>').join('') : '<tr><td colspan="5" class="empty">此篩選條件沒有工作紀錄。</td></tr>';
-    el('pay-details').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+date(item.start)+' · '+escape(project(item.project).name)+'</span></td><td class="num">'+hours(duration(item))+'</td><td class="num">'+money(amount(item))+'</td><td><input type="checkbox" data-paid="'+item.id+'" '+(item.payment?'checked':'')+'></td></tr>').join('') : '<tr><td colspan="4" class="empty">沒有待結算紀錄。</td></tr>';
+    el('pay-details').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+date(item.start)+' · '+escape(project(item.project).name)+'</span></td><td class="num">'+hours(duration(item))+'</td><td class="num">'+money(amount(item))+'</td><td><input type="checkbox" data-paid="'+item.id+'" '+(item.payment?'checked':'')+'></td><td><button data-pay-wa="'+item.id+'" class="wa" '+(item.payment?'':'disabled')+'>WhatsApp 通知</button></td></tr>').join('') : '<tr><td colspan="5" class="empty">沒有待結算紀錄。</td></tr>';
     el('statement').value = 'LaLaRef 工作報酬結算（示範）\n'+(el('pay-month').value || '所有月份')+' · HKD\n\n'+groups.map(item => person(item.staff).name+'｜'+project(item.project).name+'\n'+hours(item.minutes)+'｜合計 '+money(item.total)+'｜已付 '+money(item.paid)+'｜未付 '+money(item.total-item.paid)).join('\n\n')+'\n\n合計 '+money(total)+'；已登記付款 '+money(paid)+'；未付 '+money(total-paid)+'\n未核實工時屬預計金額，不代表已出糧。';
   }
   function renderAll() { refreshOptions(); renderEvents(); renderHistory(); renderBookingSync(); renderStaff(); renderPayroll(); if (waId) renderWhatsApp(); scheduleSave(); }
@@ -708,6 +708,21 @@ body { margin: 16px; }
       scheduleSave(true); renderPayroll();
     }
   });
+  function sendPaymentWhatsApp(id) {
+    const item = task(id);
+    if (!item || !item.payment) return;
+    const member = person(item.staff);
+    if (!member.phone) { flash('請先填寫工作人員的 WhatsApp 電話。'); return; }
+    const phone = member.phone.replace(/[^\d]/g, '');
+    const text = member.name+'，你好！\n\nLaLaRef 薪金通知\n\n你於 '+date(item.start)+' '+item.start.slice(11)+' 至 '+date(item.end)+' '+item.end.slice(11)+' 的「'+project(item.project).name+'」工作報酬已付款。\n\n金額：'+money(amount(item))+'\n付款日期：'+date(item.payment.date)+'\n\n請查收，謝謝！';
+    try {
+      navigator.clipboard.writeText(text);
+      flash('訊息已複製，開啟 WhatsApp 後直接貼上發送。');
+    } catch (error) {
+      flash('訊息複製失敗，請手動複製。');
+    }
+    window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(text), '_blank');
+  }
   root.addEventListener('click',event => {
     const button = event.target.closest('button');
     if (!button || button.disabled) return;
@@ -722,6 +737,7 @@ body { margin: 16px; }
     if (button.dataset.editProject) openEditProject(button.dataset.editProject);
     if (button.dataset.deleteProject) deleteProject(button.dataset.deleteProject);
     if (button.dataset.whatsapp) { waId = button.dataset.whatsapp; el('include-pay').checked = false; renderWhatsApp(); el('wa-preview').hidden = false; el('wa-text').focus(); }
+    if (button.dataset.payWa) sendPaymentWhatsApp(button.dataset.payWa);
   });
   el('pay-month').value = hkDate.format(new Date()).slice(0,7);
   el('cloud-login').addEventListener('submit',handleCloudLogin);
