@@ -23,6 +23,7 @@ body { margin: 16px; }
 #lr-staff-preview button:disabled { cursor:not-allowed; opacity:.5; }
 #lr-staff-preview button.primary { background:var(--lr-button); color:var(--lr-on-button); border-color:var(--lr-button); }
 #lr-staff-preview button.wa { color:var(--lr-good); background:var(--lr-good-bg); border-color:var(--lr-good); }
+#lr-staff-preview button.danger { color:#c0392b; background:light-dark(#fde8e8,#3d2020); border-color:#c0392b; }
 #lr-staff-preview label { display:grid; gap:6px; min-width:0; }
 #lr-staff-preview input,#lr-staff-preview select { width:100%; }
 #lr-staff-preview textarea { width:100%; resize:vertical; }
@@ -114,7 +115,7 @@ body { margin: 16px; }
     <p class="small">同步方向：工作人員頁「＋ 新增項目」 → Google Sheets → <a href="booking-admin.html">預訂管理頁的預訂列表</a>。使用預訂管理頁設定的同一個 Google Sheets；項目名稱、完整時段及紀錄台人數亦會記在預訂備註。</p>
     <p class="small">按香港時間，項目結束後自動標記「已完成」並移至下方歷史紀錄，不再出現在分派選單。預訂更新不會改寫已有分派的工時及時薪，請另行核對。</p>
     <div id="lr-event-editor" class="form-area" hidden>
-      <h3>新增籃球項目</h3>
+      <h3 id="lr-event-title">新增籃球項目</h3>
       <div class="form-grid two">
         <label>項目名稱 *<input id="lr-event-name" maxlength="100" placeholder="例如：企業籃球友誼賽"></label>
         <label>場館及球場 *<input id="lr-event-venue" maxlength="150" placeholder="例如：九龍公園體育館 1 號場"></label>
@@ -194,6 +195,15 @@ body { margin: 16px; }
       <div class="form-grid"><label>付款日期 *<input type="date" id="lr-payment-date" value="2026-11-16"></label><label>方式<select id="lr-payment-method"><option>FPS 轉數快</option><option>銀行轉帳</option><option>現金</option></select></label><label>參考編號 / 備註<input id="lr-payment-ref" maxlength="100" placeholder="例如：FPS 交易編號"></label></div>
       <div class="actions"><button id="lr-confirm-payment" class="primary">模擬登記全額付款</button><button id="lr-cancel-payment">取消</button></div><p class="error" id="lr-payment-error" role="alert"></p>
     </div>
+    <div id="lr-payment-wa" class="form-area" hidden>
+      <h4>WhatsApp 付款通知</h4>
+      <p id="lr-payment-wa-recipient" class="small"></p>
+      <textarea id="lr-payment-wa-text" rows="6" style="width:100%;font-family:monospace;font-size:13px;padding:10px;border-radius:10px;border:1px solid var(--lr-line);background:var(--lr-paper);color:var(--lr-ink);"></textarea>
+      <div class="actions" style="margin-top:12px;">
+        <button id="lr-payment-wa-open" class="primary" type="button">開啟 WhatsApp 對話</button>
+        <button id="lr-payment-wa-close" type="button">關閉</button>
+      </div>
+    </div>
     <div id="lr-statement-area" class="form-area" hidden><div class="row"><h4>結算單內容預覽</h4><button id="lr-close-statement">關閉</button></div><label>目前篩選結果<textarea id="lr-statement" rows="10" readonly></textarea></label><p class="small">正式版建議提供 CSV 匯出及可列印的個人結算單。</p></div>
     <p class="small">核實後鎖定工作時間及時薪，已付紀錄不可覆寫。此頁整理工作報酬，不包含法定供款、稅務或銀行付款功能。</p>
   </section>
@@ -234,6 +244,7 @@ body { margin: 16px; }
   let viewingHistory = false;
   let editingAssignment = null;
   let editingStaff = null;
+  let editingProject = null;
   let waId = null;
   let paymentId = null;
   let counter = 0;
@@ -476,7 +487,7 @@ body { margin: 16px; }
     const active = rows.filter(item => item.status !== 'declined');
     const total = active.reduce((sum,item) => sum + amount(item),0);
     const uniqueRole = role => new Set(active.filter(item => item.role === role).map(item => item.staff)).size;
-    el('event-info').innerHTML = '<div class="row"><h3>'+escape(event.name)+'</h3><span class="tag">'+statusLabels[event.status]+'</span></div><p>'+date(event.start)+' '+event.start.slice(11)+' — '+(event.end.slice(0,10) !== event.start.slice(0,10) ? date(event.end)+' ' : '')+event.end.slice(11)+'（香港時間）</p><p class="small">'+escape(event.venue)+(event.bookingCode?' · 預訂編號：'+escape(event.bookingCode):' · 手動建立')+'</p>'+(isActive(event)?'':'<p class="small">此項目已歸檔，保留工時核對及薪金結算，不再接受新分派。</p>');
+    el('event-info').innerHTML = '<div class="row"><h3>'+escape(event.name)+'</h3><span class="tag">'+statusLabels[event.status]+'</span><div class="actions"><button data-edit-project="'+event.id+'">編輯</button><button data-delete-project="'+event.id+'" class="danger">刪除</button></div></div><p>'+date(event.start)+' '+event.start.slice(11)+' — '+(event.end.slice(0,10) !== event.start.slice(0,10) ? date(event.end)+' ' : '')+event.end.slice(11)+'（香港時間）</p><p class="small">'+escape(event.venue)+(event.bookingCode?' · 預訂編號：'+escape(event.bookingCode):' · 手動建立')+'</p>'+(isActive(event)?'':'<p class="small">此項目已歸檔，保留工時核對及薪金結算，不再接受新分派。</p>');
     el('event-metrics').innerHTML = metric('項目人手','球證 '+uniqueRole('球證')+'/'+event.refs+' · 紀錄台 '+uniqueRole('紀錄台')+'/'+event.table,'已分派人數 / 需求；確認狀態見下表')+metric('待確認分派',active.filter(item => item.status === 'pending').length+' 筆','通知後手動記錄接單結果')+metric('預計人員成本',money(total),'各人工作時間 × 本次時薪');
     el('assignments').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+escape(item.role)+'</span></td><td>'+item.start.slice(11)+'–'+item.end.slice(11)+'<span class="small">'+date(item.start)+(item.start.slice(0,10)!==item.end.slice(0,10)?' 至 '+date(item.end):'')+' · 休息 '+item.breakMinutes+' 分鐘</span></td><td class="num">'+hours(duration(item))+'</td><td class="num">'+money(item.rate)+'</td><td class="num">'+money(amount(item))+'</td><td><select aria-label="'+escape(person(item.staff).name)+'接單狀態" data-status="'+item.id+'" '+(item.verified?'disabled':'')+'><option value="pending" '+(item.status==='pending'?'selected':'')+'>待確認</option><option value="confirmed" '+(item.status==='confirmed'?'selected':'')+'>已確認</option><option value="declined" '+(item.status==='declined'?'selected':'')+'>婉拒</option></select></td><td><div class="actions"><button class="wa" data-whatsapp="'+item.id+'" '+(item.status==='declined' || !isActive(event)?'disabled':'')+'>WhatsApp 提醒</button><button data-edit-assignment="'+item.id+'" '+(item.verified?'disabled':'')+'>'+(item.verified?'已鎖定':'編輯')+'</button></div></td></tr>').join('') : '<tr><td colspan="7" class="empty">尚未分派人員。先建立人員檔案，再按「分派工作人員」。</td></tr>';
     el('event-total').textContent = '此項目預計合計：'+money(total);
@@ -527,8 +538,8 @@ body { margin: 16px; }
     buttons[next].focus(); openTab(buttons[next].dataset.tab);
   });
   el('project-select').onchange = () => { selectedProject = el('project-select').value; viewingHistory = false; el('assignment-editor').hidden = true; el('wa-preview').hidden = true; waId = null; renderAll(); };
-  el('new-event').onclick = () => { const today = hkDate.format(new Date()); el('event-start').value = today+'T19:00'; el('event-end').value = today+'T22:00'; el('event-editor').hidden = false; el('event-error').textContent = ''; el('event-name').focus(); };
-  el('cancel-event').onclick = () => { el('event-editor').hidden = true; };
+  el('new-event').onclick = () => { editingProject = null; el('event-title').textContent = '新增籃球項目'; const today = hkDate.format(new Date()); el('event-start').value = today+'T19:00'; el('event-end').value = today+'T22:00'; el('event-editor').hidden = false; el('event-error').textContent = ''; el('event-name').focus(); };
+  el('cancel-event').onclick = () => { editingProject = null; el('event-editor').hidden = true; };
   el('save-event').onclick = async () => {
     if (el('save-event').disabled) return;
     const name = el('event-name').value.trim(), venue = el('event-venue').value.trim(), start = el('event-start').value, end = el('event-end').value;
@@ -536,15 +547,27 @@ body { margin: 16px; }
     if (!name || !venue || !start || !end || !Number.isFinite(timestamp(start)) || !Number.isFinite(timestamp(end)) || timestamp(end) <= timestamp(start) || !Number.isInteger(refs) || !Number.isInteger(table) || refs < 0 || table < 0 || refs > 99 || table > 99 || !['5x5','3x3'].includes(matchType)) { el('event-error').textContent = '請填寫名稱及地點，結束須晚於開始，人數須為 0–99 的整數。'; return; }
     ['save-event','new-event','cancel-event'].forEach(id => { el(id).disabled = true; });
     try {
-      const id = 'p'+(++counter);
-      const item = {id,name,venue,start,end,refs,table,matchType,createdAt:new Date().toISOString(),bookingCode:newBookingCode(),bookingSync:'pending',bookingAttempted:false};
-      console.log('[DEBUG] Created project:', item);
-      projects.push(item); selectedProject = id; viewingHistory = false;
-      el('event-editor').hidden = true; el('assignment-editor').hidden = true; el('wa-preview').hidden = true; waId = null;
-      renderAll();
-      scheduleSave(true);
-      flash(timestamp(end) <= Date.now() ? '項目已建立並自動歸檔，正在新增預訂。' : '項目已建立，正在新增預訂。');
-      await syncProjectBooking(item);
+      if (editingProject) {
+        const item = project(editingProject);
+        if (item) {
+          item.name = name; item.venue = venue; item.start = start; item.end = end;
+          item.refs = refs; item.table = table; item.matchType = matchType;
+          selectedProject = editingProject; viewingHistory = false;
+          el('event-editor').hidden = true;
+          renderAll(); scheduleSave(true); flash('項目已更新。');
+        }
+        editingProject = null;
+      } else {
+        const id = 'p'+(++counter);
+        const item = {id,name,venue,start,end,refs,table,matchType,createdAt:new Date().toISOString(),bookingCode:newBookingCode(),bookingSync:'pending',bookingAttempted:false};
+        console.log('[DEBUG] Created project:', item);
+        projects.push(item); selectedProject = id; viewingHistory = false;
+        el('event-editor').hidden = true; el('assignment-editor').hidden = true; el('wa-preview').hidden = true; waId = null;
+        renderAll();
+        scheduleSave(true);
+        flash(timestamp(end) <= Date.now() ? '項目已建立並自動歸檔，正在新增預訂。' : '項目已建立，正在新增預訂。');
+        await syncProjectBooking(item);
+      }
     } finally {
       ['save-event','new-event','cancel-event'].forEach(id => { el(id).disabled = false; });
     }
@@ -632,6 +655,33 @@ body { margin: 16px; }
       flash('訊息已複製到剪貼簿。');
     }
   };
+  function openEditProject(id) {
+    editingProject = id;
+    const item = project(id);
+    el('event-title').textContent = '編輯籃球項目';
+    el('event-name').value = item.name;
+    el('event-venue').value = item.venue;
+    el('event-start').value = item.start;
+    el('event-end').value = item.end;
+    el('event-type').value = item.matchType || '5x5';
+    el('event-refs').value = item.refs;
+    el('event-table').value = item.table;
+    el('event-error').textContent = ''; el('event-editor').hidden = false; el('event-name').focus();
+  }
+    const item = project(id);
+    if (!item) return;
+    const relatedAssignments = assignments.filter(a => a.project === id);
+    if (relatedAssignments.length > 0) {
+      if (!confirm('此項目有 '+relatedAssignments.length+' 筆分派紀錄，確定要刪除嗎？')) return;
+    } else {
+      if (!confirm('確定要刪除「'+item.name+'」嗎？')) return;
+    }
+    const index = projects.findIndex(p => p.id === id);
+    if (index !== -1) projects.splice(index, 1);
+    assignments = assignments.filter(a => a.project !== id);
+    if (selectedProject === id) { selectedProject = null; viewingHistory = false; }
+    renderAll(); scheduleSave(true); flash('項目已刪除。');
+  }
   function openStaff(id) {
     editingStaff = id;
     const member = id ? person(id) : null;
@@ -657,10 +707,10 @@ body { margin: 16px; }
     if (editingStaff) Object.assign(person(editingStaff),data); else staff.push(data);
     el('staff-editor').hidden = true; el('assignment-editor').hidden = true; renderAll(); scheduleSave(true); flash('人員檔案已儲存；已有分派的時薪及金額保持不變。');
   };
-  ['pay-project','pay-staff','pay-month'].forEach(id => { el(id).onchange = () => { el('payment-editor').hidden = true; paymentId = null; renderPayroll(); }; });
+  ['pay-project','pay-staff','pay-month'].forEach(id => { el(id).onchange = () => { el('payment-editor').hidden = true; el('payment-wa').hidden = true; paymentId = null; renderPayroll(); }; });
   el('show-statement').onclick = () => { renderPayroll(); el('statement-area').hidden = false; el('statement').focus(); };
   el('close-statement').onclick = () => { el('statement-area').hidden = true; };
-  el('cancel-payment').onclick = () => { el('payment-editor').hidden = true; paymentId = null; };
+  el('cancel-payment').onclick = () => { el('payment-editor').hidden = true; el('payment-wa').hidden = true; paymentId = null; };
   el('confirm-payment').onclick = () => {
     const item = task(paymentId);
     if (!item || !item.verified || item.payment) return;
@@ -668,7 +718,32 @@ body { margin: 16px; }
     if (!paidDate || paidDate < item.end.slice(0,10)) { el('payment-error').textContent = '請選擇工作結束當日或之後的付款日期。'; return; }
     item.payment = {date:paidDate,method:el('payment-method').value,reference:el('payment-ref').value.trim()};
     el('payment-editor').hidden = true; paymentId = null; renderAll(); scheduleSave(true); flash('已模擬登記此筆全額付款並鎖定紀錄；沒有進行任何轉帳。');
+    openPaymentWhatsApp(item);
   };
+  function openPaymentWhatsApp(item) {
+    const member = person(item.staff);
+    if (!member.phone) { flash('請先填寫工作人員的 WhatsApp 電話。'); return; }
+    el('payment-wa-recipient').textContent = '收件人：'+member.name+' · '+(member.phone || '示範人員尚未填電話');
+    el('payment-wa-text').value = member.name+'，你好！\n\nLaLaRef 薪金通知\n\n你於 '+date(item.start)+' '+item.start.slice(11)+' 至 '+date(item.end)+' '+item.end.slice(11)+' 的「'+project(item.project).name+'」工作報酬已付款。\n\n金額：'+money(amount(item))+'\n付款方式：'+item.payment.method+'\n付款日期：'+date(item.payment.date)+'\n'+(item.payment.reference?'參考編號：'+item.payment.reference+'\n':'')+'\n請查收，謝謝！';
+    el('payment-wa').hidden = false;
+  }
+  el('payment-wa-open').onclick = async () => {
+    const waText = el('payment-wa-text').value;
+    const recipientText = el('payment-wa-recipient').textContent;
+    const phoneMatch = recipientText.match(/\+?\d+/);
+    if (!phoneMatch) { flash('請先填寫工作人員的 WhatsApp 電話。'); return; }
+    const phone = phoneMatch[0].replace(/[^\d]/g, '');
+    try {
+      await navigator.clipboard.writeText(waText);
+      flash('訊息已複製，開啟 WhatsApp 後直接貼上發送。');
+    } catch (error) {
+      el('payment-wa-text').select();
+      document.execCommand('copy');
+      flash('訊息已複製，開啟 WhatsApp 後直接貼上發送。');
+    }
+    window.open('https://wa.me/' + phone, '_blank');
+  };
+  el('payment-wa-close').onclick = () => { el('payment-wa').hidden = true; };
   root.addEventListener('click',event => {
     const button = event.target.closest('button');
     if (!button || button.disabled) return;
@@ -680,6 +755,8 @@ body { margin: 16px; }
     }
     if (button.dataset.editAssignment) openAssignment(button.dataset.editAssignment);
     if (button.dataset.editStaff) openStaff(button.dataset.editStaff);
+    if (button.dataset.editProject) openEditProject(button.dataset.editProject);
+    if (button.dataset.deleteProject) deleteProject(button.dataset.deleteProject);
     if (button.dataset.whatsapp) { waId = button.dataset.whatsapp; el('include-pay').checked = false; renderWhatsApp(); el('wa-preview').hidden = false; el('wa-text').focus(); }
     if (button.dataset.verify) {
       const item = task(button.dataset.verify);
