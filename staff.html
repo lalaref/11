@@ -267,6 +267,7 @@ body { margin: 16px; }
       const response = await fetch(cloudSource,{method:'POST',body:JSON.stringify({action:'staffSave',token:cloudToken,baseRevision:cloudRevision,mutationId,state:{staff,projects,assignments,counter}}),signal:AbortSignal.timeout(15000)});
       if (!response.ok) throw new Error('伺服器回應失敗');
       const result = await response.json();
+      console.log('[DEBUG] Save response:', result);
       if (result.success === true) { cloudRevision = result.revision; lastSaved = snapshot; el('cloud-status').textContent = '雲端紀錄已儲存。'; }
       else if (result.code === 'CONFLICT') { cloudRevision = result.revision; el('cloud-status').textContent = '其他裝置已修改紀錄，請按「重新載入雲端」以取得最新版本。'; el('cloud-retry').hidden = false; }
       else if (result.code === 'UNAUTHORIZED') { handleCloudLogout('登入已過期，請重新登入。'); }
