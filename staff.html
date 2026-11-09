@@ -189,21 +189,7 @@ body { margin: 16px; }
     <div class="note">應付金額 =（結束 − 開始 − 不計薪休息）÷ 60 × 本次時薪。逐筆四捨五入至港幣仙再加總；婉拒不計薪。先核實實際工時，再登記付款，避免把預計金額當作已出糧。</div>
     <div class="table-wrap"><table><thead><tr><th>人員 / 項目</th><th class="num">工時</th><th class="num">項目合計</th><th class="num">已付</th><th class="num">未付</th></tr></thead><tbody id="lr-pay-summary"></tbody></table></div>
     <h4 class="section-title">逐筆核實及付款紀錄</h4>
-    <div class="table-wrap"><table><thead><tr><th>工作人員 / 日期</th><th>工時核實</th><th class="num">金額</th><th>結算狀態</th><th>操作</th></tr></thead><tbody id="lr-pay-details"></tbody></table></div>
-    <div id="lr-payment-editor" class="form-area" hidden>
-      <h4 id="lr-payment-title">登記付款</h4><p class="small">此操作只記錄已在其他渠道完成的付款，不會轉帳。</p>
-      <div class="form-grid"><label>付款日期 *<input type="date" id="lr-payment-date" value="2026-11-16"></label><label>方式<select id="lr-payment-method"><option>FPS 轉數快</option><option>銀行轉帳</option><option>現金</option></select></label><label>參考編號 / 備註<input id="lr-payment-ref" maxlength="100" placeholder="例如：FPS 交易編號"></label></div>
-      <div class="actions"><button id="lr-confirm-payment" class="primary">模擬登記全額付款</button><button id="lr-cancel-payment">取消</button></div><p class="error" id="lr-payment-error" role="alert"></p>
-    </div>
-    <div id="lr-payment-wa" class="form-area" hidden>
-      <h4>WhatsApp 付款通知</h4>
-      <p id="lr-payment-wa-recipient" class="small"></p>
-      <textarea id="lr-payment-wa-text" rows="6" style="width:100%;font-family:monospace;font-size:13px;padding:10px;border-radius:10px;border:1px solid var(--lr-line);background:var(--lr-paper);color:var(--lr-ink);"></textarea>
-      <div class="actions" style="margin-top:12px;">
-        <button id="lr-payment-wa-open" class="primary" type="button">開啟 WhatsApp 對話</button>
-        <button id="lr-payment-wa-close" type="button">關閉</button>
-      </div>
-    </div>
+    <div class="table-wrap"><table><thead><tr><th>工作人員 / 日期</th><th class="num">工時</th><th class="num">金額</th><th>已付</th></tr></thead><tbody id="lr-pay-details"></tbody></table></div>
     <div id="lr-statement-area" class="form-area" hidden><div class="row"><h4>結算單內容預覽</h4><button id="lr-close-statement">關閉</button></div><label>目前篩選結果<textarea id="lr-statement" rows="10" readonly></textarea></label><p class="small">正式版建議提供 CSV 匯出及可列印的個人結算單。</p></div>
     <p class="small">核實後鎖定工作時間及時薪，已付紀錄不可覆寫。此頁整理工作報酬，不包含法定供款、稅務或銀行付款功能。</p>
   </section>
@@ -246,7 +232,6 @@ body { margin: 16px; }
   let editingStaff = null;
   let editingProject = null;
   let waId = null;
-  let paymentId = null;
   let counter = 0;
   const hkDate = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Hong_Kong',year:'numeric',month:'2-digit',day:'2-digit'});
   const statusLabels = {scheduled:'未開始',ongoing:'進行中',completed:'已完成',cancelled:'已取消'};
@@ -347,7 +332,7 @@ body { margin: 16px; }
     if (cloudToken) { try { fetch(cloudSource,{method:'POST',body:JSON.stringify({action:'staffLogout',token:cloudToken})}); } catch {} }
     cloudToken = ''; cloudLoaded = false; cloudRevision = 0; lastSaved = '';
     staff.length = 0; projects.length = 0; assignments.length = 0; counter = 0;
-    selectedProject = ''; viewingHistory = false; editingAssignment = null; editingStaff = null; waId = null; paymentId = null;
+    selectedProject = ''; viewingHistory = false; editingAssignment = null; editingStaff = null; waId = null;
     el('cloud-workspace').disabled = true; el('cloud-workspace').hidden = true;
     el('cloud-actions').hidden = true; el('cloud-login').hidden = false;
     el('cloud-password').value = ''; el('cloud-retry').hidden = true;
@@ -513,11 +498,11 @@ body { margin: 16px; }
     const rows = filteredAssignments();
     const total = rows.reduce((sum,item) => sum+amount(item),0);
     const paid = rows.filter(item => item.payment).reduce((sum,item) => sum+amount(item),0);
-    const payable = rows.filter(item => item.verified && !item.payment).reduce((sum,item) => sum+amount(item),0);
-    el('pay-metrics').innerHTML = metric('工作報酬合計',money(total),'包含尚未核實的預計金額')+metric('已核實・待付款',money(payable),'須先確認接單及實際工時')+metric('已登記付款',money(paid),'未付合計 '+money(total-paid));
+    const payable = rows.filter(item => !item.payment).reduce((sum,item) => sum+amount(item),0);
+    el('pay-metrics').innerHTML = metric('工作報酬合計',money(total),'所有分派的金額總和')+metric('未付款',money(payable),'尚未標記為已付')+metric('已付款',money(paid),'已標記為已付');
     const groups = grouped(rows);
     el('pay-summary').innerHTML = groups.length ? groups.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+escape(project(item.project).name)+'</span></td><td class="num">'+hours(item.minutes)+'</td><td class="num">'+money(item.total)+'</td><td class="num">'+money(item.paid)+'</td><td class="num">'+money(item.total-item.paid)+'</td></tr>').join('') : '<tr><td colspan="5" class="empty">此篩選條件沒有工作紀錄。</td></tr>';
-    el('pay-details').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+date(item.start)+' · '+escape(project(item.project).name)+'</span></td><td><span class="tag '+(item.verified?'good':'warn')+'">'+(item.verified?'已核實':'待核實')+'</span></td><td class="num">'+money(amount(item))+'</td><td>'+(item.payment?'<span class="tag good">已付</span><span class="small">'+escape(item.payment.date)+' · '+escape(item.payment.method)+'</span><span class="small">'+escape(item.payment.reference || '無參考編號')+'</span>':'未付款')+'</td><td>'+(item.payment?'已鎖定':item.verified?'<button data-pay="'+item.id+'">登記付款</button>':'<button data-verify="'+item.id+'" '+(item.status !== 'confirmed'?'disabled':'')+'>核實實際工時</button>'+(item.status !== 'confirmed'?'<span class="small">先確認接單狀態</span>':''))+'</td></tr>').join('') : '<tr><td colspan="5" class="empty">沒有待結算紀錄。</td></tr>';
+    el('pay-details').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+date(item.start)+' · '+escape(project(item.project).name)+'</span></td><td class="num">'+hours(duration(item))+'</td><td class="num">'+money(amount(item))+'</td><td><input type="checkbox" data-paid="'+item.id+'" '+(item.payment?'checked':'')+'></td></tr>').join('') : '<tr><td colspan="4" class="empty">沒有待結算紀錄。</td></tr>';
     el('statement').value = 'LaLaRef 工作報酬結算（示範）\n'+(el('pay-month').value || '所有月份')+' · HKD\n\n'+groups.map(item => person(item.staff).name+'｜'+project(item.project).name+'\n'+hours(item.minutes)+'｜合計 '+money(item.total)+'｜已付 '+money(item.paid)+'｜未付 '+money(item.total-item.paid)).join('\n\n')+'\n\n合計 '+money(total)+'；已登記付款 '+money(paid)+'；未付 '+money(total-paid)+'\n未核實工時屬預計金額，不代表已出糧。';
   }
   function renderAll() { refreshOptions(); renderEvents(); renderHistory(); renderBookingSync(); renderStaff(); renderPayroll(); if (waId) renderWhatsApp(); scheduleSave(); }
@@ -707,43 +692,21 @@ body { margin: 16px; }
     if (editingStaff) Object.assign(person(editingStaff),data); else staff.push(data);
     el('staff-editor').hidden = true; el('assignment-editor').hidden = true; renderAll(); scheduleSave(true); flash('人員檔案已儲存；已有分派的時薪及金額保持不變。');
   };
-  ['pay-project','pay-staff','pay-month'].forEach(id => { el(id).onchange = () => { el('payment-editor').hidden = true; el('payment-wa').hidden = true; paymentId = null; renderPayroll(); }; });
+  ['pay-project','pay-staff','pay-month'].forEach(id => { el(id).onchange = () => { renderPayroll(); }; });
   el('show-statement').onclick = () => { renderPayroll(); el('statement-area').hidden = false; el('statement').focus(); };
   el('close-statement').onclick = () => { el('statement-area').hidden = true; };
-  el('cancel-payment').onclick = () => { el('payment-editor').hidden = true; el('payment-wa').hidden = true; paymentId = null; };
-  el('confirm-payment').onclick = () => {
-    const item = task(paymentId);
-    if (!item || !item.verified || item.payment) return;
-    const paidDate = el('payment-date').value;
-    if (!paidDate || paidDate < item.end.slice(0,10)) { el('payment-error').textContent = '請選擇工作結束當日或之後的付款日期。'; return; }
-    item.payment = {date:paidDate,method:el('payment-method').value,reference:el('payment-ref').value.trim()};
-    el('payment-editor').hidden = true; paymentId = null; renderAll(); scheduleSave(true); flash('已模擬登記此筆全額付款並鎖定紀錄；沒有進行任何轉帳。');
-    openPaymentWhatsApp(item);
-  };
-  function openPaymentWhatsApp(item) {
-    const member = person(item.staff);
-    if (!member.phone) { flash('請先填寫工作人員的 WhatsApp 電話。'); return; }
-    el('payment-wa-recipient').textContent = '收件人：'+member.name+' · '+(member.phone || '示範人員尚未填電話');
-    el('payment-wa-text').value = member.name+'，你好！\n\nLaLaRef 薪金通知\n\n你於 '+date(item.start)+' '+item.start.slice(11)+' 至 '+date(item.end)+' '+item.end.slice(11)+' 的「'+project(item.project).name+'」工作報酬已付款。\n\n金額：'+money(amount(item))+'\n付款方式：'+item.payment.method+'\n付款日期：'+date(item.payment.date)+'\n'+(item.payment.reference?'參考編號：'+item.payment.reference+'\n':'')+'\n請查收，謝謝！';
-    el('payment-wa').hidden = false;
-  }
-  el('payment-wa-open').onclick = async () => {
-    const waText = el('payment-wa-text').value;
-    const recipientText = el('payment-wa-recipient').textContent;
-    const phoneMatch = recipientText.match(/\+?\d+/);
-    if (!phoneMatch) { flash('請先填寫工作人員的 WhatsApp 電話。'); return; }
-    const phone = phoneMatch[0].replace(/[^\d]/g, '');
-    try {
-      await navigator.clipboard.writeText(waText);
-      flash('訊息已複製，開啟 WhatsApp 後直接貼上發送。');
-    } catch (error) {
-      el('payment-wa-text').select();
-      document.execCommand('copy');
-      flash('訊息已複製，開啟 WhatsApp 後直接貼上發送。');
+  root.addEventListener('change',event => {
+    if (event.target.dataset.paid) {
+      const item = task(event.target.dataset.paid);
+      if (!item) return;
+      if (event.target.checked) {
+        item.payment = {date:new Date().toISOString().slice(0,10),method:'手動標記',reference:''};
+      } else {
+        item.payment = null;
+      }
+      scheduleSave(true); renderPayroll();
     }
-    window.open('https://wa.me/' + phone, '_blank');
-  };
-  el('payment-wa-close').onclick = () => { el('payment-wa').hidden = true; };
+  });
   root.addEventListener('click',event => {
     const button = event.target.closest('button');
     if (!button || button.disabled) return;
@@ -758,17 +721,6 @@ body { margin: 16px; }
     if (button.dataset.editProject) openEditProject(button.dataset.editProject);
     if (button.dataset.deleteProject) deleteProject(button.dataset.deleteProject);
     if (button.dataset.whatsapp) { waId = button.dataset.whatsapp; el('include-pay').checked = false; renderWhatsApp(); el('wa-preview').hidden = false; el('wa-text').focus(); }
-    if (button.dataset.verify) {
-      const item = task(button.dataset.verify);
-      if (item.status !== 'confirmed' || item.verified) return;
-      item.verified = true; renderAll(); scheduleSave(true); flash('已模擬核實 '+person(item.staff).name+' 的 '+hours(duration(item))+'，本次時薪及工時已鎖定。正式操作前請先完成實際工時核對。');
-    }
-    if (button.dataset.pay) {
-      paymentId = button.dataset.pay; const item = task(paymentId);
-      if (!item.verified || item.payment) return;
-      el('payment-title').textContent = '登記付款：'+person(item.staff).name+' · '+money(amount(item));
-      el('payment-date').value = item.end.slice(0,10); el('payment-ref').value = ''; el('payment-error').textContent = ''; el('payment-editor').hidden = false; el('payment-date').focus();
-    }
   });
   el('pay-month').value = hkDate.format(new Date()).slice(0,7);
   el('cloud-login').addEventListener('submit',handleCloudLogin);
