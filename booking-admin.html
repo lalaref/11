@@ -526,6 +526,13 @@
                 <div class="message" id="quotation-message"></div>
                 
                 <form id="quotation-form">
+                    <div class="form-group">
+                        <label for="quote-project">選擇項目（名稱 / 日期 / 預訂編號）</label>
+                        <select id="quote-project" data-project-select onchange="prefillProjectQuotation('quote')"><option value="">不連結項目 / 手動輸入</option></select>
+                        <button type="button" class="btn btn-secondary" onclick="loadDocumentProjects(true)">重新載入項目</button>
+                        <p data-project-status role="status" aria-live="polite"></p>
+                        <p>選擇後帶入客戶、場地、時段及球證人數；收費請自行填寫。匯出 PDF 時會儲存此項目的報價，供 Invoice 及收據選用。</p>
+                    </div>
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="quote-number">報價單編號 *</label>
@@ -577,7 +584,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>小時 *</label>
-                                    <input type="number" class="service-hours" min="0.5" step="0.5" value="1" required>
+                                    <input type="number" class="service-hours" min="0.01" step="any" value="1" required>
                                 </div>
                                 <div class="form-group">
                                     <label>單價 (HKD/小時) *</label>
@@ -651,6 +658,13 @@
                 <div class="message" id="simple-quotation-message"></div>
                 
                 <form id="simple-quotation-form">
+                    <div class="form-group">
+                        <label for="sq-project">選擇項目（名稱 / 日期 / 預訂編號）</label>
+                        <select id="sq-project" data-project-select onchange="prefillProjectQuotation('sq')"><option value="">不連結項目 / 手動輸入</option></select>
+                        <button type="button" class="btn btn-secondary" onclick="loadDocumentProjects(true)">重新載入項目</button>
+                        <p data-project-status role="status" aria-live="polite"></p>
+                        <p>選擇後帶入項目資料；簡易報價單價不按小時計算，請自行填寫。匯出 PDF 後可在同一瀏覽器的 Invoice 及收據選用。</p>
+                    </div>
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="sq-number">報價單編號 *</label>
@@ -769,7 +783,17 @@
             <div class="form-box">
                 <h3 style="margin-bottom: 20px; color: #5a4a3a;">🧾 Invoice</h3>
                 <div class="message" id="invoice-message"></div>
-                
+                <div class="form-group">
+                    <label for="invoice-project">選擇項目（名稱 / 日期 / 預訂編號）</label>
+                    <select id="invoice-project" data-project-select onchange="changeDocumentProject('invoice')"><option value="">所有項目 / 手動輸入</option></select>
+                    <button type="button" class="btn btn-secondary" onclick="loadDocumentProjects(true)">重新載入項目</button>
+                    <p data-project-status role="status" aria-live="polite"></p>
+                </div>
+                <div class="form-group">
+                    <label for="invoice-saved-quote">選擇已儲存報價單</label>
+                    <select id="invoice-saved-quote" onchange="selectDocumentQuotation('invoice')"><option value="">請選擇報價單</option></select>
+                    <p id="invoice-quote-hint" role="status" aria-live="polite"></p>
+                </div>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="invoice-quote-number">報價單編號 *</label>
@@ -810,6 +834,18 @@
             <div class="form-box">
                 <h3 style="margin-bottom: 20px; color: #5a4a3a;">🧾 收據 Receipt</h3>
                 <div class="message" id="receipt-message"></div>
+                <div class="form-group">
+                    <label for="receipt-project">選擇項目（名稱 / 日期 / 預訂編號）</label>
+                    <select id="receipt-project" data-project-select onchange="changeDocumentProject('receipt')"><option value="">所有項目 / 手動輸入</option></select>
+                    <button type="button" class="btn btn-secondary" onclick="loadDocumentProjects(true)">重新載入項目</button>
+                    <p data-project-status role="status" aria-live="polite"></p>
+                </div>
+                <div class="form-group">
+                    <label for="receipt-saved-quote">選擇已儲存報價單（選填）</label>
+                    <select id="receipt-saved-quote" onchange="selectDocumentQuotation('receipt')"><option value="">使用項目預訂資料 / 手動輸入</option></select>
+                    <p id="receipt-quote-hint" role="status" aria-live="polite"></p>
+                    <p>帶入的金額僅供參考，請核實實際已收金額後才匯出收據。</p>
+                </div>
 
                 <div class="form-grid">
                     <div class="form-group">
@@ -1278,6 +1314,7 @@ function doPost(e) {
                 document.querySelector('.tab-btn:nth-child(8)').classList.add('active');
                 document.getElementById('config-tab').classList.add('active');
             }
+            if (['quotation','simple-quotation','invoice','receipt'].includes(tab)) loadDocumentProjects();
         }
 
         function saveConfig() {
@@ -1289,6 +1326,8 @@ function doPost(e) {
             
             localStorage.setItem('sheetUrl', url);
             sheetUrl = url;
+            documentProjectsMessage = '';
+            refreshDocumentProjects();
             showMessage('config-message', '設定已儲存', 'success');
             document.getElementById('setup-notice').style.display = 'none';
         }
@@ -1367,6 +1406,13 @@ function doPost(e) {
                     showMessage('create-message', result.message, 'success');
                     document.getElementById('code-display').textContent = data.code;
                     document.getElementById('generated-code').classList.add('show');
+                    if (requestSource === sheetUrl) {
+                        bookingsLoads.forEach(load => { if (load.source === requestSource) load.pending.set(data.code, data); });
+                        if (lastBookingsSource === requestSource && Array.isArray(lastBookingsData)) {
+                            lastBookingsData = mergeStaffBookings(lastBookingsData, new Map([[data.code, data]]));
+                            renderBookings(lastBookingsData);
+                        }
+                    }
                     
                     // Don't auto-reset, let user manually reset or switch tabs
                 } else {
@@ -1391,6 +1437,11 @@ function doPost(e) {
         let lastBookingsData = null;
         let lastBookingsSource = '';
         const bookingsLoads = new Set();
+        const documentProjects = new Map();
+        let documentProjectsMessage = '';
+        let receiptLoadVersion = 0;
+        let receiptDataSource = '';
+        const documentDrafts = {quote:null, sq:null, receipt:null};
 
         function mergeStaffBookings(rows, notifications) {
             const bookings = new Map();
@@ -1431,6 +1482,235 @@ function doPost(e) {
             bookingsLoads.forEach(load => {
                 if (load.source === sheetUrl) load.pending.set(booking.code, booking);
             });
+        });
+
+        function bookingProjectName(booking) {
+            return /^項目名稱：([^\r\n]+)/m.exec(String(booking.notes ?? ''))?.[1].trim() || String(booking.venue || '未命名項目');
+        }
+
+        function documentProjectKey(source, code) {
+            return JSON.stringify([source, String(code).trim()]);
+        }
+
+        function readSavedQuotations() {
+            const saved = JSON.parse(localStorage.getItem('savedQuotations') || '{}');
+            if (!saved || typeof saved !== 'object' || Array.isArray(saved)) throw new Error('無法讀取已儲存報價單');
+            return saved;
+        }
+
+        function bookingSchedule(booking) {
+            const full = /^工作時段：(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) 至 (\d{4}-\d{2}-\d{2} \d{2}:\d{2})/m.exec(String(booking.notes || ''));
+            const hkDate = new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Hong_Kong', year:'numeric', month:'2-digit', day:'2-digit'});
+            const hkTime = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Hong_Kong', hour:'2-digit', minute:'2-digit', hourCycle:'h23'});
+            const format = (value, formatter, pattern) => {
+                const text = String(value || '');
+                if (pattern.test(text)) return text;
+                const date = new Date(text);
+                return text.includes('T') && Number.isFinite(date.getTime()) ? formatter.format(date) : '';
+            };
+            const day = format(booking.matchDate, hkDate, /^\d{4}-\d{2}-\d{2}$/);
+            const start = format(booking.matchTime, hkTime, /^\d{2}:\d{2}(?::\d{2})?$/).slice(0,5);
+            const end = format(booking.matchEndTime, hkTime, /^\d{2}:\d{2}(?::\d{2})?$/).slice(0,5);
+            let minutes = NaN;
+            if (full) minutes = (Date.parse(full[2].replace(' ','T')+'+08:00') - Date.parse(full[1].replace(' ','T')+'+08:00')) / 60000;
+            else if (day && start && end && start !== end) {
+                minutes = (Date.parse(day+'T'+end+'+08:00') - Date.parse(day+'T'+start+'+08:00')) / 60000;
+                if (minutes < 0) minutes += 1440;
+            }
+            return {day, hours:Number.isFinite(minutes) && minutes > 0 ? minutes / 60 : '', text:full ? full[1]+' 至 '+full[2] : [day, start && end ? start+'–'+end+(end < start ? '（翌日）' : '') : start].filter(Boolean).join(' ')};
+        }
+
+        function bookingProjectSummary(booking) {
+            return '項目：'+bookingProjectName(booking)+'\n預訂編號：'+String(booking.code).trim()+'\n時段：'+(bookingSchedule(booking).text || '待確認')+'\n地點：'+String(booking.venue || '');
+        }
+
+        function refreshDocumentProjects() {
+            let saved = {};
+            let storageMessage = '';
+            try { saved = readSavedQuotations(); }
+            catch (error) { storageMessage = '無法讀取本機報價單，請檢查瀏覽器儲存資料。'; }
+            documentProjects.clear();
+            if (lastBookingsSource === sheetUrl && Array.isArray(lastBookingsData)) {
+                lastBookingsData.forEach(booking => {
+                    if (!booking?.code) return;
+                    const metadata = {bookingCode:String(booking.code).trim(), bookingSource:sheetUrl, projectName:bookingProjectName(booking), projectDate:bookingSchedule(booking).day};
+                    documentProjects.set(documentProjectKey(sheetUrl, metadata.bookingCode), {...metadata, booking});
+                });
+            }
+            Object.values(saved).forEach(data => {
+                if (!data?.bookingCode || data.bookingSource !== sheetUrl) return;
+                const key = documentProjectKey(data.bookingSource, data.bookingCode);
+                if (!documentProjects.has(key)) documentProjects.set(key, {bookingCode:data.bookingCode, bookingSource:data.bookingSource, projectName:data.projectName || data.bookingCode, projectDate:data.projectDate || ''});
+            });
+            const entries = [...documentProjects].sort((a,b) => b[1].projectDate.localeCompare(a[1].projectDate) || a[1].bookingCode.localeCompare(b[1].bookingCode));
+            document.querySelectorAll('[data-project-select]').forEach(select => {
+                const previous = select.value;
+                const previousLabel = select.selectedOptions[0]?.textContent || '';
+                const manual = ['quote-project','sq-project'].includes(select.id) ? '不連結項目 / 手動輸入' : '所有項目 / 手動輸入';
+                select.replaceChildren(new Option(manual, ''));
+                entries.forEach(([key, item]) => select.add(new Option(item.projectName+' · '+(item.projectDate || '日期未填')+' · '+item.bookingCode+(!item.booking ? '（已存報價紀錄）' : item.booking.status === 'cancelled' ? '（已取消）' : ''), key)));
+                if (previous && !documentProjects.has(previous)) select.add(new Option(previousLabel.replace(/（項目不可用）$/, '')+'（項目不可用）', previous));
+                select.value = previous;
+            });
+            document.querySelectorAll('[data-project-status]').forEach(el => { el.textContent = storageMessage || documentProjectsMessage || (entries.length ? '項目包含歷史紀錄；報價單只儲存在此瀏覽器。' : '目前沒有項目；可重新載入或手動填寫。'); });
+            refreshDocumentQuotations('invoice', saved);
+            refreshDocumentQuotations('receipt', saved);
+        }
+
+        async function loadDocumentProjects(force = false) {
+            refreshDocumentProjects();
+            if (!sheetUrl) { documentProjectsMessage = '請先在設定分頁連接 Google Sheets。'; refreshDocumentProjects(); return; }
+            if ([...bookingsLoads].some(load => load.source === sheetUrl)) return;
+            if (!force && Array.isArray(lastBookingsData) && lastBookingsSource === sheetUrl) return;
+            documentProjectsMessage = '正在載入項目…';
+            refreshDocumentProjects();
+            const loaded = await loadBookings();
+            documentProjectsMessage = loaded ? '' : '項目載入失敗；已保留現有資料，可按「重新載入項目」重試。';
+            refreshDocumentProjects();
+        }
+
+        function refreshDocumentQuotations(prefix, saved = readSavedQuotations()) {
+            const key = document.getElementById(prefix+'-project').value;
+            const select = document.getElementById(prefix+'-saved-quote');
+            const previous = select.value;
+            const entries = Object.entries(saved).filter(([number, data]) => data && Array.isArray(data.services) && (key ? data.bookingCode && data.bookingSource === sheetUrl && documentProjectKey(data.bookingSource, data.bookingCode) === key : !data.bookingSource || data.bookingSource === sheetUrl));
+            entries.sort((a,b) => String(b[1].quoteDate || '').localeCompare(String(a[1].quoteDate || '')) || a[0].localeCompare(b[0]));
+            select.replaceChildren(new Option(prefix === 'receipt' ? '使用項目預訂資料 / 手動輸入' : '請選擇報價單', ''));
+            entries.forEach(([number, data]) => select.add(new Option(number+' · '+(data.customerName || '未填客戶')+' · HK$ '+Number(data.totalAmount || 0).toFixed(2)+(!data.bookingCode ? '（未連結項目）' : ''), number)));
+            if (entries.some(([number]) => number === previous)) select.value = previous;
+            select.disabled = !entries.length;
+            document.getElementById(prefix+'-quote-hint').textContent = entries.length ? '選擇報價單後自動載入；舊報價亦可手動輸入編號。' : key ? '此項目尚無已儲存報價單；請先在報價單或簡易報價分頁選擇此項目並匯出 PDF。' : '此瀏覽器沒有可選報價單；仍可手動輸入編號。';
+        }
+
+        function quotationProjectMetadata(prefix) {
+            const key = document.getElementById(prefix+'-project').value;
+            if (!key) return {};
+            const item = documentProjects.get(key);
+            if (!item || item.bookingSource !== sheetUrl) {
+                showMessage(prefix === 'sq' ? 'simple-quotation-message' : 'quotation-message', '項目已移除或來源已更改，請重新選擇項目或改為手動輸入。', 'error');
+                return null;
+            }
+            return {bookingCode:item.bookingCode, bookingSource:item.bookingSource, projectName:item.projectName, projectDate:item.projectDate};
+        }
+
+        function documentDraftSnapshot(prefix) {
+            const root = document.getElementById(prefix === 'quote' ? 'quotation-form' : prefix === 'sq' ? 'simple-quotation-form' : 'receipt-tab');
+            return JSON.stringify([...root.querySelectorAll('input, select, textarea')].filter(el => !el.readOnly && !el.matches('[data-project-select]') && !el.id.endsWith('-saved-quote')).map(el => el.value));
+        }
+
+        function prefillProjectQuotation(prefix) {
+            const select = document.getElementById(prefix+'-project');
+            const key = select.value;
+            if (!key) { select.dataset.previousValue = ''; return; }
+            const item = documentProjects.get(key);
+            const message = prefix === 'sq' ? 'simple-quotation-message' : 'quotation-message';
+            if (!item?.booking || item.bookingSource !== sheetUrl) {
+                select.value = select.dataset.previousValue || '';
+                showMessage(message, '此項目只有已存報價紀錄，無法帶入預訂資料。請重新載入或手動填寫。', 'error');
+                return;
+            }
+            const form = document.getElementById(prefix === 'sq' ? 'simple-quotation-form' : 'quotation-form');
+            const hasDraft = documentDraftSnapshot(prefix) !== documentDrafts[prefix];
+            if (hasDraft && !confirm('載入項目會取代目前報價的客戶、服務、備註及金額，並產生新報價編號。繼續嗎？')) { select.value = select.dataset.previousValue || ''; return; }
+            if (prefix === 'sq') sqResetForm(); else resetQuotationForm();
+            select.value = key;
+            select.dataset.previousValue = key;
+            const fieldPrefix = prefix === 'sq' ? 'sq-' : '';
+            const booking = item.booking;
+            ['name','phone','email'].forEach(field => { document.getElementById(fieldPrefix+'customer-'+field).value = booking['contact'+field[0].toUpperCase()+field.slice(1)] || ''; });
+            const row = form.querySelector(prefix === 'sq' ? '.sq-service-item' : '.service-item');
+            const service = row.querySelector('.'+fieldPrefix+'service-name');
+            service.value = booking.matchType === '3x3' ? '3x3 半場球證/裁判服務' : booking.matchType === '5x5' ? '5x5 全場球證/裁判服務' : '其他';
+            if (prefix === 'sq') sqHandleServiceNameChange(service); else handleServiceNameChange(service);
+            if (service.value === '其他') row.querySelector('.'+fieldPrefix+'service-name-custom').value = (booking.matchType || '籃球')+' 球證/裁判服務';
+            row.querySelector('.'+fieldPrefix+'service-quantity').value = Number(booking.refereeCount) > 0 ? booking.refereeCount : '';
+            if (prefix !== 'sq') row.querySelector('.service-hours').value = bookingSchedule(booking).hours;
+            document.getElementById(prefix === 'sq' ? 'sq-notes' : 'quote-notes').value = bookingProjectSummary(booking);
+            if (prefix === 'sq') sqCalculateSubtotals(); else calculateSubtotals();
+            showMessage(message, '已帶入項目資料；請補齊客戶聯絡資料及報價單價，金額不會取用工作人員薪酬。', 'success');
+        }
+
+        function changeDocumentProject(prefix) {
+            const select = document.getElementById(prefix+'-project');
+            if (prefix === 'receipt') {
+                const hasDraft = documentDraftSnapshot('receipt') !== documentDrafts.receipt;
+                if (hasDraft && !confirm('切換項目會清除目前收據的客戶、金額及備註並載入所選項目。繼續嗎？')) { select.value = select.dataset.previousValue || ''; return false; }
+                const key = select.value;
+                resetReceiptForm();
+                select.value = key;
+            } else {
+                document.getElementById('invoice-quote-number').value = '';
+                document.getElementById('invoice-notes').value = '';
+                document.getElementById('invoice-preview').style.display = 'none';
+            }
+            select.dataset.previousValue = select.value;
+            document.getElementById(prefix+'-saved-quote').value = '';
+            refreshDocumentProjects();
+            if (prefix === 'receipt') {
+                const item = documentProjects.get(select.value);
+                if (item?.booking) {
+                    document.getElementById('receipt-ref-number').value = item.bookingCode;
+                    fillReceiptBooking(item.booking);
+                }
+            }
+            return true;
+        }
+
+        function quotationMatchesProject(prefix, data) {
+            if (data.bookingSource && data.bookingSource !== sheetUrl) {
+                showMessage(prefix+'-message', '此報價單屬於另一個 Google Sheets 來源，請切換至原本來源後再使用。', 'error');
+                return false;
+            }
+            const key = document.getElementById(prefix+'-project').value;
+            if (!key) return true;
+            if (data.bookingCode && documentProjectKey(data.bookingSource, data.bookingCode) === key && data.bookingSource === sheetUrl) return true;
+            showMessage(prefix+'-message', '此報價單不屬於所選項目。請選擇相符的報價單，或切換「所有項目 / 手動輸入」。', 'error');
+            return false;
+        }
+
+        function selectDocumentQuotation(prefix) {
+            const select = document.getElementById(prefix+'-saved-quote');
+            const number = select.value;
+            if (prefix === 'receipt' && !number) {
+                const previous = document.getElementById('receipt-ref-number').value;
+                if (!changeDocumentProject('receipt')) select.value = previous;
+                return;
+            }
+            document.getElementById(prefix === 'invoice' ? 'invoice-quote-number' : 'receipt-ref-number').value = number;
+            if (prefix === 'invoice') {
+                document.getElementById('invoice-preview').style.display = 'none';
+                if (number) loadQuotationForInvoice();
+            } else loadDataForReceipt();
+        }
+
+        function saveDocumentQuotation(data, messageId) {
+            try {
+                const saved = readSavedQuotations();
+                if (Object.hasOwn(saved, data.quoteNumber) && !confirm('此報價單編號已有紀錄，確定要覆寫嗎？')) return false;
+                Object.defineProperty(saved, data.quoteNumber, {value:data, enumerable:true, configurable:true, writable:true});
+                localStorage.setItem('savedQuotations', JSON.stringify(saved));
+                refreshDocumentProjects();
+                return true;
+            } catch (error) {
+                showMessage(messageId, '無法儲存報價單，請檢查瀏覽器儲存空間及資料。', 'error');
+                return false;
+            }
+        }
+
+        window.addEventListener('storage', event => {
+            if (event.storageArea === localStorage && event.key === 'savedQuotations') {
+                document.getElementById('invoice-preview').style.display = 'none';
+                refreshDocumentProjects();
+            }
+        });
+        document.getElementById('invoice-quote-number').addEventListener('input', () => {
+            document.getElementById('invoice-saved-quote').value = '';
+            document.getElementById('invoice-preview').style.display = 'none';
+        });
+        document.getElementById('receipt-ref-number').addEventListener('input', () => {
+            receiptLoadVersion++;
+            document.getElementById('receipt-saved-quote').value = '';
+            clearReceiptData();
         });
 
         async function syncAdminToSheet(code, data) {
@@ -1715,7 +1995,9 @@ function doPost(e) {
             updateEarningsSummary();
           } catch(err) {
             console.error('renderBookings error:', err);
-            document.getElementById('booking-list').innerHTML = '<div class="empty-state"><h3>⚠️ 顯示錯誤</h3><p>' + err.message + '</p></div>';
+            document.getElementById('booking-list').innerHTML = '<div class="empty-state"><h3>⚠️ 顯示錯誤</h3><p>' + esc(err.message) + '</p></div>';
+          } finally {
+            refreshDocumentProjects();
           }
         }
 
@@ -1738,6 +2020,7 @@ function doPost(e) {
             });
             
             updateEarningsSummary();
+            refreshDocumentProjects();
             showMessage('list-message', '預訂 ' + code + ' 已移除', 'success');
             
             // Delete from Google Sheets (row is actually deleted)
@@ -1989,13 +2272,14 @@ function doPost(e) {
                           String(today.getMonth() + 1).padStart(2, '0') + 
                           String(today.getDate()).padStart(2, '0');
             const randomNum = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
-            document.getElementById('quote-number').value = 'Q' + dateStr + randomNum;
+            if (!document.getElementById('quote-number').value) document.getElementById('quote-number').value = 'Q' + dateStr + randomNum;
             
             // Set today's date
-            document.getElementById('quote-date').valueAsDate = new Date();
+            if (!document.getElementById('quote-date').value) document.getElementById('quote-date').valueAsDate = new Date();
             
             // Add event listeners for calculation
             updateCalculations();
+            if (documentDrafts.quote === null) documentDrafts.quote = documentDraftSnapshot('quote');
         }
 
         function addServiceItem() {
@@ -2022,7 +2306,7 @@ function doPost(e) {
                     </div>
                     <div class="form-group">
                         <label>小時 *</label>
-                        <input type="number" class="service-hours" min="0.5" step="0.5" value="1" required>
+                        <input type="number" class="service-hours" min="0.01" step="any" value="1" required>
                     </div>
                     <div class="form-group">
                         <label>單價 (HKD/小時) *</label>
@@ -2109,7 +2393,12 @@ function doPost(e) {
         }
 
         function resetQuotationForm() {
+            documentDrafts.quote = null;
             document.getElementById('quotation-form').reset();
+            document.getElementById('quote-project').value = '';
+            document.getElementById('quote-project').dataset.previousValue = '';
+            document.getElementById('quote-number').value = '';
+            handleServiceNameChange(document.querySelector('.service-name'));
             // Keep only one service item
             const container = document.getElementById('service-items');
             const items = container.querySelectorAll('.service-item');
@@ -2131,6 +2420,8 @@ function doPost(e) {
         }
 
         function getQuotationData() {
+            const metadata = quotationProjectMetadata('quote');
+            if (!metadata) return null;
             const form = document.getElementById('quotation-form');
             if (!form.checkValidity()) {
                 form.reportValidity();
@@ -2159,7 +2450,8 @@ function doPost(e) {
             });
             
             return {
-                quoteNumber: document.getElementById('quote-number').value,
+                ...metadata,
+                quoteNumber: document.getElementById('quote-number').value.trim(),
                 quoteDate: document.getElementById('quote-date').value,
                 customerName: document.getElementById('customer-name').value,
                 customerPhone: document.getElementById('customer-phone').value,
@@ -2180,10 +2472,7 @@ function doPost(e) {
             const data = getQuotationData();
             if (!data) return;
             
-            // Save quotation data to localStorage for invoice generation
-            const savedQuotations = JSON.parse(localStorage.getItem('savedQuotations') || '{}');
-            savedQuotations[data.quoteNumber] = data;
-            localStorage.setItem('savedQuotations', JSON.stringify(savedQuotations));
+            if (!saveDocumentQuotation(data, 'quotation-message')) return;
             
             // Helper function to format money with thousand separators
             const formatMoney = (amount) => {
@@ -2242,8 +2531,8 @@ function doPost(e) {
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="font-size: 14px; margin-bottom: 5px;"><strong>報價單編號:</strong> ${data.quoteNumber}</div>
-                            <div style="font-size: 14px;"><strong>日期:</strong> ${data.quoteDate}</div>
+                            <div style="font-size: 14px; margin-bottom: 5px;"><strong>報價單編號:</strong> ${esc(data.quoteNumber)}</div>
+                            <div style="font-size: 14px;"><strong>日期:</strong> ${esc(data.quoteDate)}</div>
                         </div>
                     </div>
                     
@@ -2251,10 +2540,11 @@ function doPost(e) {
                     <div style="margin-bottom: 30px;">
                         <h3 style="color: #5a4a3a; font-size: 18px; margin-bottom: 10px;">客戶資料 Bill To:</h3>
                         <div style="background: #f5e6d3; padding: 15px; border-radius: 10px;">
-                            <div style="margin-bottom: 5px;"><strong>客戶名稱:</strong> ${data.customerName}</div>
-                            <div style="margin-bottom: 5px;"><strong>聯絡電話:</strong> ${data.customerPhone}</div>
-                            ${data.customerEmail ? `<div style="margin-bottom: 5px;"><strong>電郵:</strong> ${data.customerEmail}</div>` : ''}
-                            ${data.customerAddress ? `<div><strong>地址:</strong> ${data.customerAddress}</div>` : ''}
+                            <div style="margin-bottom: 5px;"><strong>客戶名稱:</strong> ${esc(data.customerName)}</div>
+                            <div style="margin-bottom: 5px;"><strong>聯絡電話:</strong> ${esc(data.customerPhone)}</div>
+                            ${data.customerEmail ? `<div style="margin-bottom: 5px;"><strong>電郵:</strong> ${esc(data.customerEmail)}</div>` : ''}
+                            ${data.customerAddress ? `<div style="white-space: pre-wrap;"><strong>地址:</strong> ${esc(data.customerAddress)}</div>` : ''}
+                            ${data.projectName || data.bookingCode ? `<div style="margin-top: 5px; white-space: pre-wrap;"><strong>項目 Project:</strong> ${esc(data.projectName || '')}${data.bookingCode ? ` (${esc(data.bookingCode)})` : ''}</div>` : ''}
                         </div>
                     </div>
                     
@@ -2275,11 +2565,11 @@ function doPost(e) {
                                 ${data.services.map(service => `
                                     <tr>
                                         <td style="padding: 10px; border: 1px solid #ddd;">
-                                            ${service.name}
-                                            ${service.notes ? `<br><span style="font-size: 12px; color: #666;">(${service.notes})</span>` : ''}
+                                            <span style="white-space: pre-wrap;">${esc(service.name)}</span>
+                                            ${service.notes ? `<br><span style="font-size: 12px; color: #666; white-space: pre-wrap;">(${esc(service.notes)})</span>` : ''}
                                         </td>
-                                        <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${service.quantity}</td>
-                                        <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${service.hours}</td>
+                                        <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${esc(service.quantity)}</td>
+                                        <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${esc(service.hours)}</td>
                                         <td style="padding: 10px; text-align: right; border: 1px solid #ddd;">$${formatMoney(service.price)}</td>
                                         <td style="padding: 10px; text-align: right; border: 1px solid #ddd;">$${formatMoney(service.subtotal)}</td>
                                     </tr>
@@ -2325,7 +2615,7 @@ function doPost(e) {
                     ${data.paymentTerms ? `
                         <div style="margin-bottom: 15px;">
                             <h3 style="color: #5a4a3a; font-size: 14px; margin-bottom: 6px;">付款條款 Payment Terms:</h3>
-                            <div style="background: #f5e6d3; padding: 10px; border-radius: 8px; white-space: pre-wrap; font-size: 11px; line-height: 1.4;">${data.paymentTerms}</div>
+                            <div style="background: #f5e6d3; padding: 10px; border-radius: 8px; white-space: pre-wrap; font-size: 11px; line-height: 1.4;">${esc(data.paymentTerms)}</div>
                         </div>
                     ` : ''}
                     
@@ -2333,7 +2623,7 @@ function doPost(e) {
                     ${data.quoteNotes ? `
                         <div style="margin-bottom: 15px;">
                             <h3 style="color: #5a4a3a; font-size: 14px; margin-bottom: 6px;">備註 Notes:</h3>
-                            <div style="background: #f5e6d3; padding: 10px; border-radius: 8px; white-space: pre-wrap; font-size: 11px; line-height: 1.4;">${data.quoteNotes}</div>
+                            <div style="background: #f5e6d3; padding: 10px; border-radius: 8px; white-space: pre-wrap; font-size: 11px; line-height: 1.4;">${esc(data.quoteNotes)}</div>
                         </div>
                     ` : ''}
                     
@@ -2420,24 +2710,32 @@ function doPost(e) {
         }
 
         // Invoice Functions
+        function getInvoiceQuotation() {
+            const number = document.getElementById('invoice-quote-number').value.trim();
+            try {
+                const saved = readSavedQuotations();
+                const data = Object.hasOwn(saved, number) ? saved[number] : null;
+                if (!data || !Array.isArray(data.services)) {
+                    showMessage('invoice-message', '找不到此報價單，請先在報價單或簡易報價分頁選擇項目並匯出 PDF。', 'error');
+                    return null;
+                }
+                return quotationMatchesProject('invoice', data) ? data : null;
+            } catch (error) {
+                showMessage('invoice-message', '無法讀取本機報價單，請檢查瀏覽器儲存資料。', 'error');
+                return null;
+            }
+        }
+
         function loadQuotationForInvoice() {
-            const quoteNum = document.getElementById('invoice-quote-number').value.trim();
-            if (!quoteNum) {
-                showMessage('invoice-message', '請輸入報價單編號', 'error');
-                return;
-            }
-            const saved = JSON.parse(localStorage.getItem('savedQuotations') || '{}');
-            const data = saved[quoteNum];
-            if (!data) {
-                showMessage('invoice-message', '找不到此報價單編號，請先在報價單或簡易報價分頁生成 PDF', 'error');
-                document.getElementById('invoice-preview').style.display = 'none';
-                return;
-            }
+            document.getElementById('invoice-preview').style.display = 'none';
+            const data = getInvoiceQuotation();
+            if (!data) return;
             document.getElementById('invoice-preview').style.display = 'block';
             document.getElementById('invoice-preview-content').innerHTML = `
-                <div><strong>客戶：</strong>${data.customerName}</div>
-                <div><strong>電話：</strong>${data.customerPhone}</div>
-                <div><strong>服務：</strong>${data.services.map(s => s.name).join(', ')}</div>
+                ${data.projectName ? `<div><strong>項目：</strong>${esc(data.projectName)} · ${esc(data.bookingCode)}</div>` : ''}
+                <div><strong>客戶：</strong>${esc(data.customerName)}</div>
+                <div><strong>電話：</strong>${esc(data.customerPhone)}</div>
+                <div><strong>服務：</strong>${esc(data.services.map(s => s.name).join(', '))}</div>
                 <div><strong>總金額：</strong>HKD ${parseFloat(data.totalAmount).toFixed(2)}</div>
             `;
             showMessage('invoice-message', '報價單資料已載入', 'success');
@@ -2453,12 +2751,8 @@ function doPost(e) {
                 showMessage('invoice-message', '請填寫報價單編號及 Invoice 日期', 'error');
                 return;
             }
-            const saved = JSON.parse(localStorage.getItem('savedQuotations') || '{}');
-            const data = saved[quoteNum];
-            if (!data) {
-                showMessage('invoice-message', '找不到此報價單編號', 'error');
-                return;
-            }
+            const data = getInvoiceQuotation();
+            if (!data) return;
             
             const invoiceNumber = 'INV' + quoteNum.replace('Q', '');
             
@@ -2466,16 +2760,16 @@ function doPost(e) {
             const hasHours = data.services.some(s => s.hours !== undefined && s.hours !== null && s.hours !== '');
             const servicesRows = hasHours ? data.services.map(s => `
                 <tr>
-                    <td style="padding:10px;border:1px solid #ddd;">${s.name}${s.notes ? `<br><span style="font-size:12px;color:#666;">(${s.notes})</span>` : ''}</td>
-                    <td style="padding:10px;text-align:center;border:1px solid #ddd;">${s.quantity}</td>
-                    <td style="padding:10px;text-align:center;border:1px solid #ddd;">${s.hours}</td>
+                    <td style="padding:10px;border:1px solid #ddd;"><span style="white-space:pre-wrap;">${esc(s.name)}</span>${s.notes ? `<br><span style="font-size:12px;color:#666;white-space:pre-wrap;">(${esc(s.notes)})</span>` : ''}</td>
+                    <td style="padding:10px;text-align:center;border:1px solid #ddd;">${esc(s.quantity)}</td>
+                    <td style="padding:10px;text-align:center;border:1px solid #ddd;">${esc(s.hours)}</td>
                     <td style="padding:10px;text-align:right;border:1px solid #ddd;">${formatMoney(s.price)}</td>
                     <td style="padding:10px;text-align:right;border:1px solid #ddd;">${formatMoney(s.subtotal)}</td>
                 </tr>
             `).join('') : data.services.map(s => `
                 <tr>
-                    <td style="padding:10px;border:1px solid #ddd;">${s.name}${s.notes ? `<br><span style="font-size:12px;color:#666;">(${s.notes})</span>` : ''}</td>
-                    <td style="padding:10px;text-align:center;border:1px solid #ddd;">${s.quantity}</td>
+                    <td style="padding:10px;border:1px solid #ddd;"><span style="white-space:pre-wrap;">${esc(s.name)}</span>${s.notes ? `<br><span style="font-size:12px;color:#666;white-space:pre-wrap;">(${esc(s.notes)})</span>` : ''}</td>
+                    <td style="padding:10px;text-align:center;border:1px solid #ddd;">${esc(s.quantity)}</td>
                     <td style="padding:10px;text-align:right;border:1px solid #ddd;">${formatMoney(s.price)}</td>
                     <td style="padding:10px;text-align:right;border:1px solid #ddd;">${formatMoney(s.subtotal)}</td>
                 </tr>
@@ -2530,18 +2824,19 @@ function doPost(e) {
                             </div>
                         </div>
                         <div style="text-align:right;">
-                            <div style="font-size:14px;margin-bottom:5px;"><strong>Invoice No.:</strong> ${invoiceNumber}</div>
-                            <div style="font-size:14px;margin-bottom:5px;"><strong>日期:</strong> ${invoiceDate}</div>
-                            <div style="font-size:14px;"><strong>報價單編號:</strong> ${quoteNum}</div>
+                            <div style="font-size:14px;margin-bottom:5px;"><strong>Invoice No.:</strong> ${esc(invoiceNumber)}</div>
+                            <div style="font-size:14px;margin-bottom:5px;"><strong>日期:</strong> ${esc(invoiceDate)}</div>
+                            <div style="font-size:14px;"><strong>報價單編號:</strong> ${esc(quoteNum)}</div>
                         </div>
                     </div>
                     <div style="margin-bottom:30px;">
                         <h3 style="color:#5a4a3a;font-size:18px;margin-bottom:10px;">客戶資料 Bill To:</h3>
                         <div style="background:#f5e6d3;padding:15px;border-radius:10px;">
-                            <div style="margin-bottom:5px;"><strong>客戶名稱:</strong> ${data.customerName}</div>
-                            <div style="margin-bottom:5px;"><strong>聯絡電話:</strong> ${data.customerPhone}</div>
-                            ${data.customerEmail ? `<div style="margin-bottom:5px;"><strong>電郵:</strong> ${data.customerEmail}</div>` : ''}
-                            ${data.customerAddress ? `<div><strong>地址:</strong> ${data.customerAddress}</div>` : ''}
+                            <div style="margin-bottom:5px;"><strong>客戶名稱:</strong> ${esc(data.customerName)}</div>
+                            <div style="margin-bottom:5px;"><strong>聯絡電話:</strong> ${esc(data.customerPhone)}</div>
+                            ${data.customerEmail ? `<div style="margin-bottom:5px;"><strong>電郵:</strong> ${esc(data.customerEmail)}</div>` : ''}
+                            ${data.customerAddress ? `<div style="white-space:pre-wrap;"><strong>地址:</strong> ${esc(data.customerAddress)}</div>` : ''}
+                            ${data.projectName || data.bookingCode ? `<div style="margin-top:5px;white-space:pre-wrap;"><strong>項目 Project:</strong> ${esc(data.projectName || '')}${data.bookingCode ? ` (${esc(data.bookingCode)})` : ''}</div>` : ''}
                         </div>
                     </div>
                     <div style="margin-bottom:30px;">
@@ -2566,9 +2861,9 @@ function doPost(e) {
                         </div>
                     </div>
                     <div style="margin-bottom:15px;">
-                        <div style="font-size:13px;color:#5a4a3a;"><strong>付款方式:</strong> ${paymentMethod}</div>
+                        <div style="font-size:13px;color:#5a4a3a;"><strong>付款方式:</strong> ${esc(paymentMethod)}</div>
                     </div>
-                    ${invoiceNotes ? `<div style="margin-bottom:15px;"><h3 style="color:#5a4a3a;font-size:14px;margin-bottom:6px;">備註 Notes:</h3><div style="background:#f5e6d3;padding:10px;border-radius:8px;white-space:pre-wrap;font-size:11px;">${invoiceNotes}</div></div>` : ''}
+                    ${invoiceNotes ? `<div style="margin-bottom:15px;"><h3 style="color:#5a4a3a;font-size:14px;margin-bottom:6px;">備註 Notes:</h3><div style="background:#f5e6d3;padding:10px;border-radius:8px;white-space:pre-wrap;font-size:11px;">${esc(invoiceNotes)}</div></div>` : ''}
                     <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center;padding-top:15px;">
                         <div style="text-align:center;font-size:11px;color:#999;flex:1;">
                             <div style="margin-bottom:5px;"><strong>LaLaRef - 專業籃球球證/裁判服務</strong></div>
@@ -2628,77 +2923,78 @@ function doPost(e) {
             const randomNum = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
             el.value = 'REC' + dateStr + randomNum;
             document.getElementById('receipt-date').valueAsDate = new Date();
+            if (documentDrafts.receipt === null) documentDrafts.receipt = documentDraftSnapshot('receipt');
         }
 
-        function loadDataForReceipt() {
+        function clearReceiptData() {
+            receiptDataSource = '';
+            ['customer-name','customer-phone','customer-email','amount','services-summary','notes'].forEach(field => { document.getElementById('receipt-'+field).value = ''; });
+            document.getElementById('receipt-preview').style.display = 'none';
+        }
+
+        function fillReceiptBooking(booking) {
+            clearReceiptData();
+            receiptDataSource = sheetUrl;
+            document.getElementById('receipt-customer-name').value = booking.contactName || '';
+            document.getElementById('receipt-customer-phone').value = booking.contactPhone || '';
+            document.getElementById('receipt-customer-email').value = booking.contactEmail || '';
+            const amount = booking.totalCost;
+            document.getElementById('receipt-amount').value = amount != null && amount !== '' && Number.isFinite(Number(amount)) && Number(amount) >= 0 ? amount : '';
+            document.getElementById('receipt-services-summary').value = bookingProjectSummary(booking)+'\n'+(booking.matchType || '籃球')+' 球證/裁判服務 x'+(booking.refereeCount ?? '待確認');
+            document.getElementById('receipt-preview').style.display = 'block';
+            document.getElementById('receipt-preview-content').textContent = '項目：'+bookingProjectName(booking)+' · 客戶：'+(booking.contactName || '待填寫');
+            showMessage('receipt-message', '已載入預訂資料；請核實實際已收金額及付款方式。', 'success');
+        }
+
+        async function loadDataForReceipt() {
+            const version = ++receiptLoadVersion;
             const refNum = document.getElementById('receipt-ref-number').value.trim();
-            if (!refNum) {
-                showMessage('receipt-message', '請輸入報價單或預訂編號', 'error');
-                return;
-            }
-            // Try quotation data first
-            const saved = JSON.parse(localStorage.getItem('savedQuotations') || '{}');
-            const qData = saved[refNum];
-            if (qData) {
-                document.getElementById('receipt-customer-name').value = qData.customerName || '';
-                document.getElementById('receipt-customer-phone').value = qData.customerPhone || '';
-                document.getElementById('receipt-customer-email').value = qData.customerEmail || '';
-                document.getElementById('receipt-amount').value = qData.totalAmount || '';
-                const summary = qData.services.map(s => `${s.name} x${s.quantity} 球證/裁判 x${s.hours} 小時`).join('\n');
-                document.getElementById('receipt-services-summary').value = summary;
-                document.getElementById('receipt-preview').style.display = 'block';
-                document.getElementById('receipt-preview-content').innerHTML =
-                    `<div><strong>客戶：</strong>${esc(qData.customerName)}</div><div><strong>電話：</strong>${esc(qData.customerPhone)}</div><div><strong>總金額：</strong>HKD ${parseFloat(qData.totalAmount).toFixed(2)}</div>`;
-                showMessage('receipt-message', '報價單資料已載入', 'success');
-                return;
-            }
-            // Try cached booking data
-            if (lastBookingsData) {
-                const booking = lastBookingsData.find(b => String(b.code).trim() === refNum);
-                if (booking) {
-                    const edits = JSON.parse(localStorage.getItem('bookingEdits') || '{}')[refNum] || {};
-                    document.getElementById('receipt-customer-name').value = booking.contactName || '';
-                    document.getElementById('receipt-customer-phone').value = booking.contactPhone || '';
-                    document.getElementById('receipt-customer-email').value = booking.contactEmail || '';
-                    const pd = (JSON.parse(localStorage.getItem('bookingProfitData') || '{}'))[refNum] || {};
-                    if (pd.totalCost) document.getElementById('receipt-amount').value = pd.totalCost;
-                    const venue = edits.venue || booking.venue || '';
-                    document.getElementById('receipt-services-summary').value =
-                        `${booking.matchType || ''} 球證/裁判服務 x${booking.refereeCount || ''} 球證/裁判\n日期：${formatDate(booking.matchDate)} ${formatTime(booking.matchTime)}-${formatTime(booking.matchEndTime)}\n地點：${venue}`;
+            const key = document.getElementById('receipt-project').value;
+            const requestSource = sheetUrl;
+            clearReceiptData();
+            if (!refNum) { showMessage('receipt-message', '請輸入報價單或預訂編號', 'error'); return; }
+            try {
+                const saved = readSavedQuotations();
+                const data = Object.hasOwn(saved, refNum) ? saved[refNum] : null;
+                if (data) {
+                    if (!quotationMatchesProject('receipt', data)) return;
+                    receiptDataSource = data.bookingSource || '';
+                    document.getElementById('receipt-customer-name').value = data.customerName || '';
+                    document.getElementById('receipt-customer-phone').value = data.customerPhone || '';
+                    document.getElementById('receipt-customer-email').value = data.customerEmail || '';
+                    document.getElementById('receipt-amount').value = data.totalAmount ?? '';
+                    const services = data.services.map(s => s.name+' x'+s.quantity+(s.hours != null && s.hours !== '' ? ' x'+s.hours+' 小時' : '')).join('\n');
+                    document.getElementById('receipt-services-summary').value = (data.projectName ? '項目：'+data.projectName+'\n預訂編號：'+data.bookingCode+'\n' : '')+services;
                     document.getElementById('receipt-preview').style.display = 'block';
-                    document.getElementById('receipt-preview-content').innerHTML =
-                        `<div><strong>客戶：</strong>${esc(booking.contactName)}</div><div><strong>電話：</strong>${esc(booking.contactPhone)}</div><div><strong>日期：</strong>${formatDate(booking.matchDate)}</div>`;
-                    showMessage('receipt-message', '預訂資料已載入', 'success');
+                    document.getElementById('receipt-preview-content').textContent = '客戶：'+(data.customerName || '')+' · 報價總額：HK$ '+Number(data.totalAmount || 0).toFixed(2);
+                    showMessage('receipt-message', '已載入報價資料；請核實實際已收金額及付款方式。', 'success');
                     return;
                 }
+                if (key && key !== documentProjectKey(sheetUrl, refNum)) { showMessage('receipt-message', '此預訂編號不屬於所選項目。', 'error'); return; }
+                const cached = lastBookingsSource === sheetUrl ? lastBookingsData?.find(b => String(b.code).trim() === refNum) : null;
+                if (cached) { fillReceiptBooking(cached); return; }
+                if (!sheetUrl) throw new Error('尚未設定 Google Sheets');
+                const url = new URL(sheetUrl);
+                url.searchParams.set('code', refNum);
+                const response = await fetch(url.href, {cache:'no-store', signal:AbortSignal.timeout(15000)});
+                if (!response.ok) throw new Error('預訂載入失敗');
+                const result = await response.json();
+                if (version !== receiptLoadVersion || requestSource !== sheetUrl || key !== document.getElementById('receipt-project').value || refNum !== document.getElementById('receipt-ref-number').value.trim()) return;
+                if (result.success !== true || String(result.booking?.code || '').trim() !== refNum) throw new Error('找不到此預訂編號');
+                fillReceiptBooking(result.booking);
+            } catch (error) {
+                if (version === receiptLoadVersion && requestSource === sheetUrl) showMessage('receipt-message', '載入失敗，請核對編號或手動填寫資料。', 'error');
             }
-            // Fetch from sheet if it looks like a booking code
-            if (sheetUrl) {
-                fetch(sheetUrl + '?code=' + encodeURIComponent(refNum))
-                    .then(r => r.json())
-                    .then(result => {
-                        if (result.success && result.booking) {
-                            const b = result.booking;
-                            document.getElementById('receipt-customer-name').value = b.contactName || '';
-                            document.getElementById('receipt-customer-phone').value = b.contactPhone || '';
-                            document.getElementById('receipt-customer-email').value = b.contactEmail || '';
-                            if (b.totalCost) document.getElementById('receipt-amount').value = b.totalCost;
-                            document.getElementById('receipt-services-summary').value =
-                                `${b.matchType || ''} 球證/裁判服務 x${b.refereeCount || ''} 球證/裁判\n日期：${formatDate(b.matchDate)} ${formatTime(b.matchTime)}-${formatTime(b.matchEndTime)}\n地點：${b.venue || ''}`;
-                            document.getElementById('receipt-preview').style.display = 'block';
-                            document.getElementById('receipt-preview-content').innerHTML =
-                                `<div><strong>客戶：</strong>${esc(b.contactName)}</div><div><strong>電話：</strong>${esc(b.contactPhone)}</div><div><strong>日期：</strong>${formatDate(b.matchDate)}</div>`;
-                            showMessage('receipt-message', '預訂資料已載入', 'success');
-                        } else {
-                            showMessage('receipt-message', '找不到此編號，請手動填寫資料', 'error');
-                        }
-                    }).catch(() => showMessage('receipt-message', '載入失敗，請手動填寫資料', 'error'));
-                return;
-            }
-            showMessage('receipt-message', '找不到此編號，請手動填寫資料', 'error');
         }
 
         function resetReceiptForm() {
+            documentDrafts.receipt = null;
+            receiptDataSource = '';
+            receiptLoadVersion++;
+            document.getElementById('receipt-project').value = '';
+            document.getElementById('receipt-project').dataset.previousValue = '';
+            document.getElementById('receipt-saved-quote').value = '';
+            refreshDocumentProjects();
             ['receipt-ref-number','receipt-customer-name','receipt-customer-phone','receipt-customer-email',
              'receipt-amount','receipt-services-summary','receipt-notes'].forEach(id => {
                 document.getElementById(id).value = '';
@@ -2719,6 +3015,23 @@ function doPost(e) {
             const servicesSummary = document.getElementById('receipt-services-summary').value.trim();
             const notes = document.getElementById('receipt-notes').value.trim();
             const refNum = document.getElementById('receipt-ref-number').value.trim();
+            const projectKey = document.getElementById('receipt-project').value;
+            if (receiptDataSource && receiptDataSource !== sheetUrl) {
+                showMessage('receipt-message', '已載入資料屬於另一個 Google Sheets 來源，請重新選擇項目或重設收據。', 'error');
+                return;
+            }
+            if (projectKey || refNum) {
+                try {
+                    const item = documentProjects.get(projectKey);
+                    const saved = readSavedQuotations();
+                    const quote = Object.hasOwn(saved, refNum) ? saved[refNum] : null;
+                    if (quote && !quotationMatchesProject('receipt', quote)) return;
+                    if (projectKey && (!item || item.bookingSource !== sheetUrl || (!quote && refNum !== item.bookingCode))) {
+                        showMessage('receipt-message', '請選擇與項目相符的預訂或報價單，並重新載入資料。', 'error');
+                        return;
+                    }
+                } catch (error) { showMessage('receipt-message', '無法核對報價單資料。', 'error'); return; }
+            }
 
             if (!receiptNumber || !receiptDate || !customerName || !amount) {
                 showMessage('receipt-message', '請填寫所有必填項目（收據編號、日期、客戶名稱、金額）', 'error');
@@ -2760,9 +3073,9 @@ function doPost(e) {
                             </div>
                         </div>
                         <div style="text-align:right;">
-                            <div style="font-size:14px;margin-bottom:5px;"><strong>收據編號:</strong> ${receiptNumber}</div>
-                            <div style="font-size:14px;margin-bottom:5px;"><strong>日期:</strong> ${receiptDate}</div>
-                            ${refNum ? `<div style="font-size:14px;"><strong>參考編號:</strong> ${refNum}</div>` : ''}
+                            <div style="font-size:14px;margin-bottom:5px;"><strong>收據編號:</strong> ${esc(receiptNumber)}</div>
+                            <div style="font-size:14px;margin-bottom:5px;"><strong>日期:</strong> ${esc(receiptDate)}</div>
+                            ${refNum ? `<div style="font-size:14px;"><strong>參考編號:</strong> ${esc(refNum)}</div>` : ''}
                         </div>
                     </div>
 
@@ -2778,9 +3091,9 @@ function doPost(e) {
                     <div style="margin-bottom:30px;">
                         <h3 style="color:#5a4a3a;font-size:18px;margin-bottom:10px;">收款自 Received From:</h3>
                         <div style="background:#f5e6d3;padding:15px;border-radius:10px;">
-                            <div style="margin-bottom:5px;"><strong>客戶名稱:</strong> ${customerName}</div>
-                            ${customerPhone ? `<div style="margin-bottom:5px;"><strong>聯絡電話:</strong> ${customerPhone}</div>` : ''}
-                            ${customerEmail ? `<div><strong>電郵:</strong> ${customerEmail}</div>` : ''}
+                            <div style="margin-bottom:5px;"><strong>客戶名稱:</strong> ${esc(customerName)}</div>
+                            ${customerPhone ? `<div style="margin-bottom:5px;"><strong>聯絡電話:</strong> ${esc(customerPhone)}</div>` : ''}
+                            ${customerEmail ? `<div><strong>電郵:</strong> ${esc(customerEmail)}</div>` : ''}
                         </div>
                     </div>
 
@@ -2788,7 +3101,7 @@ function doPost(e) {
                     ${servicesSummary ? `
                     <div style="margin-bottom:30px;">
                         <h3 style="color:#5a4a3a;font-size:18px;margin-bottom:10px;">服務詳情 Service Details:</h3>
-                        <div style="background:#f5e6d3;padding:15px;border-radius:10px;white-space:pre-wrap;line-height:1.7;">${servicesSummary}</div>
+                        <div style="background:#f5e6d3;padding:15px;border-radius:10px;white-space:pre-wrap;line-height:1.7;">${esc(servicesSummary)}</div>
                     </div>
                     ` : ''}
 
@@ -2798,7 +3111,7 @@ function doPost(e) {
                             <div style="width:370px;">
                                 <div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #ddd;">
                                     <span><strong>付款方式 Payment Method:</strong></span>
-                                    <span>${paymentMethod}</span>
+                                    <span>${esc(paymentMethod)}</span>
                                 </div>
                                 <div style="display:flex;justify-content:space-between;padding:15px;background:#25d366;color:white;font-size:18px;font-weight:bold;border-radius:8px;margin-top:10px;">
                                     <span>已收金額 Amount Received:</span>
@@ -2812,7 +3125,7 @@ function doPost(e) {
                     ${notes ? `
                     <div style="margin-bottom:20px;">
                         <h3 style="color:#5a4a3a;font-size:14px;margin-bottom:6px;">備註 Notes:</h3>
-                        <div style="background:#f5e6d3;padding:10px;border-radius:8px;white-space:pre-wrap;font-size:11px;">${notes}</div>
+                        <div style="background:#f5e6d3;padding:10px;border-radius:8px;white-space:pre-wrap;font-size:11px;">${esc(notes)}</div>
                     </div>
                     ` : ''}
 
@@ -3005,6 +3318,7 @@ LaLaRef 急單王
             const dateEl = document.getElementById('sq-date');
             if (dateEl && !dateEl.value) dateEl.valueAsDate = new Date();
             sqUpdateCalculations();
+            if (documentDrafts.sq === null) documentDrafts.sq = documentDraftSnapshot('sq');
         }
 
         function sqHandleServiceNameChange(selectElement) {
@@ -3103,7 +3417,11 @@ LaLaRef 急單王
         }
 
         function sqResetForm() {
+            documentDrafts.sq = null;
             document.getElementById('simple-quotation-form').reset();
+            document.getElementById('sq-project').value = '';
+            document.getElementById('sq-project').dataset.previousValue = '';
+            sqHandleServiceNameChange(document.querySelector('.sq-service-name'));
             const container = document.getElementById('sq-service-items');
             const items = container.querySelectorAll('.sq-service-item');
             for (let i = 1; i < items.length; i++) items[i].remove();
@@ -3112,6 +3430,8 @@ LaLaRef 急單王
         }
 
         function sqGetData() {
+            const metadata = quotationProjectMetadata('sq');
+            if (!metadata) return null;
             const form = document.getElementById('simple-quotation-form');
             if (!form.checkValidity()) { form.reportValidity(); return null; }
             const services = [];
@@ -3128,7 +3448,8 @@ LaLaRef 急單王
                 });
             });
             return {
-                quoteNumber: document.getElementById('sq-number').value,
+                ...metadata,
+                quoteNumber: document.getElementById('sq-number').value.trim(),
                 quoteDate: document.getElementById('sq-date').value,
                 customerName: document.getElementById('sq-customer-name').value,
                 customerPhone: document.getElementById('sq-customer-phone').value,
@@ -3149,9 +3470,7 @@ LaLaRef 急單王
             const data = sqGetData();
             if (!data) return;
 
-            const savedQuotations = JSON.parse(localStorage.getItem('savedQuotations') || '{}');
-            savedQuotations[data.quoteNumber] = data;
-            localStorage.setItem('savedQuotations', JSON.stringify(savedQuotations));
+            if (!saveDocumentQuotation(data, 'simple-quotation-message')) return;
 
             const formatMoney = (a) => parseFloat(a).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
@@ -3190,18 +3509,19 @@ LaLaRef 急單王
                             </div>
                         </div>
                         <div style="text-align:right;">
-                            <div style="font-size:14px;margin-bottom:5px;"><strong>報價單編號:</strong> ${data.quoteNumber}</div>
-                            <div style="font-size:14px;"><strong>日期:</strong> ${data.quoteDate}</div>
+                            <div style="font-size:14px;margin-bottom:5px;"><strong>報價單編號:</strong> ${esc(data.quoteNumber)}</div>
+                            <div style="font-size:14px;"><strong>日期:</strong> ${esc(data.quoteDate)}</div>
                         </div>
                     </div>
 
                     <div style="margin-bottom:30px;">
                         <h3 style="color:#5a4a3a;font-size:18px;margin-bottom:10px;">客戶資料 Bill To:</h3>
                         <div style="background:#f5e6d3;padding:15px;border-radius:10px;">
-                            <div style="margin-bottom:5px;"><strong>客戶名稱:</strong> ${data.customerName}</div>
-                            <div style="margin-bottom:5px;"><strong>聯絡電話:</strong> ${data.customerPhone}</div>
-                            ${data.customerEmail ? `<div style="margin-bottom:5px;"><strong>電郵:</strong> ${data.customerEmail}</div>` : ''}
-                            ${data.customerAddress ? `<div><strong>地址:</strong> ${data.customerAddress}</div>` : ''}
+                            <div style="margin-bottom:5px;"><strong>客戶名稱:</strong> ${esc(data.customerName)}</div>
+                            <div style="margin-bottom:5px;"><strong>聯絡電話:</strong> ${esc(data.customerPhone)}</div>
+                            ${data.customerEmail ? `<div style="margin-bottom:5px;"><strong>電郵:</strong> ${esc(data.customerEmail)}</div>` : ''}
+                            ${data.customerAddress ? `<div style="white-space:pre-wrap;"><strong>地址:</strong> ${esc(data.customerAddress)}</div>` : ''}
+                            ${data.projectName || data.bookingCode ? `<div style="margin-top:5px;white-space:pre-wrap;"><strong>項目 Project:</strong> ${esc(data.projectName || '')}${data.bookingCode ? ` (${esc(data.bookingCode)})` : ''}</div>` : ''}
                         </div>
                     </div>
 
@@ -3220,10 +3540,10 @@ LaLaRef 急單王
                                 ${data.services.map(s => `
                                     <tr>
                                         <td style="padding:10px;border:1px solid #ddd;">
-                                            ${s.name}
-                                            ${s.notes ? `<br><span style="font-size:12px;color:#666;">(${s.notes})</span>` : ''}
+                                            <span style="white-space:pre-wrap;">${esc(s.name)}</span>
+                                            ${s.notes ? `<br><span style="font-size:12px;color:#666;white-space:pre-wrap;">(${esc(s.notes)})</span>` : ''}
                                         </td>
-                                        <td style="padding:10px;text-align:center;border:1px solid #ddd;">${s.quantity}</td>
+                                        <td style="padding:10px;text-align:center;border:1px solid #ddd;">${esc(s.quantity)}</td>
                                         <td style="padding:10px;text-align:right;border:1px solid #ddd;">$${formatMoney(s.price)}</td>
                                         <td style="padding:10px;text-align:right;border:1px solid #ddd;">$${formatMoney(s.subtotal)}</td>
                                     </tr>
@@ -3264,14 +3584,14 @@ LaLaRef 急單王
                     ${data.paymentTerms ? `
                         <div style="margin-bottom:15px;">
                             <h3 style="color:#5a4a3a;font-size:14px;margin-bottom:6px;">付款條款 Payment Terms:</h3>
-                            <div style="background:#f5e6d3;padding:10px;border-radius:8px;white-space:pre-wrap;font-size:11px;line-height:1.4;">${data.paymentTerms}</div>
+                            <div style="background:#f5e6d3;padding:10px;border-radius:8px;white-space:pre-wrap;font-size:11px;line-height:1.4;">${esc(data.paymentTerms)}</div>
                         </div>
                     ` : ''}
 
                     ${data.quoteNotes ? `
                         <div style="margin-bottom:15px;">
                             <h3 style="color:#5a4a3a;font-size:14px;margin-bottom:6px;">備註 Notes:</h3>
-                            <div style="background:#f5e6d3;padding:10px;border-radius:8px;white-space:pre-wrap;font-size:11px;line-height:1.4;">${data.quoteNotes}</div>
+                            <div style="background:#f5e6d3;padding:10px;border-radius:8px;white-space:pre-wrap;font-size:11px;line-height:1.4;">${esc(data.quoteNotes)}</div>
                         </div>
                     ` : ''}
 
