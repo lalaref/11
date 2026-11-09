@@ -258,6 +258,7 @@ body { margin: 16px; }
   async function cloudSaveState(force) {
     if (!cloudToken || cloudBusy) { if (!cloudBusy) pendingSave = true; return; }
     const snapshot = JSON.stringify({staff,projects,assignments,counter});
+    console.log('[DEBUG] Saving state:', {staff: staff.length, projects: projects.length, assignments: assignments.length, counter});
     if (!force && snapshot === lastSaved) { pendingSave = null; return; }
     cloudBusy = true;
     pendingSave = null;
@@ -283,6 +284,7 @@ body { margin: 16px; }
       if (!response.ok) throw new Error('伺服器回應失敗');
       const result = await response.json();
       if (result.success === true) {
+        console.log('[DEBUG] Loaded state:', {staff: result.state.staff.length, projects: result.state.projects.length, assignments: result.state.assignments.length});
         staff.length = 0; staff.push(...result.state.staff);
         projects.length = 0; projects.push(...result.state.projects);
         assignments.length = 0; assignments.push(...result.state.assignments);
