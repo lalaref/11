@@ -583,7 +583,7 @@ body { margin: 16px; }
   function renderWhatsApp() {
     const item = task(waId), member = person(item.staff), event = project(item.project);
     el('wa-recipient').textContent = '收件人：'+member.name+' · '+(member.phone || '示範人員尚未填電話，正式發送前必須補填');
-    el('wa-text').value = member.name+'，你好！\n\nLaLaRef 工作提醒\n項目：'+event.name+'\n崗位：'+item.role+'\n工作開始：'+date(item.start)+' '+item.start.slice(11)+'\n工作結束：'+date(item.end)+' '+item.end.slice(11)+'\n地點：'+event.venue+'\n請於工作開始前 15 分鐘到場準備。\n'+(item.breakMinutes?'不計薪休息：'+item.breakMinutes+' 分鐘\n':'')+(el('include-pay').checked?'本次時薪：'+money(item.rate)+'\n預計工作報酬：'+money(amount(item))+'（以核實工時為準）\n':'')+'\n收到後請回覆「確認出席」，如有問題請盡早通知。謝謝！';
+    el('wa-text').value = member.name+'，你好！\n\nLaLaRef 工作提醒\n崗位：'+item.role+'\n工作開始：'+date(item.start)+' '+item.start.slice(11)+'\n工作結束：'+date(item.end)+' '+item.end.slice(11)+'\n地點：'+event.venue+'\n請於工作開始前 15 分鐘到場準備。\n\n提提你準時出席，收到後請回覆「OK」，如有問題請盡早通知。謝謝！';
   }
   el('include-pay').onchange = renderWhatsApp;
   el('close-wa').onclick = () => { el('wa-preview').hidden = true; waId = null; };
