@@ -257,7 +257,8 @@ body { margin: 16px; }
   }
   async function cloudSaveState(force) {
     if (!cloudToken || cloudBusy) { if (!cloudBusy) pendingSave = true; return; }
-    const snapshot = JSON.stringify({staff,projects,assignments,counter});
+    const cleanProjects = projects.map(({status, ...rest}) => rest);
+    const snapshot = JSON.stringify({staff,projects:cleanProjects,assignments,counter});
     console.log('[DEBUG] Saving state:', {staff: staff.length, projects: projects.length, assignments: assignments.length, counter});
     if (projects.length > 0) console.log('[DEBUG] First project:', projects[0]);
     if (!force && snapshot === lastSaved) { pendingSave = null; return; }
@@ -265,7 +266,7 @@ body { margin: 16px; }
     pendingSave = null;
     const mutationId = crypto.randomUUID();
     try {
-      const response = await fetch(cloudSource,{method:'POST',body:JSON.stringify({action:'staffSave',token:cloudToken,baseRevision:cloudRevision,mutationId,state:{staff,projects,assignments,counter}}),signal:AbortSignal.timeout(15000)});
+      const response = await fetch(cloudSource,{method:'POST',body:JSON.stringify({action:'staffSave',token:cloudToken,baseRevision:cloudRevision,mutationId,state:{staff,projects:cleanProjects,assignments,counter}}),signal:AbortSignal.timeout(15000)});
       if (!response.ok) throw new Error('伺服器回應失敗');
       const result = await response.json();
       console.log('[DEBUG] Save response:', result);
@@ -534,6 +535,7 @@ body { margin: 16px; }
     try {
       const id = 'p'+(++counter);
       const item = {id,name,venue,start,end,refs,table,matchType,createdAt:new Date().toISOString(),bookingCode:newBookingCode(),bookingSync:'pending',bookingAttempted:false};
+      console.log('[DEBUG] Created project:', item);
       projects.push(item); selectedProject = id; viewingHistory = false;
       el('event-editor').hidden = true; el('assignment-editor').hidden = true; el('wa-preview').hidden = true; waId = null;
       renderAll();
