@@ -152,7 +152,11 @@ body { margin: 16px; }
       <p id="lr-wa-recipient" class="small"></p>
       <label class="checkbox"><input id="lr-include-pay" type="checkbox">通知中包含此人的時薪及預計薪金</label>
       <label>預填訊息<textarea id="lr-wa-text" rows="10" readonly></textarea></label>
-      <p class="note">正式版：按 WhatsApp → 開啟該人對話並預填訊息 → 由你按「送出」。此處只展示文字，不會聯絡任何人；開啟對話不代表已送出、已讀或已確認。</p>
+      <div class="actions" style="margin-top:12px;">
+        <button id="lr-wa-open" class="primary" type="button">開啟 WhatsApp 對話</button>
+        <button id="lr-wa-copy" type="button">複製訊息</button>
+      </div>
+      <p class="note">按「開啟 WhatsApp 對話」會開啟 WhatsApp 網頁版或應用程式，並預填訊息。你需要自行按「送出」。此操作不會自動發送訊息。</p>
     </div>
     <details id="lr-project-history">
       <summary id="lr-history-title">已完成 / 已取消項目</summary>
@@ -590,6 +594,24 @@ body { margin: 16px; }
   }
   el('include-pay').onchange = renderWhatsApp;
   el('close-wa').onclick = () => { el('wa-preview').hidden = true; waId = null; };
+  el('wa-open').onclick = () => {
+    if (!waId) return;
+    const item = task(waId), member = person(item.staff);
+    if (!member.phone) { flash('請先填寫工作人員的 WhatsApp 電話。'); return; }
+    const phone = member.phone.replace(/[^\d]/g, '');
+    const text = encodeURIComponent(el('wa-text').value);
+    window.open('https://wa.me/' + phone + '?text=' + text, '_blank');
+  };
+  el('wa-copy').onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(el('wa-text').value);
+      flash('訊息已複製到剪貼簿。');
+    } catch (error) {
+      el('wa-text').select();
+      document.execCommand('copy');
+      flash('訊息已複製到剪貼簿。');
+    }
+  };
   function openStaff(id) {
     editingStaff = id;
     const member = id ? person(id) : null;
