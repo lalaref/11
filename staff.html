@@ -259,6 +259,7 @@ body { margin: 16px; }
     if (!cloudToken || cloudBusy) { if (!cloudBusy) pendingSave = true; return; }
     const snapshot = JSON.stringify({staff,projects,assignments,counter});
     console.log('[DEBUG] Saving state:', {staff: staff.length, projects: projects.length, assignments: assignments.length, counter});
+    if (projects.length > 0) console.log('[DEBUG] First project:', projects[0]);
     if (!force && snapshot === lastSaved) { pendingSave = null; return; }
     cloudBusy = true;
     pendingSave = null;
