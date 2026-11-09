@@ -653,6 +653,7 @@ body { margin: 16px; }
     el('event-table').value = item.table;
     el('event-error').textContent = ''; el('event-editor').hidden = false; el('event-name').focus();
   }
+  function deleteProject(id) {
     const item = project(id);
     if (!item) return;
     const relatedAssignments = assignments.filter(a => a.project === id);
