@@ -82,8 +82,9 @@ body { margin: 16px; }
   </nav>
   <div id="lr-flash" role="status" aria-live="polite"></div>
   <section id="lr-pane-events" class="pane" role="tabpanel" aria-labelledby="lr-tab-events">
-    <div class="row"><label class="event-select">選擇籃球項目（未完成）<select id="lr-project-select"></select></label><div class="actions"><button id="lr-sync-bookings">同步預訂</button><button id="lr-new-event" class="primary">＋ 新增項目</button></div></div>
-    <p id="lr-sync-status" class="small" role="status" aria-live="polite">正在讀取預訂項目…</p>
+    <div class="row"><label class="event-select">選擇籃球項目（未完成）<select id="lr-project-select"></select></label><div class="actions"><button id="lr-new-event" class="primary">＋ 新增項目</button></div></div>
+    <p id="lr-sync-status" class="small" role="status" aria-live="polite">等待預訂管理頁同步項目。</p>
+    <p class="small">請在 <a href="booking-admin.html">預訂管理頁</a> 新增預訂或按「同步預訂至工作項目」；此頁只接收項目。同一瀏覽器及網站下可自動接收，不支援跨裝置推送。</p>
     <p class="small">按香港時間，項目結束後自動標記「已完成」並移至下方歷史紀錄，不再出現在分派選單。預訂更新不會改寫已有分派的工時及時薪，請另行核對。</p>
     <div id="lr-event-editor" class="form-area" hidden>
       <h3>新增籃球項目</h3>
@@ -180,7 +181,6 @@ body { margin: 16px; }
   const flash = text => { el('flash').textContent = text; };
   const stateKey = 'lalarefStaffState';
   const bookingCacheKey = 'lalarefStaffBookings';
-  const defaultSheetUrl = 'https://script.google.com/macros/s/AKfycbwObVDmTIBfRYm-zoQn2TYKGyryfjHqhF0sy_NMG6iou82XvjQ8dBwU3mi8335G2ikOfg/exec';
   let canSave = true;
   let saved = null;
   function storageError(message) {
@@ -222,10 +222,6 @@ body { margin: 16px; }
     try { localStorage.setItem(stateKey,next); lastSaved = next; }
     catch (error) { storageError('本次變更未能儲存。請勿關閉頁面，並檢查瀏覽器儲存空間及設定。'); }
   }
-  function bookingSource() {
-    try { return localStorage.getItem('sheetUrl') || defaultSheetUrl; }
-    catch (error) { return defaultSheetUrl; }
-  }
   function bookingDate(value) {
     if (typeof value !== 'string') return '';
     if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -266,49 +262,19 @@ body { margin: 16px; }
     }
     return [...new Set(skipped)];
   }
-  function importCachedBookings(source = bookingSource()) {
+  function receiveBookings() {
     try {
       const cache = JSON.parse(localStorage.getItem(bookingCacheKey) || 'null');
-      if (cache && cache.source === source && Array.isArray(cache.bookings)) {
-        importBookings(cache.bookings,source);
-        return true;
+      const source = localStorage.getItem('sheetUrl');
+      if (!cache || (source && cache.source !== source)) {
+        el('sync-status').textContent = '等待預訂管理頁同步項目，已有紀錄會保留。';
+        return;
       }
-    } catch (error) { el('sync-status').textContent = '預訂快取無法讀取，將重新同步 Google Sheets。'; }
-    return false;
-  }
-  let syncing = false;
-  async function syncBookings() {
-    if (syncing) return;
-    syncing = true;
-    el('sync-bookings').disabled = true;
-    const source = bookingSource();
-    const cached = importCachedBookings(source);
-    renderAll();
-    el('sync-status').textContent = cached ? '已讀取本機預訂快取，正在核對 Google Sheets…' : '正在同步 Google Sheets 預訂…';
-    const startedAt = Date.now();
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(),15000);
-    try {
-      const url = new URL(source);
-      if (url.protocol !== 'https:' || url.hostname !== 'script.google.com' || !/^\/macros\/s\/[^/]+\/exec$/.test(url.pathname)) throw new Error('請在預訂管理頁設定有效的 Google Apps Script 網址');
-      const response = await fetch(url.href,{signal:controller.signal,cache:'no-store'});
-      if (!response.ok) throw new Error('Google Sheets 回應失敗');
-      const data = await response.json();
-      if (!data || data.success !== true || !Array.isArray(data.bookings)) throw new Error('預訂資料格式不正確');
-      if (source !== bookingSource()) return;
-      const skipped = importBookings(data.bookings,source);
-      try {
-        const cache = JSON.parse(localStorage.getItem(bookingCacheKey) || 'null');
-        if (cache && cache.source === source && cache.updatedAt >= startedAt && Array.isArray(cache.bookings)) importBookings(cache.bookings,source);
-      } catch (error) { /* A failed cache must not invalidate a successful sheet read. */ }
-      renderAll();
-      el('sync-status').textContent = '已同步預訂 · '+hkTime.format(new Date())+'（香港時間）；每分鐘及返回頁面時自動更新。'+(skipped.length ? ' 未匯入 '+skipped.length+' 筆（'+skipped.join('、')+'）：請補齊日期、起止時間、地點及人數。' : '');
+      if (typeof cache.source !== 'string' || !cache.source || !Array.isArray(cache.bookings)) throw new Error('Invalid booking data');
+      const skipped = importBookings(cache.bookings,cache.source);
+      el('sync-status').textContent = '已接收預訂管理頁同步的項目；此頁不會向 Google Sheets 發出同步要求。'+(skipped.length ? ' 未匯入 '+skipped.length+' 筆（'+skipped.join('、')+'）：請在預訂管理頁補齊日期、起止時間、地點及人數後再同步。' : '');
     } catch (error) {
-      el('sync-status').textContent = '同步未完成，已保留現有紀錄。'+(error.name === 'AbortError' ? '連線逾時。' : error.message+'。')+' 可按「同步預訂」重試。';
-    } finally {
-      clearTimeout(timeout);
-      syncing = false;
-      el('sync-bookings').disabled = false;
+      el('sync-status').textContent = '無法讀取預訂管理頁發送的項目，已保留現有紀錄；請返回預訂管理頁重新同步。';
     }
   }
   const person = id => staff.find(item => item.id === id);
@@ -537,23 +503,18 @@ body { margin: 16px; }
     }
   });
   el('pay-month').value = hkDate.format(new Date()).slice(0,7);
-  el('sync-bookings').onclick = syncBookings;
   window.addEventListener('storage',event => {
-    if (event.key === bookingCacheKey && importCachedBookings()) {
-      renderAll(); el('sync-status').textContent = '已自動帶入預訂管理頁的最新紀錄。';
-    }
-    if (event.key === 'sheetUrl') syncBookings();
+    if (event.key === bookingCacheKey || event.key === 'sheetUrl') { receiveBookings(); renderAll(); }
   });
   document.addEventListener('visibilitychange',() => {
-    if (!document.hidden) { renderAll(); syncBookings(); }
+    if (!document.hidden) { receiveBookings(); renderAll(); }
   });
-  window.addEventListener('focus',() => { renderAll(); syncBookings(); });
+  window.addEventListener('focus',() => { receiveBookings(); renderAll(); });
   setInterval(() => {
     if (!document.hidden && projects.some(item => item.status !== projectStatus(item))) renderAll();
   },30000);
-  setInterval(() => { if (!document.hidden) syncBookings(); },60000);
+  receiveBookings();
   renderAll();
-  syncBookings();
 })();
 </script>
 </body>

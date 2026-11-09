@@ -346,6 +346,11 @@
         <div class="header">
             <h1>📋 預訂管理系統</h1>
             <p>使用 Google Sheets 管理球證/裁判預訂</p>
+            <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap;">
+                <button type="button" id="sync-staff-projects" class="btn" onclick="syncStaffProjects()">同步預訂至工作項目</button>
+                <a href="staff.html" style="color:#5a4a3a;">開啟工作人員管理</a>
+            </div>
+            <p id="staff-sync-status" role="status" aria-live="polite" style="margin-top:12px;font-size:0.9em;">新增或更新預訂成功後，自動同步至工作項目；既有預訂可按上方按鈕同步。請在同一瀏覽器及網站開啟工作人員頁。</p>
         </div>
 
         <div class="setup-notice" id="setup-notice">
@@ -1246,8 +1251,26 @@ function doPost(e) {
                 localStorage.setItem('lalarefStaffBookings', JSON.stringify({
                     source, updatedAt: Date.now(), bookings: Array.from(bookings.values())
                 }));
+                document.getElementById('staff-sync-status').textContent = '預訂已發送至工作項目；同一瀏覽器及網站的工作人員頁會自動接收。';
+                return true;
             } catch (error) {
                 console.warn('Could not cache staff bookings:', error);
+                document.getElementById('staff-sync-status').textContent = '預訂資料未能同步至工作項目，請檢查瀏覽器儲存設定後重試。';
+                return false;
+            }
+        }
+
+        async function syncStaffProjects() {
+            const button = document.getElementById('sync-staff-projects');
+            if (button.disabled) return;
+            button.disabled = true;
+            document.getElementById('staff-sync-status').textContent = '正在從預訂管理同步至工作項目…';
+            try {
+                if (!await loadBookings()) {
+                    document.getElementById('staff-sync-status').textContent = '同步未完成，工作人員頁的既有紀錄會保留；請檢查 Google Sheets 連線及瀏覽器儲存設定。';
+                }
+            } finally {
+                button.disabled = false;
             }
         }
 
@@ -1482,7 +1505,8 @@ function doPost(e) {
             
             const requestSource = sheetUrl;
             try {
-                const bookingsRes = await fetch(requestSource);
+                const bookingsRes = await fetch(requestSource, { cache: 'no-store', signal: AbortSignal.timeout(15000) });
+                if (!bookingsRes.ok) throw new Error('Google Sheets 回應失敗');
                 const text = await bookingsRes.text();
                 let data;
                 try {
@@ -1493,8 +1517,8 @@ function doPost(e) {
                     return;
                 }
                 
-                if (data.success && data.bookings && Array.isArray(data.bookings)) {
-                    cacheStaffBookings(data.bookings, requestSource);
+                if (data.success === true && Array.isArray(data.bookings)) {
+                    const staffSynced = cacheStaffBookings(data.bookings, requestSource);
                     // Store for re-render after admin data sync
                     lastBookingsData = data.bookings;
                     // Render immediately using localStorage data
@@ -1502,6 +1526,7 @@ function doPost(e) {
                     
                     // Then try to sync admin data from Google Sheets in background (don't await)
                     fetchAdminDataInBackground();
+                    return staffSynced;
                 } else {
                     showMessage('list-message', '載入失敗: ' + (data.message || '未知錯誤'), 'error');
                 }
