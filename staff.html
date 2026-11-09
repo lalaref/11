@@ -207,7 +207,12 @@ body { margin: 16px; }
   const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
   const money = cents => 'HK$ ' + (cents / 100).toLocaleString('en-HK', {minimumFractionDigits:2,maximumFractionDigits:2});
   const hours = minutes => Math.ceil(minutes / 60) + ' 小時';
-  const date = value => value.slice(0,10).replaceAll('-','/');
+  const date = value => {
+    const d = new Date(value.slice(0,10) + 'T00:00:00+08:00');
+    const days = ['日','一','二','三','四','五','六'];
+    const parts = value.slice(0,10).split('-');
+    return parts[2] + '/' + parts[1] + '/' + parts[0] + ' (' + days[d.getDay()] + ')';
+  };
   const timestamp = value => Date.parse(value + '+08:00');
   const duration = assignment => Math.round((timestamp(assignment.end) - timestamp(assignment.start)) / 60000) - assignment.breakMinutes;
   const amount = assignment => assignment.status === 'declined' ? 0 : Math.ceil(duration(assignment) / 60) * assignment.rate;
@@ -592,13 +597,21 @@ body { margin: 16px; }
   }
   el('include-pay').onchange = renderWhatsApp;
   el('close-wa').onclick = () => { el('wa-preview').hidden = true; waId = null; };
-  el('wa-open').onclick = () => {
+  el('wa-open').onclick = async () => {
     if (!waId) return;
     const item = task(waId), member = person(item.staff);
     if (!member.phone) { flash('請先填寫工作人員的 WhatsApp 電話。'); return; }
     const phone = member.phone.replace(/[^\d]/g, '');
-    const text = encodeURIComponent(el('wa-text').value);
-    window.open('https://wa.me/' + phone + '?text=' + text, '_blank');
+    const text = el('wa-text').value;
+    try {
+      await navigator.clipboard.writeText(text);
+      flash('訊息已複製，開啟 WhatsApp 後直接貼上發送。');
+    } catch (error) {
+      el('wa-text').select();
+      document.execCommand('copy');
+      flash('訊息已複製，開啟 WhatsApp 後直接貼上發送。');
+    }
+    window.open('https://wa.me/' + phone, '_blank');
   };
   el('wa-copy').onclick = async () => {
     try {
