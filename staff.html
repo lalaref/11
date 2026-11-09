@@ -76,16 +76,15 @@ body { margin: 16px; }
   <div class="notice">管理員登入後，人員、項目、分派及結算紀錄統一儲存在 Google Sheets 私有工作表，各裝置共用；不再將新紀錄存入瀏覽器。新增項目仍會自動加入預訂列表，但人員電話及薪酬不會出現在公開預訂資料中。WhatsApp 目前只提供訊息預覽，不會轉帳。</div>
   <form id="lr-cloud-login" class="pane">
     <h3>管理員登入</h3>
-    <div class="form-grid two">
-      <label>Google Apps Script 網址<input id="lr-cloud-url" type="url" required autocomplete="url"></label>
+    <div class="form-grid">
       <label>管理員密碼<input id="lr-cloud-password" type="password" required autocomplete="current-password"></label>
     </div>
     <button id="lr-login" type="submit" class="primary">登入並載入雲端紀錄</button>
-    <p class="small">密碼及登入憑證不會儲存在此瀏覽器；登入有效期一小時。任何裝置使用同一網址及密碼，即可共用紀錄。</p>
+    <p class="small">密碼及登入憑證不會儲存在此瀏覽器；登入有效期一小時。任何裝置使用同一密碼，即可共用紀錄。</p>
     <details><summary>首次啟用雲端儲存</summary>
       <ol>
         <li>以 <a href="booking-admin.html">預訂管理頁「設定」</a> 的最新程式碼更新原本主程式，保留既有預訂；預訂資料工作表必須命名為 <code>Bookings</code>。</li>
-        <li>在原本預訂試算表的 Apps Script 專案，以 <code>schedule-apps-script.js</code> 的完整內容取代主程式（已包含工作人員雲端功能）。</li>
+        <li>在原本預訂試算表的 Apps Script 專案，以 <code>booking-apps-script.js</code> 的完整內容取代主程式（已包含工作人員雲端功能）。</li>
         <li>在「部署 → 管理部署」編輯既有網頁應用程式，選擇新版本並部署，以保留原有網址。試算表本身必須保持私人，不可公開發布工作人員資料。</li>
       </ol>
       <p>後端更新後才可登入；私有工作表會由後端自動建立。已有本機紀錄可在登入後按「匯入舊紀錄」，只限雲端尚無資料時使用。</p>
@@ -226,8 +225,6 @@ body { margin: 16px; }
   const staff = [];
   const projects = [];
   const assignments = [];
-  try { el('cloud-url').value = localStorage.getItem('sheetUrl') || defaultSheetUrl; }
-  catch (error) { el('cloud-url').value = defaultSheetUrl; }
   let selectedProject = '';
   let viewingHistory = false;
   let editingAssignment = null;
@@ -298,13 +295,9 @@ body { margin: 16px; }
   }
   async function handleCloudLogin(event) {
     event.preventDefault();
-    const url = el('cloud-url').value.trim();
+    const url = defaultSheetUrl;
     const password = el('cloud-password').value;
-    if (!url || !password) return;
-    try {
-      const parsed = new URL(url);
-      if (parsed.protocol !== 'https:' || parsed.hostname !== 'script.google.com' || !/^\/macros\/s\/[^/]+\/exec$/.test(parsed.pathname)) { el('cloud-status').textContent = '請輸入有效的 Google Apps Script 網址。'; return; }
-    } catch { el('cloud-status').textContent = '網址格式不正確。'; return; }
+    if (!password) return;
     el('login').disabled = true;
     el('cloud-status').textContent = '正在登入…';
     try {
@@ -317,7 +310,7 @@ body { margin: 16px; }
         try { localStorage.setItem('sheetUrl',url); } catch {}
         await cloudLoadState();
       } else {
-        el('cloud-status').textContent = result.code === 'RATE_LIMITED' ? '登入嘗試過多，請五分鐘後再試。' : result.code === 'SETUP_REQUIRED' ? '後端尚未設定管理員密碼，請聯絡管理員。' : '密碼不正確，請重試。';
+        el('cloud-status').textContent = result.code === 'RATE_LIMITED' ? '登入嘗試過多，請五分鐘後再試。' : result.code === 'SETUP_REQUIRED' ? '後端尚未設定，請聯絡管理員。' : '密碼不正確，請重試。';
       }
     } catch (error) { el('cloud-status').textContent = '登入失敗：'+error.message; }
     finally { el('login').disabled = false; }
