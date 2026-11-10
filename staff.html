@@ -65,6 +65,7 @@ body { margin: 16px; }
 #lr-staff-preview .checkbox { display:flex; align-items:center; gap:8px; margin:12px 0; }
 #lr-staff-preview .checkbox input { width:auto; min-height:auto; }
 #lr-staff-preview #lr-flash:not(:empty) { padding:12px 24px; background:var(--lr-good-bg); color:var(--lr-good); }
+#lr-staff-preview #lr-sync-status:not(:empty) { padding:10px 14px; margin:12px 0; background:var(--lr-soft); border-left:3px solid var(--lr-accent); border-radius:8px; font-size:12px; }
 @media(max-width:640px) { #lr-staff-preview .top,#lr-staff-preview .pane { padding:16px 12px; } #lr-staff-preview .tabs { padding:12px 12px 0; } #lr-staff-preview .notice,#lr-staff-preview .footer { padding:12px; } #lr-staff-preview .metrics { gap:6px; } #lr-staff-preview .metric { padding:10px; } #lr-staff-preview .form-grid,#lr-staff-preview .form-grid.two { grid-template-columns:1fr; } #lr-staff-preview .top { align-items:flex-start; } #lr-staff-preview .top>.tag { white-space:normal; } }
 @media(max-width:480px) { #lr-staff-preview .metrics { grid-template-columns:1fr; } #lr-staff-preview .metric { display:grid; grid-template-columns:1fr auto; align-items:center; gap:6px; } #lr-staff-preview .metric strong { margin:0; } #lr-staff-preview .metric .small:last-child { grid-column:1 / -1; } }
 @media(pointer:coarse) { #lr-staff-preview button,#lr-staff-preview input,#lr-staff-preview select { min-height:44px; } }
@@ -101,6 +102,7 @@ body { margin: 16px; }
   <section id="lr-pane-events" class="pane" role="tabpanel" aria-labelledby="lr-tab-events">
     <div class="row"><label class="event-select">選擇籃球項目（未完成）<select id="lr-project-select"></select></label><div class="actions"><button id="lr-new-event" class="primary">＋ 新增項目</button></div></div>
     <div id="lr-pending-bookings" class="actions" aria-live="polite"></div>
+    <p id="lr-sync-status" role="status" aria-live="polite"></p>
     <div id="lr-event-editor" class="form-area" hidden>
       <h3 id="lr-event-title">新增籃球項目</h3>
       <div class="form-grid two">
@@ -233,11 +235,6 @@ body { margin: 16px; }
     if (!cloudToken || cloudBusy) { if (!cloudBusy) pendingSave = true; return; }
     const cleanProjects = projects.map(({status, ...rest}) => rest);
     const snapshot = JSON.stringify({staff,projects:cleanProjects,assignments,counter});
-    console.log('[DEBUG] Saving state:', {staff: staff.length, projects: projects.length, assignments: assignments.length, counter});
-    if (projects.length > 0) {
-      console.log('[DEBUG] First project (original):', projects[0]);
-      console.log('[DEBUG] First project (cleaned):', cleanProjects[0]);
-    }
     if (!force && snapshot === lastSaved) { pendingSave = null; return; }
     cloudBusy = true;
     pendingSave = null;
@@ -246,7 +243,6 @@ body { margin: 16px; }
       const response = await fetch(cloudSource,{method:'POST',body:JSON.stringify({action:'staffSave',token:cloudToken,baseRevision:cloudRevision,mutationId,state:{staff,projects:cleanProjects,assignments,counter}}),signal:AbortSignal.timeout(15000)});
       if (!response.ok) throw new Error('伺服器回應失敗');
       const result = await response.json();
-      console.log('[DEBUG] Save response:', result);
       if (result.success === true) { cloudRevision = result.revision; lastSaved = snapshot; el('cloud-status').textContent = '雲端紀錄已儲存。'; }
       else if (result.code === 'CONFLICT') { cloudRevision = result.revision; el('cloud-status').textContent = '其他裝置已修改紀錄，請按「重新載入雲端」以取得最新版本。'; el('cloud-retry').hidden = false; }
       else if (result.code === 'UNAUTHORIZED') { handleCloudLogout('登入已過期，請重新登入。'); }
@@ -264,7 +260,6 @@ body { margin: 16px; }
       if (!response.ok) throw new Error('伺服器回應失敗');
       const result = await response.json();
       if (result.success === true) {
-        console.log('[DEBUG] Loaded state:', {staff: result.state.staff.length, projects: result.state.projects.length, assignments: result.state.assignments.length});
         staff.length = 0; staff.push(...result.state.staff);
         projects.length = 0; projects.push(...result.state.projects);
         assignments.length = 0; assignments.push(...result.state.assignments);
@@ -523,7 +518,6 @@ body { margin: 16px; }
       } else {
         const id = 'p'+(++counter);
         const item = {id,name,venue,start,end,refs,table,matchType,createdAt:new Date().toISOString(),bookingCode:newBookingCode(),bookingSync:'pending',bookingAttempted:false};
-        console.log('[DEBUG] Created project:', item);
         projects.push(item); selectedProject = id; viewingHistory = false;
         el('event-editor').hidden = true; el('assignment-editor').hidden = true; el('wa-preview').hidden = true; waId = null;
         renderAll();
