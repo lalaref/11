@@ -349,18 +349,17 @@
         #certs-tab .btn.sm { padding: 8px 16px; font-size: 0.85em; width: auto; }
         #certs-tab .btn.del { background: linear-gradient(145deg, #e07a7a, #c94f4f); color: #fff; }
         #certs-tab .btn.ct-tab.on { box-shadow: inset 5px 5px 10px rgba(0,0,0,0.22), inset -5px -5px 10px rgba(255,255,255,0.5); color: #4a3a2a; }
-        #certs-tab .ct-item { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 13px 0; border-bottom: 1px solid #e2cfb6; }
+        #certs-tab .ct-item { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 13px 0; border-bottom: 1px solid #e2cfb6; }
         #certs-tab .ct-item .nm { font-weight: 800; color: #5a4a3a; }
         #certs-tab .ct-item .mt { color: #8c7a68; font-size: 0.86em; margin-top: 3px; }
+        #certs-tab .ct-thumb { width: 78px; height: 55px; object-fit: contain; border: 1px solid #e2cfb6; border-radius: 8px; background: #fff; }
         #certs-tab .ct-acts { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         #certs-tab .ct-link { display: flex; gap: 8px; align-items: center; flex: 1 1 100%; margin-top: 8px; }
         #certs-tab .ct-link input { flex: 1; min-width: 0; font-family: monospace; font-size: 0.8em; padding: 9px 11px; border: 1px solid #d4a574; border-radius: 10px; background: #fffaf3; color: #5a4a3a; }
         #certs-tab .ct-pick { max-height: 320px; overflow: auto; border: 1px solid #e2cfb6; border-radius: 14px; padding: 12px 16px; margin-bottom: 12px; background: #fdf4e8; }
-        #certs-tab .ct-pick .grp { margin-bottom: 10px; }
-        #certs-tab .ct-pick .grp > b { display: block; color: #9a5a24; font-size: 0.92em; margin-bottom: 4px; }
-        #certs-tab .ct-pick label { display: flex; gap: 9px; align-items: baseline; font-size: 0.92em; font-weight: 400; padding: 2px 0; color: #5a4a3a; }
+        #certs-tab .ct-pick label { display: flex; gap: 9px; align-items: center; font-size: 0.92em; font-weight: 400; padding: 4px 0; color: #5a4a3a; }
+        #certs-tab .ct-pick label img { width: 60px; height: 42px; object-fit: contain; border: 1px solid #e2cfb6; border-radius: 6px; background: #fff; }
         #certs-tab .ct-pick input { width: 18px; height: 18px; }
-        #certs-tab .ct-group > h4 { margin: 18px 0 4px; color: #9a5a24; font-size: 1em; }
         #certs-tab .ct-empty { padding: 26px 0; color: #8c7a68; text-align: center; }
         @media (max-width: 700px) { #certs-tab .ct-acts { width: 100%; } }
     </style>
@@ -1148,23 +1147,10 @@ LaLaRef 急單王 ⚡</textarea>
 
                     <section id="ct-view-certs">
                         <div class="ct-row">
-                            <div class="ct-field"><label for="ct-search">搜尋</label><input id="ct-search" type="search" placeholder="球證／證書名稱／機構"></div>
                             <button class="btn" type="button" id="ct-new-cert">＋ 新增證書</button>
                         </div>
 
                         <div id="ct-cert-form" hidden style="border:1px solid #e2cfb6;border-radius:16px;padding:16px;margin-bottom:16px;background:#fdf4e8;">
-                            <div class="ct-row">
-                                <div class="ct-field"><label for="ct-referee">球證姓名 *</label><input id="ct-referee" list="ct-dl-ref"></div>
-                                <div class="ct-field"><label for="ct-title">證書名稱 *</label><input id="ct-title" list="ct-dl-title"></div>
-                            </div>
-                            <div class="ct-row">
-                                <div class="ct-field"><label for="ct-issuer">頒發機構</label><input id="ct-issuer" list="ct-dl-issuer"></div>
-                                <div class="ct-field"><label for="ct-level">級別</label><input id="ct-level"></div>
-                            </div>
-                            <div class="ct-row">
-                                <div class="ct-field"><label for="ct-issued">頒發日期</label><input id="ct-issued" type="date"></div>
-                                <div class="ct-field"><label for="ct-expires">有效至</label><input id="ct-expires" type="date"></div>
-                            </div>
                             <div class="ct-row">
                                 <div class="ct-field" style="flex:1 1 100%"><label for="ct-drive">Google Drive 連結 *</label><input id="ct-drive" placeholder="https://drive.google.com/file/d/...../view"></div>
                             </div>
@@ -1177,7 +1163,6 @@ LaLaRef 急單王 ⚡</textarea>
                                 <button class="btn sm btn-secondary" type="button" id="ct-cancel-cert">取消</button>
                             </p>
                         </div>
-                        <datalist id="ct-dl-ref"></datalist><datalist id="ct-dl-title"></datalist><datalist id="ct-dl-issuer"></datalist>
                         <div id="ct-cert-list"></div>
                     </section>
 
@@ -3825,42 +3810,15 @@ LaLaRef 急單王
     }
 
     /* ── 證書庫 ── */
-    function sortedCerts() {
-        return certs.slice().sort(function (a, b) {
-            return String(a.referee).localeCompare(String(b.referee), 'zh-HK') || String(b.issued).localeCompare(String(a.issued));
-        });
-    }
-    function inFilter(c) {
-        var q = val('ct-search').toLowerCase();
-        return !q || [c.referee, c.title, c.issuer, c.level].join(' ').toLowerCase().indexOf(q) >= 0;
-    }
-    function groupsOf(list, key) {
-        var out = [];
-        list.forEach(function (item) {
-            var name = item[key];
-            var g = out.filter(function (x) { return x.name === name; })[0];
-            if (!g) { g = { name: name, items: [] }; out.push(g); }
-            g.items.push(item);
-        });
-        return out;
-    }
+    function certLabel(c) { return c.note ? X(c.note) : '證書 ' + X(c.id); }
     function renderCerts() {
-        var lists = { referee: 'ct-dl-ref', title: 'ct-dl-title', issuer: 'ct-dl-issuer' };
-        Object.keys(lists).forEach(function (key) {
-            $(lists[key]).innerHTML = Array.from(new Set(certs.map(function (c) { return c[key]; }).filter(Boolean)))
-                .map(function (v) { return '<option value="' + X(v) + '">'; }).join('');
-        });
-        var list = sortedCerts().filter(inFilter);
-        $('ct-cert-list').innerHTML = list.length ? groupsOf(list, 'referee').map(function (g) {
-            return '<div class="ct-group"><h4>' + X(g.name) + '（' + g.items.length + ' 張）</h4>' + g.items.map(certRow).join('') + '</div>';
-        }).join('') : '<div class="ct-empty">' + (certs.length ? '找不到符合的證書' : '尚未新增證書') + '</div>';
+        $('ct-cert-list').innerHTML = certs.length ? certs.map(certRow).join('') : '<div class="ct-empty">尚未新增證書</div>';
     }
     function certRow(c) {
-        var expired = c.expires && today && c.expires < today;
         var used = shows.filter(function (s) { return s.certIds.indexOf(c.id) >= 0; }).length;
-        var meta = [c.issuer, c.level, c.issued ? '頒發 ' + dmy(c.issued) : '', c.expires ? '有效至 ' + dmy(c.expires) : ''].filter(Boolean).join(' · ');
-        return '<div class="ct-item"><div><div class="nm">' + X(c.title) + '</div>' +
-            '<div class="mt">' + X(meta) + (expired ? ' · 已過期' : '') + (used ? ' · 用於 ' + used + ' 個展示' : '') + (c.note ? ' · ' + X(c.note) : '') + '</div></div>' +
+        return '<div class="ct-item"><img class="ct-thumb" src="' + X(c.thumbUrl) + '" alt="">' +
+            '<div><div class="nm">' + certLabel(c) + '</div>' +
+            '<div class="mt">' + (used ? '用於 ' + used + ' 個展示' : '未加入任何展示') + '</div></div>' +
             '<div class="ct-acts">' +
             '<button class="btn sm btn-secondary" type="button" data-cert="open" data-id="' + X(c.id) + '">預覽</button>' +
             '<button class="btn sm" type="button" data-cert="edit" data-id="' + X(c.id) + '">編輯</button>' +
@@ -3869,36 +3827,23 @@ LaLaRef 急單王
     }
     function openCertForm(c) {
         certEditing = c ? c.id : '';
-        $('ct-referee').value = c ? c.referee : '';
-        $('ct-title').value = c ? c.title : '';
-        $('ct-issuer').value = c ? c.issuer : '';
-        $('ct-level').value = c ? c.level : '';
-        $('ct-issued').value = c ? c.issued : '';
-        $('ct-expires').value = c ? c.expires : '';
         $('ct-drive').value = c ? c.driveUrl : '';
         $('ct-note').value = c ? c.note : '';
         $('ct-cert-form').hidden = false;
-        $('ct-referee').focus();
+        $('ct-drive').focus();
     }
     function saveCert(keepGoing) {
         if (busy) return;
-        if (!val('ct-referee') || !val('ct-title')) { say('請填寫球證姓名及證書名稱。'); return; }
         if (!val('ct-drive')) { say('請貼上 Google Drive 連結。'); return; }
         busy = true; clear();
-        var cert = {
-            id: certEditing || '', referee: val('ct-referee'), title: val('ct-title'), issuer: val('ct-issuer'),
-            level: val('ct-level'), issued: val('ct-issued'), expires: val('ct-expires'), driveUrl: val('ct-drive'), note: val('ct-note')
-        };
+        var cert = { id: certEditing || '', driveUrl: val('ct-drive'), note: val('ct-note') };
         post('certSave', { cert: cert }).then(function (j) {
             var i = certs.findIndex(function (x) { return x.id === j.cert.id; });
             if (i >= 0) certs[i] = j.cert; else certs.push(j.cert);
             certEditing = j.cert.id;
             renderCerts(); renderShows();
-            say(j.warning ? ('已儲存，但：' + j.warning) : ('已儲存「' + j.cert.title + '」。'), true);
-            if (keepGoing) {
-                openCertForm(null);
-                $('ct-referee').value = j.cert.referee; $('ct-issuer').value = j.cert.issuer; $('ct-level').value = j.cert.level;
-            }
+            say(j.warning ? ('已儲存，但：' + j.warning) : '已儲存。', true);
+            if (keepGoing) openCertForm(null);
         }).catch(function (e) { say(e.message); }).then(function () { busy = false; });
     }
 
@@ -3929,11 +3874,9 @@ LaLaRef 急單王
         $('ct-from').value = s ? s.from : '';
         $('ct-to').value = s ? s.to : '';
         $('ct-active').checked = s ? !!s.active : true;
-        $('ct-pick').innerHTML = groupsOf(sortedCerts(), 'referee').map(function (g) {
-            return '<div class="grp"><b>' + X(g.name) + '</b>' + g.items.map(function (c) {
-                return '<label><input type="checkbox" data-pick="' + X(c.id) + '" ' + (ids.indexOf(c.id) >= 0 ? 'checked' : '') + '>' +
-                    X(c.title) + (c.expires ? '（有效至 ' + dmy(c.expires) + '）' : '') + '</label>';
-            }).join('') + '</div>';
+        $('ct-pick').innerHTML = certs.map(function (c) {
+            return '<label class="pick"><input type="checkbox" data-pick="' + X(c.id) + '" ' + (ids.indexOf(c.id) >= 0 ? 'checked' : '') + '>' +
+                '<img src="' + X(c.thumbUrl) + '" alt="">' + certLabel(c) + '</label>';
         }).join('') || '<div class="ct-empty">請先在「證書庫」新增證書</div>';
         countPick();
         $('ct-show-form').hidden = false;
@@ -3975,7 +3918,6 @@ LaLaRef 急單王
         load();
     });
     $('ct-reload').addEventListener('click', load);
-    $('ct-search').addEventListener('input', renderCerts);
     $('ct-new-cert').addEventListener('click', function () { openCertForm(null); });
     $('ct-cancel-cert').addEventListener('click', function () { $('ct-cert-form').hidden = true; certEditing = null; clear(); });
     $('ct-save-cert').addEventListener('click', function () { saveCert(false); });

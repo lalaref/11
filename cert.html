@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>球證證書一覽 | LaLaRef 急單王</title>
+<style>
+*{box-sizing:border-box}[hidden]{display:none!important}
+html{scroll-behavior:smooth;font-size:18px}
+body{margin:0;font-family:"Segoe UI","Microsoft JhengHei",sans-serif;color:#514438;background:linear-gradient(135deg,#f8ead8,#e5cfb2);line-height:1.55;overflow-x:hidden}
+.nav{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,#d29d65,#bc8048);box-shadow:0 6px 18px #0002}
+.nav-in{max-width:1180px;margin:auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between}
+.brand{color:#fff;text-decoration:none;font-weight:800}.nav-in span{color:#fff;font-size:.85rem;opacity:.9}
+.wrap{max-width:1180px;margin:auto;padding:28px 20px}
+.hero,.card{background:#f2dfc9;border-radius:24px;box-shadow:12px 12px 25px #8d73552b,-10px -10px 24px #fff9;padding:26px;margin-bottom:22px}
+.hero{text-align:center;padding:36px 20px}.hero h1{margin:0 0 6px;font-size:clamp(1.5rem,4.5vw,2.3rem)}.sub{color:#756656}
+.for{display:inline-block;margin-top:12px;padding:5px 16px;border-radius:20px;background:#fff8dd;color:#805d09;font-weight:800;font-size:.9rem}
+.notice{background:#fff8dd;border-left:4px solid #edae2e;border-radius:8px;padding:11px 14px;margin-bottom:20px;font-size:.9rem}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.count{color:#8c7a68;font-size:.85rem;font-weight:700;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.cert{display:block;width:100%;text-align:left;font:inherit;color:inherit;padding:0;border:1px solid #cba77c55;border-radius:16px;background:#ffffffc8;box-shadow:0 4px 14px #7a573018;cursor:zoom-in;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.cert:hover,.cert:focus-visible{transform:translateY(-3px);box-shadow:0 10px 24px #7a573030;outline:none}
+.cert:focus-visible{outline:3px solid #bc8048}
+.thumb{position:relative;aspect-ratio:1.414/1;background:#f5ecdf;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:contain;display:block}
+.sk{width:100%;height:100%;background:linear-gradient(90deg,#f0e3d0 25%,#f9f1e4 50%,#f0e3d0 75%);background-size:200% 100%;animation:sh 1.3s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.zoom{position:absolute;right:8px;bottom:8px;background:#000a;color:#fff;border-radius:10px;padding:2px 9px;font-size:.72rem;font-weight:700;opacity:0;transition:opacity .15s}
+.cert:hover .zoom,.cert:focus-visible .zoom{opacity:1}
+@media(hover:none){.zoom{opacity:1}}
+.state{text-align:center;padding:48px 18px}.state .ico{font-size:2.6rem}.state h2{margin:10px 0 6px;color:#9a5a24}.state p{color:#756656;margin:0}
+.footer{margin-top:35px;background:#b97d47;color:#fff;padding:28px 20px;text-align:center;font-size:.9rem}.footer a{color:#fff}
+
+/* Lightbox */
+.lb{position:fixed;inset:0;z-index:100;background:#0c0905ee;display:flex;flex-direction:column;color:#fff;touch-action:none}
+.lb-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#0008;flex-shrink:0}
+.lb-cap{min-width:0}.lb-cap span{font-size:.78rem;opacity:.75}
+.lb-tools{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.lb-tools button,.lb-nav{background:#ffffff26;border:0;color:#fff;border-radius:10px;font:inherit;font-weight:800;cursor:pointer;min-width:38px;height:38px;padding:0 10px}
+.lb-tools button:hover,.lb-nav:hover{background:#ffffff44}
+.lb-tools .z{font-size:.8rem;min-width:46px;text-align:center;opacity:.85}
+.zt{display:flex;align-items:center;gap:6px}
+.stage{position:relative;flex:1;overflow:hidden;cursor:grab;user-select:none;-webkit-user-select:none}
+.stage.drag{cursor:grabbing}
+.stage img{position:absolute;inset:12px;width:calc(100% - 24px);height:calc(100% - 24px);object-fit:contain;transform-origin:center center;will-change:transform;pointer-events:none;-webkit-user-drag:none}
+.stage iframe{position:absolute;inset:12px;width:calc(100% - 24px);height:calc(100% - 24px);border:0;border-radius:6px;background:#fff}
+.lb.pdf .zt{display:none}
+.lb.pdf .stage{cursor:default;touch-action:auto;user-select:text;-webkit-user-select:text}
+.lb-nav{position:absolute;top:50%;margin-top:-26px;width:46px;height:52px;font-size:1.6rem;z-index:2;background:#0007}
+.lb-nav.prev{left:10px}.lb-nav.next{right:10px}
+.lb-hint{text-align:center;font-size:.74rem;opacity:.6;padding:6px;flex-shrink:0}
+@media(max-width:680px){
+html{font-size:16px}.wrap{padding:12px 10px}.hero,.card{border-radius:16px;padding:18px}.hero{padding:26px 14px}
+.grid{grid-template-columns:1fr 1fr;gap:10px}
+.lb-nav{width:38px;height:46px;font-size:1.3rem}.lb-hint{display:none}.lb-tools .z{display:none}}
+@media(max-width:380px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="nav"><div class="nav-in"><a class="brand" href="index.html">LaLaRef 急單王</a><span>球證資歷</span></div></nav>
+<main class="wrap">
+  <section class="hero">
+    <h1>🏅 球證證書一覽</h1>
+    <div class="sub">Referee Certificates</div>
+    <div class="for" id="for" hidden></div>
+  </section>
+  <div id="body" hidden>
+    <div class="notice">📄 以下證書僅供客戶參考。點擊證書可放大檢視，請勿轉載或作其他用途。</div>
+    <div class="toolbar">
+      <div class="count" id="count"></div>
+    </div>
+    <div id="list"></div>
+  </div>
+  <section class="card state" id="state"><div class="ico">⏳</div><h2>載入中…</h2></section>
+</main>
+<footer class="footer"><strong>LaLaRef 急單王</strong><br>香港專業籃球球證／裁判服務 · WhatsApp：<a href="https://wa.me/85284828484">8482 8484</a><p>© 2026 LaLa Xolutions Co.</p></footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="證書放大檢視" hidden>
+  <div class="lb-top">
+    <div class="lb-cap"><span id="lb-s"></span></div>
+    <div class="lb-tools">
+      <span class="zt"><button type="button" id="z-out" aria-label="縮小">−</button><span class="z" id="z-val">100%</span><button type="button" id="z-in" aria-label="放大">+</button><button type="button" id="z-reset">重設</button></span>
+      <button type="button" id="lb-close" aria-label="關閉">✕</button>
+    </div>
+  </div>
+  <div class="stage" id="stage">
+    <img id="lb-img" alt="" draggable="false">
+    <iframe id="lb-frame" title="證書 PDF" hidden></iframe>
+    <button type="button" class="lb-nav prev" id="prev" aria-label="上一張">‹</button>
+    <button type="button" class="lb-nav next" id="next" aria-label="下一張">›</button>
+  </div>
+  <div class="lb-hint" id="lb-hint">滾輪／雙指縮放 · 拖曳移動 · 雙擊放大 · ← → 切換 · Esc 關閉</div>
+</div>
+
+<script>
+const API_URL='https://script.google.com/macros/s/AKfycbyi604Q_mpZZISX_Yv4C-6_5o4YSuRsqmKfecB6DW1_am7hTMaIQQgfv3sEIPxL__Q0/exec';
+const code=new URLSearchParams(location.search).get('c')||'';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dmy=v=>{const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?m[3]+'/'+m[2]+'/'+m[1]:String(v||'')};
+let items=[],shown=[],today='',cur=-1,lastFocus=null;
+
+function showState(ico,h,p){$('body').hidden=true;$('state').hidden=false;$('state').innerHTML='<div class="ico">'+ico+'</div><h2>'+esc(h)+'</h2>'+(p?'<p>'+esc(p)+'</p>':'')}
+async function api(params){
+  if(API_URL.startsWith('PASTE'))throw {message:'網站尚未完成設定',code:'config'};
+  const r=await fetch(API_URL+'?'+new URLSearchParams(params));
+  const j=await r.json();
+  if(!j.success)throw {message:j.message,code:j.code};
+  return j;
+}
+function failView(e){
+  const m={notfound:['🔗','連結無效','請使用我們提供的完整連結，或與我們聯絡。'],
+    expired:['⌛','此連結已過有效期','請向我們索取新的連結。'],
+    pending:['📅','此連結尚未開始','請於有效期間內再開啟。'],
+    revoked:['🚫','此連結已停用','請向我們索取新的連結。'],
+    config:['🛠️','網站尚未完成設定',''],
+    error:['⚠️','暫時無法載入','']}[e.code];
+  showState((m||['⚠️','暫時無法載入',''])[0],(m||['','暫時無法載入'])[1],(m||['','','請稍後再試，或與我們聯絡。'])[2]||'請稍後再試，或與我們聯絡。');
+}
+
+async function init(){
+  try{
+    const j=await api({c:code});
+    items=j.items||[];
+    today=j.today||new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Hong_Kong'});
+    if(j.label){
+      const period=[j.from?'由 '+dmy(j.from):'',j.to?'至 '+dmy(j.to):''].filter(Boolean).join(' ');
+      $('for').textContent='為「'+j.label+'」提供'+(period?'　'+period:'');
+      $('for').hidden=false;
+    }
+    if(!items.length){showState('📭','暫時沒有可顯示的證書','');return}
+    $('state').hidden=true;$('body').hidden=false;render();
+  }catch(e){failView(e)}
+}
+
+function render(){
+  shown=items.slice();
+  $('count').textContent=shown.length+' 張證書';
+  $('list').innerHTML='<div class="grid">'+shown.map(card).join('')+'</div>';
+}
+function card(c){
+  const i=shown.indexOf(c);
+  return '<button type="button" class="cert" data-i="'+i+'" aria-label="第 '+(i+1)+' 張證書，點擊放大"><div class="thumb">'+(c.thumbUrl?'<img src="'+c.thumbUrl+'" alt="" loading="lazy">':'<div class="sk"></div>')+'<span class="zoom">🔍 點擊放大</span></div></button>';
+}
+$('list').addEventListener('click',e=>{const b=e.target.closest('.cert');if(b){lastFocus=b;openLb(+b.dataset.i)}});
+
+/* ── Lightbox：放大／縮放／拖曳／切換 ── */
+const stage=$('stage'),img=$('lb-img'),frame=$('lb-frame');
+let S=1,X=0,Y=0;const MIN=1,MAX=6;
+function apply(){img.style.transform='translate('+X+'px,'+Y+'px) scale('+S+')';$('z-val').textContent=Math.round(S*100)+'%'}
+function clamp(){const r=stage.getBoundingClientRect(),mx=r.width*(S-1)/2,my=r.height*(S-1)/2;X=Math.max(-mx,Math.min(mx,X));Y=Math.max(-my,Math.min(my,Y))}
+function zoomAt(ns,cx,cy){
+  ns=Math.max(MIN,Math.min(MAX,ns));if(ns===S)return;
+  const r=stage.getBoundingClientRect(),px=cx-(r.left+r.width/2),py=cy-(r.top+r.height/2),k=ns/S;
+  X=px-(px-X)*k;Y=py-(py-Y)*k;S=ns;if(S===1){X=0;Y=0}clamp();apply();
+}
+function resetZoom(){S=1;X=0;Y=0;apply()}
+function centerZoom(f){const r=stage.getBoundingClientRect();zoomAt(S*f,r.left+r.width/2,r.top+r.height/2)}
+
+function openLb(i){
+  if(i<0||i>=shown.length)return;
+  cur=i;const c=shown[i];
+  $('lb').hidden=false;document.body.style.overflow='hidden';
+  $('lb-s').textContent=(i+1)+' / '+shown.length;
+  $('prev').hidden=i===0;$('next').hidden=i===shown.length-1;
+  const pdf=c.kind==='pdf';
+  $('lb').classList.toggle('pdf',pdf);
+  $('lb-hint').textContent=pdf?'← → 切換 · Esc 關閉':'滾輪／雙指縮放 · 拖曳移動 · 雙擊放大 · ← → 切換 · Esc 關閉';
+  resetZoom();
+  img.hidden=pdf;
+  frame.hidden=!pdf;
+  frame.src=pdf?c.viewUrl:'about:blank';
+  if(!pdf){img.src=c.viewUrl}
+}
+function closeLb(){$('lb').hidden=true;document.body.style.overflow='';cur=-1;img.removeAttribute('src');frame.removeAttribute('src');if(lastFocus&&document.contains(lastFocus))lastFocus.focus()}
+$('lb-close').onclick=closeLb;
+$('prev').onclick=e=>{e.stopPropagation();openLb(cur-1)};
+$('next').onclick=e=>{e.stopPropagation();openLb(cur+1)};
+$('z-in').onclick=()=>centerZoom(1.4);$('z-out').onclick=()=>centerZoom(1/1.4);$('z-reset').onclick=resetZoom;
+document.addEventListener('keydown',e=>{
+  if($('lb').hidden)return;
+  if(e.key==='Escape')closeLb();
+  else if(e.key==='ArrowLeft')openLb(cur-1);
+  else if(e.key==='ArrowRight')openLb(cur+1);
+  else if(e.key==='+'||e.key==='=')centerZoom(1.4);
+  else if(e.key==='-')centerZoom(1/1.4);
+  else if(e.key==='0')resetZoom();
+});
+stage.addEventListener('wheel',e=>{e.preventDefault();zoomAt(S*(e.deltaY<0?1.2:1/1.2),e.clientX,e.clientY)},{passive:false});
+
+const ptrs=new Map();let pinch=null,tap={t:0,x:0,y:0},down=null;
+stage.addEventListener('pointerdown',e=>{
+  if(e.target.closest('.lb-nav'))return;
+  stage.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  down={x:e.clientX,y:e.clientY,t:Date.now(),moved:false};
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1};down=null}
+  stage.classList.add('drag');
+});
+stage.addEventListener('pointermove',e=>{
+  const p=ptrs.get(e.pointerId);if(!p)return;
+  const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+  if(ptrs.size===2&&pinch){
+    const [a,b]=[...ptrs.values()],d=Math.hypot(a.x-b.x,a.y-b.y)||1;
+    zoomAt(S*d/pinch.d,(a.x+b.x)/2,(a.y+b.y)/2);pinch.d=d;return;
+  }
+  if(down&&Math.hypot(e.clientX-down.x,e.clientY-down.y)>6)down.moved=true;
+  if(S>1){X+=dx;Y+=dy;clamp();apply()}
+});
+function endPtr(e){
+  const had=ptrs.delete(e.pointerId);if(!had)return;
+  if(ptrs.size<2)pinch=null;if(!ptrs.size)stage.classList.remove('drag');
+  if(!down||e.type==='pointercancel')return;
+  const dx=e.clientX-down.x,dy=e.clientY-down.y;
+  if(S===1&&Math.abs(dx)>60&&Math.abs(dy)<50){dx<0?openLb(cur+1):openLb(cur-1);down=null;return}
+  if(!down.moved&&Date.now()-down.t<300){
+    const now=Date.now();
+    if(now-tap.t<320&&Math.hypot(e.clientX-tap.x,e.clientY-tap.y)<30){S>1?resetZoom():zoomAt(2.5,e.clientX,e.clientY);tap.t=0}
+    else tap={t:now,x:e.clientX,y:e.clientY};
+  }
+  down=null;
+}
+stage.addEventListener('pointerup',endPtr);stage.addEventListener('pointercancel',endPtr);
+window.addEventListener('resize',()=>{if(!$('lb').hidden){clamp();apply()}});
+init();
+</script>
+</body>
+</html>
