@@ -714,7 +714,7 @@ body { margin: 16px; }
     const member = person(item.staff);
     if (!member.phone) { flash('請先填寫工作人員的 WhatsApp 電話。'); return; }
     const phone = member.phone.replace(/[^\d]/g, '');
-    const text = member.name+'，你好！\n\nLaLaRef 薪金通知\n\n你於 '+date(item.start)+' '+item.start.slice(11)+' 至 '+date(item.end)+' '+item.end.slice(11)+' 的「'+project(item.project).name+'」工作報酬已付款。\n\n金額：'+money(amount(item))+'\n付款日期：'+date(item.payment.date)+'\n\n請查收，謝謝！';
+    const text = '你於 '+date(item.start)+' '+item.start.slice(11)+' 至 '+date(item.end)+' '+item.end.slice(11)+' 的車馬費已付款。\n\n金額：'+money(amount(item))+'\n付款日期：'+date(item.payment.date);
     try {
       navigator.clipboard.writeText(text);
       flash('訊息已複製，開啟 WhatsApp 後直接貼上發送。');
