@@ -74,22 +74,12 @@ body { margin: 16px; }
     <div class="brand"><span class="monogram" aria-hidden="true">LR</span><div><h2>LaLaRef · 工作人員管理</h2><p class="small">籃球項目分派 / 工作紀錄 / 薪金結算</p></div></div>
     <span class="tag">工作人員管理</span>
   </header>
-  <div class="notice">管理員登入後，人員、項目、分派及結算紀錄統一儲存在 Google Sheets 私有工作表，各裝置共用；不再將新紀錄存入瀏覽器。新增項目仍會自動加入預訂列表，但人員電話及薪酬不會出現在公開預訂資料中。WhatsApp 目前只提供訊息預覽，不會轉帳。</div>
   <form id="lr-cloud-login" class="pane">
     <h3>管理員登入</h3>
     <div class="form-grid">
       <label>管理員密碼<input id="lr-cloud-password" type="password" required autocomplete="current-password"></label>
     </div>
     <button id="lr-login" type="submit" class="primary">登入並載入雲端紀錄</button>
-    <p class="small">密碼及登入憑證不會儲存在此瀏覽器；登入有效期一小時。任何裝置使用同一密碼，即可共用紀錄。</p>
-    <details><summary>首次啟用雲端儲存</summary>
-      <ol>
-        <li>以 <a href="booking-admin.html">預訂管理頁「設定」</a> 的最新程式碼更新原本主程式，保留既有預訂；預訂資料工作表必須命名為 <code>Bookings</code>。</li>
-        <li>在原本預訂試算表的 Apps Script 專案，以 <code>booking-apps-script.js</code> 的完整內容取代主程式（已包含工作人員雲端功能）。</li>
-        <li>在「部署 → 管理部署」編輯既有網頁應用程式，選擇新版本並部署，以保留原有網址。試算表本身必須保持私人，不可公開發布工作人員資料。</li>
-      </ol>
-      <p>後端更新後才可登入；私有工作表會由後端自動建立。已有本機紀錄可在登入後按「匯入舊紀錄」，只限雲端尚無資料時使用。</p>
-    </details>
   </form>
   <div class="notice">
     <p id="lr-cloud-status" role="status" aria-live="polite">尚未登入，未載入任何工作人員資料。</p>
@@ -110,10 +100,7 @@ body { margin: 16px; }
   <div id="lr-flash" role="status" aria-live="polite"></div>
   <section id="lr-pane-events" class="pane" role="tabpanel" aria-labelledby="lr-tab-events">
     <div class="row"><label class="event-select">選擇籃球項目（未完成）<select id="lr-project-select"></select></label><div class="actions"><button id="lr-new-event" class="primary">＋ 新增項目</button></div></div>
-    <p id="lr-sync-status" class="small" role="status" aria-live="polite">在此新增項目後，會自動建立預訂管理系統的預訂。</p>
     <div id="lr-pending-bookings" class="actions" aria-live="polite"></div>
-    <p class="small">同步方向：工作人員頁「＋ 新增項目」 → Google Sheets → <a href="booking-admin.html">預訂管理頁的預訂列表</a>。使用預訂管理頁設定的同一個 Google Sheets；項目名稱、完整時段及紀錄台人數亦會記在預訂備註。</p>
-    <p class="small">按香港時間，項目結束後自動標記「已完成」並移至下方歷史紀錄，不再出現在分派選單。預訂更新不會改寫已有分派的工時及時薪，請另行核對。</p>
     <div id="lr-event-editor" class="form-area" hidden>
       <h3 id="lr-event-title">新增籃球項目</h3>
       <div class="form-grid two">
@@ -130,7 +117,6 @@ body { margin: 16px; }
     <div id="lr-event-info" class="event-info"></div>
     <div id="lr-event-metrics" class="metrics"></div>
     <div class="row section-title"><h3>人員分派紀錄</h3><button id="lr-new-assignment" class="primary">＋ 分派工作人員</button></div>
-    <div class="small">每人可有不同工作時段及時薪；同一人跨場次分派會檢查時間重疊。集合時間不會自動計薪。</div>
     <div id="lr-assignment-editor" class="form-area" hidden>
       <h3 id="lr-assignment-title">新增分派</h3>
       <div class="form-grid">
@@ -142,7 +128,6 @@ body { margin: 16px; }
         <label>不計薪休息（分鐘）<input type="number" id="lr-break" min="0" step="1" value="0"></label>
       </div>
       <p id="lr-pay-estimate" class="note" aria-live="polite"></p>
-      <p class="small">正式結算前可改成實際工作時間。時薪保留於此分派，與人員檔案的預設時薪分開。</p>
       <div class="actions"><button id="lr-save-assignment" class="primary">儲存分派</button><button id="lr-cancel-assignment">取消</button></div><p id="lr-assignment-error" class="error" role="alert"></p>
     </div>
     <div class="table-wrap"><table><thead><tr><th>工作人員 / 崗位</th><th>工作時間</th><th class="num">工時</th><th class="num">時薪</th><th class="num">本次金額</th><th>接單狀態</th><th>操作</th></tr></thead><tbody id="lr-assignments"></tbody></table></div>
@@ -156,17 +141,14 @@ body { margin: 16px; }
         <button id="lr-wa-open" class="primary" type="button">開啟 WhatsApp 對話</button>
         <button id="lr-wa-copy" type="button">複製訊息</button>
       </div>
-      <p class="note">按「開啟 WhatsApp 對話」會開啟 WhatsApp 網頁版或應用程式，並預填訊息。你需要自行按「送出」。此操作不會自動發送訊息。</p>
     </div>
     <details id="lr-project-history">
       <summary id="lr-history-title">已完成 / 已取消項目</summary>
       <div class="table-wrap"><table><thead><tr><th>項目 / 預訂編號</th><th>結束時間</th><th>狀態</th><th>操作</th></tr></thead><tbody id="lr-history-list"></tbody></table></div>
-      <p class="small">歷史項目的分派和薪金不會刪除；可查看紀錄及核對未鎖定的實際工時。</p>
     </details>
-    <p class="note">建議流程：建立人員檔案 → 新增項目並自動加入預訂列表 → 分派及 WhatsApp 通知 → 手動記錄接單確認 → 活動後核實工時 → 結算及登記付款。</p>
   </section>
   <section id="lr-pane-staff" class="pane" role="tabpanel" aria-labelledby="lr-tab-staff" hidden>
-    <div class="row"><div><h3>工作人員檔案</h3><p class="small">先建立聯絡資料，日後分派直接選人，毋須重複輸入。</p></div><button id="lr-new-staff" class="primary">＋ 新增工作人員</button></div>
+    <div class="row"><div><h3>工作人員檔案</h3></div><button id="lr-new-staff" class="primary">＋ 新增工作人員</button></div>
     <div id="lr-staff-editor" class="form-area" hidden>
       <h3 id="lr-staff-title">新增工作人員</h3>
       <div class="form-grid">
@@ -180,21 +162,17 @@ body { margin: 16px; }
       <div class="actions"><button id="lr-save-staff" class="primary">儲存人員</button><button id="lr-cancel-staff">取消</button></div><p id="lr-staff-error" class="error" role="alert"></p>
     </div>
     <div class="table-wrap"><table><thead><tr><th>姓名</th><th>WhatsApp 電話</th><th>主要崗位</th><th class="num">預設時薪</th><th>狀態</th><th>操作</th></tr></thead><tbody id="lr-staff-list"></tbody></table></div>
-    <div class="note">停用只會停止新分派，已有工作及薪金紀錄仍保留。正式版只讓獲授權管理員查看電話及薪酬，不放在公開首頁或公開試算表。</div>
   </section>
   <section id="lr-pane-payroll" class="pane" role="tabpanel" aria-labelledby="lr-tab-payroll" hidden>
-    <div class="row"><div><h3>薪金結算</h3><p class="small">按「工作人員 × 項目」彙總多次分派；幣別 HKD，時間為香港時間。</p></div><button id="lr-show-statement">結算單預覽</button></div>
+    <div class="row"><div><h3>薪金結算</h3></div><button id="lr-show-statement">結算單預覽</button></div>
     <div class="form-grid"><label>項目<select id="lr-pay-project"></select></label><label>工作人員<select id="lr-pay-staff"></select></label><label>工作開始月份<input type="month" id="lr-pay-month" value="2026-11"></label></div>
     <div id="lr-pay-metrics" class="metrics"></div>
-    <div class="note">應付金額 =（結束 − 開始 − 不計薪休息）÷ 60 × 本次時薪。逐筆四捨五入至港幣仙再加總；婉拒不計薪。先核實實際工時，再登記付款，避免把預計金額當作已出糧。</div>
     <div class="table-wrap"><table><thead><tr><th>人員 / 項目</th><th class="num">工時</th><th class="num">項目合計</th><th class="num">已付</th><th class="num">未付</th></tr></thead><tbody id="lr-pay-summary"></tbody></table></div>
     <h4 class="section-title">逐筆核實及付款紀錄</h4>
     <div class="table-wrap"><table><thead><tr><th>工作人員 / 日期</th><th class="num">工時</th><th class="num">金額</th><th>已付</th><th>操作</th></tr></thead><tbody id="lr-pay-details"></tbody></table></div>
-    <div id="lr-statement-area" class="form-area" hidden><div class="row"><h4>結算單內容預覽</h4><button id="lr-close-statement">關閉</button></div><label>目前篩選結果<textarea id="lr-statement" rows="10" readonly></textarea></label><p class="small">正式版建議提供 CSV 匯出及可列印的個人結算單。</p></div>
-    <p class="small">核實後鎖定工作時間及時薪，已付紀錄不可覆寫。此頁整理工作報酬，不包含法定供款、稅務或銀行付款功能。</p>
+    <div id="lr-statement-area" class="form-area" hidden><div class="row"><h4>結算單內容預覽</h4><button id="lr-close-statement">關閉</button></div><label>目前篩選結果<textarea id="lr-statement" rows="10" readonly></textarea></label></div>
   </section>
   </fieldset>
-  <footer class="footer">管理員登入存取 · 雲端共用紀錄 · 分派保留當次時薪 · 多裝置版本衝突保護 · 已付帳目鎖定</footer>
 </div>
 <script>
 (() => {
@@ -473,7 +451,7 @@ body { margin: 16px; }
     const total = active.reduce((sum,item) => sum + amount(item),0);
     const uniqueRole = role => new Set(active.filter(item => item.role === role).map(item => item.staff)).size;
     el('event-info').innerHTML = '<div class="row"><h3>'+escape(event.name)+'</h3><span class="tag">'+statusLabels[event.status]+'</span><div class="actions"><button data-edit-project="'+event.id+'">編輯</button><button data-delete-project="'+event.id+'" class="danger">刪除</button></div></div><p>'+date(event.start)+' '+event.start.slice(11)+' — '+(event.end.slice(0,10) !== event.start.slice(0,10) ? date(event.end)+' ' : '')+event.end.slice(11)+'（香港時間）</p><p class="small">'+escape(event.venue)+(event.bookingCode?' · 預訂編號：'+escape(event.bookingCode):' · 手動建立')+'</p>'+(isActive(event)?'':'<p class="small">此項目已歸檔，保留工時核對及薪金結算，不再接受新分派。</p>');
-    el('event-metrics').innerHTML = metric('項目人手','球證 '+uniqueRole('球證')+'/'+event.refs+' · 紀錄台 '+uniqueRole('紀錄台')+'/'+event.table,'已分派人數 / 需求；確認狀態見下表')+metric('待確認分派',active.filter(item => item.status === 'pending').length+' 筆','通知後手動記錄接單結果')+metric('預計人員成本',money(total),'各人工作時間 × 本次時薪');
+    el('event-metrics').innerHTML = metric('項目人手','球證 '+uniqueRole('球證')+'/'+event.refs+' · 紀錄台 '+uniqueRole('紀錄台')+'/'+event.table,'')+metric('待確認分派',active.filter(item => item.status === 'pending').length+' 筆','')+metric('預計人員成本',money(total),'');
     el('assignments').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+escape(item.role)+'</span></td><td>'+item.start.slice(11)+'–'+item.end.slice(11)+'<span class="small">'+date(item.start)+(item.start.slice(0,10)!==item.end.slice(0,10)?' 至 '+date(item.end):'')+' · 休息 '+item.breakMinutes+' 分鐘</span></td><td class="num">'+hours(duration(item))+'</td><td class="num">'+money(item.rate)+'</td><td class="num">'+money(amount(item))+'</td><td><select aria-label="'+escape(person(item.staff).name)+'接單狀態" data-status="'+item.id+'" '+(item.verified?'disabled':'')+'><option value="pending" '+(item.status==='pending'?'selected':'')+'>待確認</option><option value="confirmed" '+(item.status==='confirmed'?'selected':'')+'>已確認</option><option value="declined" '+(item.status==='declined'?'selected':'')+'>婉拒</option></select></td><td><div class="actions"><button class="wa" data-whatsapp="'+item.id+'" '+(item.status==='declined' || !isActive(event)?'disabled':'')+'>WhatsApp 提醒</button><button data-edit-assignment="'+item.id+'" '+(item.verified?'disabled':'')+'>'+(item.verified?'已鎖定':'編輯')+'</button></div></td></tr>').join('') : '<tr><td colspan="7" class="empty">尚未分派人員。先建立人員檔案，再按「分派工作人員」。</td></tr>';
     el('event-total').textContent = '此項目預計合計：'+money(total);
   }
@@ -499,7 +477,7 @@ body { margin: 16px; }
     const total = rows.reduce((sum,item) => sum+amount(item),0);
     const paid = rows.filter(item => item.payment).reduce((sum,item) => sum+amount(item),0);
     const payable = rows.filter(item => !item.payment).reduce((sum,item) => sum+amount(item),0);
-    el('pay-metrics').innerHTML = metric('工作報酬合計',money(total),'所有分派的金額總和')+metric('未付款',money(payable),'尚未標記為已付')+metric('已付款',money(paid),'已標記為已付');
+    el('pay-metrics').innerHTML = metric('工作報酬合計',money(total),'')+metric('未付款',money(payable),'')+metric('已付款',money(paid),'');
     const groups = grouped(rows);
     el('pay-summary').innerHTML = groups.length ? groups.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+escape(project(item.project).name)+'</span></td><td class="num">'+hours(item.minutes)+'</td><td class="num">'+money(item.total)+'</td><td class="num">'+money(item.paid)+'</td><td class="num">'+money(item.total-item.paid)+'</td></tr>').join('') : '<tr><td colspan="5" class="empty">此篩選條件沒有工作紀錄。</td></tr>';
     el('pay-details').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+date(item.start)+' · '+escape(project(item.project).name)+'</span></td><td class="num">'+hours(duration(item))+'</td><td class="num">'+money(amount(item))+'</td><td><input type="checkbox" data-paid="'+item.id+'" '+(item.payment?'checked':'')+'></td><td><button data-pay-wa="'+item.id+'" class="wa" '+(item.payment?'':'disabled')+'>WhatsApp 通知</button></td></tr>').join('') : '<tr><td colspan="5" class="empty">沒有待結算紀錄。</td></tr>';
@@ -664,7 +642,8 @@ body { margin: 16px; }
     }
     const index = projects.findIndex(p => p.id === id);
     if (index !== -1) projects.splice(index, 1);
-    assignments = assignments.filter(a => a.project !== id);
+    const removeAssignments = assignments.filter(a => a.project === id);
+    removeAssignments.forEach(a => assignments.splice(assignments.indexOf(a), 1));
     if (selectedProject === id) { selectedProject = null; viewingHistory = false; }
     renderAll(); scheduleSave(true); flash('項目已刪除。');
   }
