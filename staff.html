@@ -130,7 +130,7 @@ body { margin: 16px; }
       <p id="lr-pay-estimate" class="note" aria-live="polite"></p>
       <div class="actions"><button id="lr-save-assignment" class="primary">儲存分派</button><button id="lr-cancel-assignment">取消</button></div><p id="lr-assignment-error" class="error" role="alert"></p>
     </div>
-    <div class="table-wrap"><table><thead><tr><th>工作人員 / 崗位</th><th>工作時間</th><th class="num">工時</th><th class="num">時薪</th><th class="num">本次金額</th><th>接單狀態</th><th>操作</th></tr></thead><tbody id="lr-assignments"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>工作人員 / 崗位</th><th>工作時間</th><th class="num">工時</th><th class="num">時薪</th><th class="num">本次金額</th><th>操作</th></tr></thead><tbody id="lr-assignments"></tbody></table></div>
     <div id="lr-event-total" class="total"></div>
     <div id="lr-wa-preview" class="form-area" hidden>
       <div class="row"><h3>WhatsApp 個人提醒預覽</h3><button id="lr-close-wa">關閉</button></div>
@@ -452,7 +452,7 @@ body { margin: 16px; }
     const uniqueRole = role => new Set(active.filter(item => item.role === role).map(item => item.staff)).size;
     el('event-info').innerHTML = '<div class="row"><h3>'+escape(event.name)+'</h3><span class="tag">'+statusLabels[event.status]+'</span><div class="actions"><button data-edit-project="'+event.id+'">編輯</button><button data-delete-project="'+event.id+'" class="danger">刪除</button></div></div><p>'+date(event.start)+' '+event.start.slice(11)+' — '+(event.end.slice(0,10) !== event.start.slice(0,10) ? date(event.end)+' ' : '')+event.end.slice(11)+'（香港時間）</p><p class="small">'+escape(event.venue)+(event.bookingCode?' · 預訂編號：'+escape(event.bookingCode):' · 手動建立')+'</p>'+(isActive(event)?'':'<p class="small">此項目已歸檔，保留工時核對及薪金結算，不再接受新分派。</p>');
     el('event-metrics').innerHTML = metric('項目人手','球證 '+uniqueRole('球證')+'/'+event.refs+' · 紀錄台 '+uniqueRole('紀錄台')+'/'+event.table,'')+metric('待確認分派',active.filter(item => item.status === 'pending').length+' 筆','')+metric('預計人員成本',money(total),'');
-    el('assignments').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+escape(item.role)+'</span></td><td>'+item.start.slice(11)+'–'+item.end.slice(11)+'<span class="small">'+date(item.start)+(item.start.slice(0,10)!==item.end.slice(0,10)?' 至 '+date(item.end):'')+' · 休息 '+item.breakMinutes+' 分鐘</span></td><td class="num">'+hours(duration(item))+'</td><td class="num">'+money(item.rate)+'</td><td class="num">'+money(amount(item))+'</td><td><select aria-label="'+escape(person(item.staff).name)+'接單狀態" data-status="'+item.id+'" '+(item.verified?'disabled':'')+'><option value="pending" '+(item.status==='pending'?'selected':'')+'>待確認</option><option value="confirmed" '+(item.status==='confirmed'?'selected':'')+'>已確認</option><option value="declined" '+(item.status==='declined'?'selected':'')+'>婉拒</option></select></td><td><div class="actions"><button class="wa" data-whatsapp="'+item.id+'" '+(item.status==='declined' || !isActive(event)?'disabled':'')+'>WhatsApp 提醒</button><button data-edit-assignment="'+item.id+'" '+(item.verified?'disabled':'')+'>'+(item.verified?'已鎖定':'編輯')+'</button></div></td></tr>').join('') : '<tr><td colspan="7" class="empty">尚未分派人員。先建立人員檔案，再按「分派工作人員」。</td></tr>';
+    el('assignments').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+escape(item.role)+'</span></td><td>'+item.start.slice(11)+'–'+item.end.slice(11)+'<span class="small">'+date(item.start)+(item.start.slice(0,10)!==item.end.slice(0,10)?' 至 '+date(item.end):'')+' · 休息 '+item.breakMinutes+' 分鐘</span></td><td class="num">'+hours(duration(item))+'</td><td class="num">'+money(item.rate)+'</td><td class="num">'+money(amount(item))+'</td><td><div class="actions"><button class="wa" data-whatsapp="'+item.id+'" '+(item.status==='declined' || !isActive(event)?'disabled':'')+'>WhatsApp 提醒</button><button data-edit-assignment="'+item.id+'" '+(item.verified?'disabled':'')+'>'+(item.verified?'已鎖定':'編輯')+'</button></div></td></tr>').join('') : '<tr><td colspan="6" class="empty">尚未分派人員。先建立人員檔案，再按「分派工作人員」。</td></tr>';
     el('event-total').textContent = '此項目預計合計：'+money(total);
   }
   function renderStaff() {
@@ -576,15 +576,6 @@ body { margin: 16px; }
     if (existing) Object.assign(existing,candidate); else assignments.push(candidate);
     el('assignment-editor').hidden = true; renderAll(); scheduleSave(true); flash('分派已更新，時薪獨立保留。');
   };
-  root.addEventListener('change',event => {
-    const control = event.target.closest('[data-status]');
-    if (!control) return;
-    const item = task(control.dataset.status), next = control.value;
-    if (item.verified) return;
-    const conflict = next !== 'declined' && assignments.find(other => other.id !== item.id && other.staff === item.staff && other.status !== 'declined' && timestamp(other.start) < timestamp(item.end) && timestamp(other.end) > timestamp(item.start));
-    if (conflict) { control.value = item.status; flash('此人有時間重疊的其他分派，請先調整時段。'); return; }
-    item.status = next; renderAll(); scheduleSave(true); flash('接單狀態已手動更新；不代表系統收到 WhatsApp 回覆。');
-  });
   function renderWhatsApp() {
     const item = task(waId), member = person(item.staff), event = project(item.project);
     el('wa-recipient').textContent = '收件人：'+member.name+' · '+(member.phone || '示範人員尚未填電話，正式發送前必須補填');
