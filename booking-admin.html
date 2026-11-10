@@ -339,6 +339,30 @@
                 width: 100%;
             }
         }
+
+        /* ===== 球證證書分頁 ===== */
+        #certs-tab .ct-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; }
+        #certs-tab .ct-field { flex: 1 1 190px; display: flex; flex-direction: column; gap: 6px; }
+        #certs-tab .ct-field label { font-size: 0.85em; font-weight: 700; color: #7a6a5a; }
+        #certs-tab .ct-field input { padding: 12px 16px; border: 2px solid #d4a574; border-radius: 14px; font: inherit; font-size: 0.95em; color: #5a4a3a; background: #fff; width: 100%; }
+        #certs-tab .ct-field input:focus { outline: 2px solid #c89860; outline-offset: 1px; }
+        #certs-tab .btn.sm { padding: 8px 16px; font-size: 0.85em; width: auto; }
+        #certs-tab .btn.del { background: linear-gradient(145deg, #e07a7a, #c94f4f); color: #fff; }
+        #certs-tab .btn.ct-tab.on { box-shadow: inset 5px 5px 10px rgba(0,0,0,0.22), inset -5px -5px 10px rgba(255,255,255,0.5); color: #4a3a2a; }
+        #certs-tab .ct-item { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 13px 0; border-bottom: 1px solid #e2cfb6; }
+        #certs-tab .ct-item .nm { font-weight: 800; color: #5a4a3a; }
+        #certs-tab .ct-item .mt { color: #8c7a68; font-size: 0.86em; margin-top: 3px; }
+        #certs-tab .ct-acts { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        #certs-tab .ct-link { display: flex; gap: 8px; align-items: center; flex: 1 1 100%; margin-top: 8px; }
+        #certs-tab .ct-link input { flex: 1; min-width: 0; font-family: monospace; font-size: 0.8em; padding: 9px 11px; border: 1px solid #d4a574; border-radius: 10px; background: #fffaf3; color: #5a4a3a; }
+        #certs-tab .ct-pick { max-height: 320px; overflow: auto; border: 1px solid #e2cfb6; border-radius: 14px; padding: 12px 16px; margin-bottom: 12px; background: #fdf4e8; }
+        #certs-tab .ct-pick .grp { margin-bottom: 10px; }
+        #certs-tab .ct-pick .grp > b { display: block; color: #9a5a24; font-size: 0.92em; margin-bottom: 4px; }
+        #certs-tab .ct-pick label { display: flex; gap: 9px; align-items: baseline; font-size: 0.92em; font-weight: 400; padding: 2px 0; color: #5a4a3a; }
+        #certs-tab .ct-pick input { width: 18px; height: 18px; }
+        #certs-tab .ct-group > h4 { margin: 18px 0 4px; color: #9a5a24; font-size: 1em; }
+        #certs-tab .ct-empty { padding: 26px 0; color: #8c7a68; text-align: center; }
+        @media (max-width: 700px) { #certs-tab .ct-acts { width: 100%; } }
     </style>
 </head>
 <body>
@@ -372,6 +396,7 @@
             <button class="tab-btn" onclick="switchTab('invoice')">🧾 Invoice</button>
             <button class="tab-btn" onclick="switchTab('receipt')">🧾 收據</button>
             <button class="tab-btn" onclick="switchTab('message')">📤 訊息</button>
+            <button class="tab-btn" onclick="switchTab('certs')">🏅 球證證書</button>
             <button class="tab-btn" onclick="switchTab('config')">⚙️ 設定</button>
         </div>
 
@@ -1100,6 +1125,93 @@ LaLaRef 急單王 ⚡</textarea>
             </div>
         </div>
 
+        <!-- Certificates Tab -->
+        <div id="certs-tab" class="tab-content">
+            <div class="form-box">
+                <h3 style="margin-bottom: 20px; color: #5a4a3a;">🏅 球證證書</h3>
+                <div class="message" id="ct-message"></div>
+
+                <div id="ct-setup">
+                    <div class="form-group">
+                        <label for="ct-api">證書後台網址</label>
+                        <input type="url" id="ct-api" class="config-input" placeholder="https://script.google.com/macros/s/...../exec">
+                    </div>
+                    <button class="btn" type="button" id="ct-connect">🔗 載入</button>
+                </div>
+
+                <div id="ct-admin" hidden>
+                    <p style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;">
+                        <button class="btn sm ct-tab on" type="button" data-ct-tab="certs">📜 證書庫</button>
+                        <button class="btn sm ct-tab" type="button" data-ct-tab="shows">👥 客戶展示</button>
+                        <button class="btn sm btn-secondary" type="button" id="ct-reload" style="margin-left:auto">🔄 重新載入</button>
+                    </p>
+
+                    <section id="ct-view-certs">
+                        <div class="ct-row">
+                            <div class="ct-field"><label for="ct-search">搜尋</label><input id="ct-search" type="search" placeholder="球證／證書名稱／機構"></div>
+                            <button class="btn" type="button" id="ct-new-cert">＋ 新增證書</button>
+                        </div>
+
+                        <div id="ct-cert-form" hidden style="border:1px solid #e2cfb6;border-radius:16px;padding:16px;margin-bottom:16px;background:#fdf4e8;">
+                            <div class="ct-row">
+                                <div class="ct-field"><label for="ct-referee">球證姓名 *</label><input id="ct-referee" list="ct-dl-ref"></div>
+                                <div class="ct-field"><label for="ct-title">證書名稱 *</label><input id="ct-title" list="ct-dl-title"></div>
+                            </div>
+                            <div class="ct-row">
+                                <div class="ct-field"><label for="ct-issuer">頒發機構</label><input id="ct-issuer" list="ct-dl-issuer"></div>
+                                <div class="ct-field"><label for="ct-level">級別</label><input id="ct-level"></div>
+                            </div>
+                            <div class="ct-row">
+                                <div class="ct-field"><label for="ct-issued">頒發日期</label><input id="ct-issued" type="date"></div>
+                                <div class="ct-field"><label for="ct-expires">有效至</label><input id="ct-expires" type="date"></div>
+                            </div>
+                            <div class="ct-row">
+                                <div class="ct-field" style="flex:1 1 100%"><label for="ct-drive">Google Drive 連結 *</label><input id="ct-drive" placeholder="https://drive.google.com/file/d/...../view"></div>
+                            </div>
+                            <div class="ct-row">
+                                <div class="ct-field" style="flex:1 1 100%"><label for="ct-note">備註</label><input id="ct-note"></div>
+                            </div>
+                            <p style="display:flex;gap:10px;flex-wrap:wrap">
+                                <button class="btn sm" type="button" id="ct-save-cert">儲存</button>
+                                <button class="btn sm btn-secondary" type="button" id="ct-save-cert-more">儲存並繼續新增</button>
+                                <button class="btn sm btn-secondary" type="button" id="ct-cancel-cert">取消</button>
+                            </p>
+                        </div>
+                        <datalist id="ct-dl-ref"></datalist><datalist id="ct-dl-title"></datalist><datalist id="ct-dl-issuer"></datalist>
+                        <div id="ct-cert-list"></div>
+                    </section>
+
+                    <section id="ct-view-shows" hidden>
+                        <div class="ct-row">
+                            <button class="btn" type="button" id="ct-new-show">＋ 新增展示</button>
+                        </div>
+
+                        <div id="ct-show-form" hidden style="border:1px solid #e2cfb6;border-radius:16px;padding:16px;margin-bottom:16px;background:#fdf4e8;">
+                            <div class="ct-row">
+                                <div class="ct-field"><label for="ct-label">客戶名稱 *</label><input id="ct-label"></div>
+                                <div class="ct-field"><label for="ct-from">開始日期</label><input id="ct-from" type="date"></div>
+                                <div class="ct-field"><label for="ct-to">結束日期</label><input id="ct-to" type="date"></div>
+                                <label style="display:flex;gap:7px;align-items:center;padding-bottom:12px"><input type="checkbox" id="ct-active" checked>啟用</label>
+                            </div>
+                            <div class="ct-row">
+                                <div class="ct-acts">
+                                    <button class="btn sm btn-secondary" type="button" id="ct-pick-all">全選</button>
+                                    <button class="btn sm btn-secondary" type="button" id="ct-pick-none">全不選</button>
+                                    <span class="mt" id="ct-pick-count"></span>
+                                </div>
+                            </div>
+                            <div class="ct-pick" id="ct-pick"></div>
+                            <p style="display:flex;gap:10px;flex-wrap:wrap">
+                                <button class="btn sm" type="button" id="ct-save-show">儲存</button>
+                                <button class="btn sm btn-secondary" type="button" id="ct-cancel-show">取消</button>
+                            </p>
+                        </div>
+                        <div id="ct-show-list"></div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
         <!-- Config Tab -->
         <div id="config-tab" class="tab-content">
             <div class="form-box">
@@ -1310,8 +1422,12 @@ function doPost(e) {
             } else if (tab === 'message') {
                 document.querySelector('.tab-btn:nth-child(7)').classList.add('active');
                 document.getElementById('message-tab').classList.add('active');
-            } else if (tab === 'config') {
+            } else if (tab === 'certs') {
                 document.querySelector('.tab-btn:nth-child(8)').classList.add('active');
+                document.getElementById('certs-tab').classList.add('active');
+                if (window.certTabInit) window.certTabInit();
+            } else if (tab === 'config') {
+                document.querySelector('.tab-btn:nth-child(9)').classList.add('active');
                 document.getElementById('config-tab').classList.add('active');
             }
             if (['quotation','simple-quotation','invoice','receipt'].includes(tab)) loadDocumentProjects();
@@ -3662,6 +3778,267 @@ LaLaRef 急單王
                     }
                 });
         }
+    </script>
+    <script>
+/* ===== 球證證書分頁（獨立模組，只公開 window.certTabInit） ===== */
+(function () {
+    var CLIENT_PAGE = 'cert.html';
+    var api = '', certs = [], shows = [], today = '', certEditing = null, showEditing = null, busy = false;
+
+    function $(id) { return document.getElementById(id); }
+    function X(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function dmy(v) { var m = String(v || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[3] + '/' + m[2] + '/' + m[1] : String(v || ''); }
+    function val(id) { return $(id).value.trim(); }
+    function say(text, ok) { $('ct-message').className = 'message show ' + (ok ? 'success' : 'error'); $('ct-message').textContent = text; }
+    function clear() { $('ct-message').className = 'message'; $('ct-message').textContent = ''; }
+    function findCert(id) { return certs.filter(function (c) { return c.id === id; })[0]; }
+    function findShow(code) { return shows.filter(function (s) { return s.code === code; })[0]; }
+    function period(s) { return (!s.from && !s.to) ? '不限日期' : ((s.from ? dmy(s.from) : '不限') + ' 至 ' + (s.to ? dmy(s.to) : '不限')); }
+    function linkOf(code) { return new URL(CLIENT_PAGE, location.href).href.split('?')[0] + '?c=' + encodeURIComponent(code); }
+
+    function post(action, extra) {
+        var body = Object.assign({ action: action }, extra || {});
+        return fetch(api, { method: 'POST', body: JSON.stringify(body) })
+            .then(function (r) { if (!r.ok) throw new Error('伺服器回應 ' + r.status); return r.json(); })
+            .then(function (j) { if (!j.success) { var e = new Error(j.message || '操作失敗'); e.code = j.code; throw e; } return j; });
+    }
+
+    window.certTabInit = function () {
+        api = (localStorage.getItem('certApiUrl') || '').trim();
+        if (api) $('ct-api').value = api;
+        if (api) load();
+    };
+
+    function showAdmin() { $('ct-setup').hidden = true; $('ct-admin').hidden = false; }
+
+    function load() {
+        if (!api) { say('請先填寫證書後台網址。'); return; }
+        if (busy) return;
+        busy = true; clear();
+        post('adminList').then(function (j) {
+            certs = j.certs || []; shows = j.shows || []; today = j.today || '';
+            showAdmin(); renderCerts(); renderShows();
+        }).catch(function (e) {
+            $('ct-setup').hidden = false; $('ct-admin').hidden = true;
+            say(e.message + '（請檢查後台網址）');
+        }).then(function () { busy = false; });
+    }
+
+    /* ── 證書庫 ── */
+    function sortedCerts() {
+        return certs.slice().sort(function (a, b) {
+            return String(a.referee).localeCompare(String(b.referee), 'zh-HK') || String(b.issued).localeCompare(String(a.issued));
+        });
+    }
+    function inFilter(c) {
+        var q = val('ct-search').toLowerCase();
+        return !q || [c.referee, c.title, c.issuer, c.level].join(' ').toLowerCase().indexOf(q) >= 0;
+    }
+    function groupsOf(list, key) {
+        var out = [];
+        list.forEach(function (item) {
+            var name = item[key];
+            var g = out.filter(function (x) { return x.name === name; })[0];
+            if (!g) { g = { name: name, items: [] }; out.push(g); }
+            g.items.push(item);
+        });
+        return out;
+    }
+    function renderCerts() {
+        var lists = { referee: 'ct-dl-ref', title: 'ct-dl-title', issuer: 'ct-dl-issuer' };
+        Object.keys(lists).forEach(function (key) {
+            $(lists[key]).innerHTML = Array.from(new Set(certs.map(function (c) { return c[key]; }).filter(Boolean)))
+                .map(function (v) { return '<option value="' + X(v) + '">'; }).join('');
+        });
+        var list = sortedCerts().filter(inFilter);
+        $('ct-cert-list').innerHTML = list.length ? groupsOf(list, 'referee').map(function (g) {
+            return '<div class="ct-group"><h4>' + X(g.name) + '（' + g.items.length + ' 張）</h4>' + g.items.map(certRow).join('') + '</div>';
+        }).join('') : '<div class="ct-empty">' + (certs.length ? '找不到符合的證書' : '尚未新增證書') + '</div>';
+    }
+    function certRow(c) {
+        var expired = c.expires && today && c.expires < today;
+        var used = shows.filter(function (s) { return s.certIds.indexOf(c.id) >= 0; }).length;
+        var meta = [c.issuer, c.level, c.issued ? '頒發 ' + dmy(c.issued) : '', c.expires ? '有效至 ' + dmy(c.expires) : ''].filter(Boolean).join(' · ');
+        return '<div class="ct-item"><div><div class="nm">' + X(c.title) + '</div>' +
+            '<div class="mt">' + X(meta) + (expired ? ' · 已過期' : '') + (used ? ' · 用於 ' + used + ' 個展示' : '') + (c.note ? ' · ' + X(c.note) : '') + '</div></div>' +
+            '<div class="ct-acts">' +
+            '<button class="btn sm btn-secondary" type="button" data-cert="open" data-id="' + X(c.id) + '">預覽</button>' +
+            '<button class="btn sm" type="button" data-cert="edit" data-id="' + X(c.id) + '">編輯</button>' +
+            '<button class="btn sm del" type="button" data-cert="del" data-id="' + X(c.id) + '">刪除</button>' +
+            '</div></div>';
+    }
+    function openCertForm(c) {
+        certEditing = c ? c.id : '';
+        $('ct-referee').value = c ? c.referee : '';
+        $('ct-title').value = c ? c.title : '';
+        $('ct-issuer').value = c ? c.issuer : '';
+        $('ct-level').value = c ? c.level : '';
+        $('ct-issued').value = c ? c.issued : '';
+        $('ct-expires').value = c ? c.expires : '';
+        $('ct-drive').value = c ? c.driveUrl : '';
+        $('ct-note').value = c ? c.note : '';
+        $('ct-cert-form').hidden = false;
+        $('ct-referee').focus();
+    }
+    function saveCert(keepGoing) {
+        if (busy) return;
+        if (!val('ct-referee') || !val('ct-title')) { say('請填寫球證姓名及證書名稱。'); return; }
+        if (!val('ct-drive')) { say('請貼上 Google Drive 連結。'); return; }
+        busy = true; clear();
+        var cert = {
+            id: certEditing || '', referee: val('ct-referee'), title: val('ct-title'), issuer: val('ct-issuer'),
+            level: val('ct-level'), issued: val('ct-issued'), expires: val('ct-expires'), driveUrl: val('ct-drive'), note: val('ct-note')
+        };
+        post('certSave', { cert: cert }).then(function (j) {
+            var i = certs.findIndex(function (x) { return x.id === j.cert.id; });
+            if (i >= 0) certs[i] = j.cert; else certs.push(j.cert);
+            certEditing = j.cert.id;
+            renderCerts(); renderShows();
+            say(j.warning ? ('已儲存，但：' + j.warning) : ('已儲存「' + j.cert.title + '」。'), true);
+            if (keepGoing) {
+                openCertForm(null);
+                $('ct-referee').value = j.cert.referee; $('ct-issuer').value = j.cert.issuer; $('ct-level').value = j.cert.level;
+            }
+        }).catch(function (e) { say(e.message); }).then(function () { busy = false; });
+    }
+
+    /* ── 客戶展示 ── */
+    function renderShows() {
+        var list = shows.slice().sort(function (a, b) { return String(b.createdAt).localeCompare(String(a.createdAt)); });
+        $('ct-show-list').innerHTML = list.length ? list.map(function (s) {
+            var state = !s.active ? '已停用' : (s.to && today > s.to ? '已過有效期' : (s.from && today < s.from ? '未開始' : '顯示中'));
+            return '<div class="ct-item"><div style="flex:1 1 320px"><div class="nm">' + X(s.label) + '　·　' + s.certIds.length + ' 張　·　' + X(period(s)) + '</div>' +
+                '<div class="mt">狀態：' + state + '</div>' +
+                '<div class="ct-link"><input readonly value="' + X(linkOf(s.code)) + '"><button class="btn sm" type="button" data-show="copy" data-code="' + X(s.code) + '">複製連結</button></div></div>' +
+                '<div class="ct-acts">' +
+                '<label style="display:flex;gap:7px;align-items:center;font-size:.9em"><input type="checkbox" data-active="' + X(s.code) + '" ' + (s.active ? 'checked' : '') + '>啟用</label>' +
+                '<button class="btn sm btn-secondary" type="button" data-show="open" data-code="' + X(s.code) + '">預覽</button>' +
+                '<button class="btn sm" type="button" data-show="edit" data-code="' + X(s.code) + '">編輯</button>' +
+                '<button class="btn sm del" type="button" data-show="del" data-code="' + X(s.code) + '">刪除</button>' +
+                '</div></div>';
+        }).join('') : '<div class="ct-empty">尚未建立客戶展示</div>';
+    }
+    function picked() {
+        return Array.prototype.slice.call($('ct-pick').querySelectorAll('input:checked')).map(function (i) { return i.dataset.pick; });
+    }
+    function countPick() { $('ct-pick-count').textContent = '已選 ' + picked().length + ' 張'; }
+    function openShowForm(s) {
+        showEditing = s ? s.code : '';
+        var ids = s ? s.certIds : [];
+        $('ct-label').value = s ? s.label : '';
+        $('ct-from').value = s ? s.from : '';
+        $('ct-to').value = s ? s.to : '';
+        $('ct-active').checked = s ? !!s.active : true;
+        $('ct-pick').innerHTML = groupsOf(sortedCerts(), 'referee').map(function (g) {
+            return '<div class="grp"><b>' + X(g.name) + '</b>' + g.items.map(function (c) {
+                return '<label><input type="checkbox" data-pick="' + X(c.id) + '" ' + (ids.indexOf(c.id) >= 0 ? 'checked' : '') + '>' +
+                    X(c.title) + (c.expires ? '（有效至 ' + dmy(c.expires) + '）' : '') + '</label>';
+            }).join('') + '</div>';
+        }).join('') || '<div class="ct-empty">請先在「證書庫」新增證書</div>';
+        countPick();
+        $('ct-show-form').hidden = false;
+        $('ct-label').focus();
+    }
+    function saveShow() {
+        if (busy) return;
+        if (!val('ct-label')) { say('請填寫客戶名稱。'); return; }
+        busy = true; clear();
+        var show = { code: showEditing || '', label: val('ct-label'), certIds: picked(), from: val('ct-from'), to: val('ct-to'), active: $('ct-active').checked };
+        post('showSave', { show: show }).then(function (j) {
+            var i = shows.findIndex(function (x) { return x.code === j.show.code; });
+            if (i >= 0) shows[i] = j.show; else shows.push(j.show);
+            renderShows();
+            $('ct-show-form').hidden = true;
+            copyShow(j.show.code);
+        }).catch(function (e) { say(e.message); }).then(function () { busy = false; });
+    }
+    function copyShow(code) {
+        var text = linkOf(code);
+        var done = function () { say('連結已複製：' + text, true); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+        } else fallbackCopy(text, done);
+    }
+    function fallbackCopy(text, done) {
+        var box = document.createElement('textarea');
+        box.value = text; document.body.appendChild(box); box.select();
+        try { document.execCommand('copy'); done(); } catch (e) { say('複製失敗，請手動複製：' + text); }
+        document.body.removeChild(box);
+    }
+
+    /* ── 事件 ── */
+    var root = $('certs-tab');
+    $('ct-connect').addEventListener('click', function () {
+        api = $('ct-api').value.trim();
+        if (!api) { say('請先填寫證書後台網址。'); return; }
+        localStorage.setItem('certApiUrl', api);
+        load();
+    });
+    $('ct-reload').addEventListener('click', load);
+    $('ct-search').addEventListener('input', renderCerts);
+    $('ct-new-cert').addEventListener('click', function () { openCertForm(null); });
+    $('ct-cancel-cert').addEventListener('click', function () { $('ct-cert-form').hidden = true; certEditing = null; clear(); });
+    $('ct-save-cert').addEventListener('click', function () { saveCert(false); });
+    $('ct-save-cert-more').addEventListener('click', function () { saveCert(true); });
+    $('ct-new-show').addEventListener('click', function () { openShowForm(null); });
+    $('ct-cancel-show').addEventListener('click', function () { $('ct-show-form').hidden = true; showEditing = null; clear(); });
+    $('ct-save-show').addEventListener('click', saveShow);
+    $('ct-pick-all').addEventListener('click', function () { $('ct-pick').querySelectorAll('input').forEach(function (i) { i.checked = true; }); countPick(); });
+    $('ct-pick-none').addEventListener('click', function () { $('ct-pick').querySelectorAll('input').forEach(function (i) { i.checked = false; }); countPick(); });
+    $('ct-pick').addEventListener('change', countPick);
+    root.querySelectorAll('[data-ct-tab]').forEach(function (b) {
+        b.addEventListener('click', function () {
+            root.querySelectorAll('[data-ct-tab]').forEach(function (x) { x.classList.remove('on'); });
+            b.classList.add('on');
+            $('ct-view-certs').hidden = b.dataset.ctTab !== 'certs';
+            $('ct-view-shows').hidden = b.dataset.ctTab !== 'shows';
+        });
+    });
+    root.addEventListener('click', function (event) {
+        var b = event.target.closest('[data-cert],[data-show]');
+        if (!b) return;
+        clear();
+        if (b.dataset.cert) {
+            var cert = findCert(b.dataset.id);
+            if (!cert) return;
+            if (b.dataset.cert === 'edit') openCertForm(cert);
+            else if (b.dataset.cert === 'open') window.open(cert.driveUrl, '_blank', 'noopener');
+            else if (b.dataset.cert === 'del' && confirm('刪除「' + cert.title + '」？所有客戶展示也會移除這張證書。')) {
+                busy = true;
+                post('certDelete', { id: cert.id }).then(function () {
+                    certs = certs.filter(function (x) { return x.id !== cert.id; });
+                    shows.forEach(function (s) { s.certIds = s.certIds.filter(function (id) { return id !== cert.id; }); });
+                    renderCerts(); renderShows(); say('已刪除。', true);
+                }).catch(function (e) { say(e.message); }).then(function () { busy = false; });
+            }
+            return;
+        }
+        var show = findShow(b.dataset.code);
+        if (!show) return;
+        if (b.dataset.show === 'edit') openShowForm(show);
+        else if (b.dataset.show === 'copy') copyShow(show.code);
+        else if (b.dataset.show === 'open') window.open(linkOf(show.code), '_blank', 'noopener');
+        else if (b.dataset.show === 'del' && confirm('刪除「' + show.label + '」的展示連結？')) {
+            busy = true;
+            post('showDelete', { code: show.code }).then(function () {
+                shows = shows.filter(function (x) { return x.code !== show.code; });
+                renderShows(); say('已刪除。', true);
+            }).catch(function (e) { say(e.message); }).then(function () { busy = false; });
+        }
+    });
+    root.addEventListener('change', function (event) {
+        var box = event.target.closest('[data-active]');
+        if (!box || busy) return;
+        var show = findShow(box.dataset.active);
+        if (!show) return;
+        busy = true; clear();
+        post('showSave', { show: Object.assign({}, show, { active: box.checked }) }).then(function (j) {
+            var i = shows.findIndex(function (x) { return x.code === j.show.code; });
+            if (i >= 0) shows[i] = j.show;
+            renderShows(); say(j.show.label + (j.show.active ? ' 已啟用。' : ' 已停用。'), true);
+        }).catch(function (e) { box.checked = !box.checked; say(e.message); }).then(function () { busy = false; });
+    });
+})();
     </script>
 </body>
 </html>
