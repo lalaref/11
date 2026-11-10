@@ -97,7 +97,7 @@ html{font-size:16px}.wrap{padding:12px 10px}.hero,.card{border-radius:16px;paddi
 
 <script>
 const API_URL='https://script.google.com/macros/s/AKfycbyi604Q_mpZZISX_Yv4C-6_5o4YSuRsqmKfecB6DW1_am7hTMaIQQgfv3sEIPxL__Q0/exec';
-const code=new URLSearchParams(location.search).get('c')||'';
+const code=new URLSearchParams(location.search).get('code')||'';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dmy=v=>{const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?m[3]+'/'+m[2]+'/'+m[1]:String(v||'')};
@@ -123,7 +123,7 @@ function failView(e){
 
 async function init(){
   try{
-    const j=await api({c:code});
+    const j=await api({code:code});
     items=j.items||[];
     today=j.today||new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Hong_Kong'});
     if(j.label){

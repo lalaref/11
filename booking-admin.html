@@ -3779,7 +3779,7 @@ LaLaRef 急單王
     function findCert(id) { return certs.filter(function (c) { return c.id === id; })[0]; }
     function findShow(code) { return shows.filter(function (s) { return s.code === code; })[0]; }
     function period(s) { return (!s.from && !s.to) ? '不限日期' : ((s.from ? dmy(s.from) : '不限') + ' 至 ' + (s.to ? dmy(s.to) : '不限')); }
-    function linkOf(code) { return new URL(CLIENT_PAGE, location.href).href.split('?')[0] + '?c=' + encodeURIComponent(code); }
+    function linkOf(code) { return new URL(CLIENT_PAGE, location.href).href.split('?')[0] + '?code=' + encodeURIComponent(code); }
 
     function post(action, extra) {
         var body = Object.assign({ action: action }, extra || {});
