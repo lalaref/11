@@ -362,9 +362,57 @@
         #certs-tab .ct-pick input { width: 18px; height: 18px; }
         #certs-tab .ct-empty { padding: 26px 0; color: #8c7a68; text-align: center; }
         @media (max-width: 700px) { #certs-tab .ct-acts { width: 100%; } }
+        html.ba-locked body > *:not(#ba-gate) { display: none !important; }
+        #ba-gate { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #f7ead8, #e3cba7); }
+        #ba-gate form { width: 100%; max-width: 350px; padding: 28px 24px; text-align: center; background: #fffdf9; border: 1px solid #d4a574; border-radius: 18px; box-shadow: 0 14px 34px rgba(90, 74, 58, 0.2); }
+        #ba-gate h1 { margin: 0 0 6px; font-size: 1.2em; color: #5a4a3a; }
+        #ba-gate p { margin: 0 0 18px; font-size: 0.9em; color: #8c7a68; }
+        #ba-gate input { box-sizing: border-box; width: 100%; padding: 13px 14px; font-size: 1.05em; letter-spacing: 3px; color: #5a4a3a; background: #fffaf3; border: 1px solid #d4a574; border-radius: 11px; }
+        #ba-gate input:focus { outline: 2px solid #c89860; outline-offset: 1px; }
+        #ba-gate button { width: 100%; margin-top: 14px; padding: 13px; font-size: 1em; font-weight: 700; color: #fff; background: linear-gradient(145deg, #d4a574, #b8863f); border: 0; border-radius: 11px; cursor: pointer; }
+        #ba-gate-msg { min-height: 1.3em; margin: 12px 0 0 !important; color: #c94f4f !important; font-size: 0.88em !important; }
     </style>
 </head>
 <body>
+    <div id="ba-gate">
+        <form id="ba-gate-form" autocomplete="off">
+            <h1>🔒 預訂管理系統</h1>
+            <p>請輸入管理密碼</p>
+            <input id="ba-gate-pw" type="password" autocomplete="current-password" required placeholder="••••••••">
+            <button type="submit">進入</button>
+            <p id="ba-gate-msg" role="alert"></p>
+        </form>
+    </div>
+    <script>
+    (() => {
+        // 進入密碼的 SHA-256；改密碼時把新密碼的雜湊換掉這一行即可
+        const GATE_HASH = '3ec1b5a09119810cd91efde4bb567fe72c4a1bef23dc8ab42df8b5149134cb51';
+        const GATE_KEY = 'baGateUnlocked';
+        const gate = document.getElementById('ba-gate');
+        const input = document.getElementById('ba-gate-pw');
+        const msg = document.getElementById('ba-gate-msg');
+        const form = document.getElementById('ba-gate-form');
+        document.documentElement.classList.add('ba-locked');
+        function open() {
+            document.documentElement.classList.remove('ba-locked');
+            gate.remove();
+            try { sessionStorage.setItem(GATE_KEY, '1'); } catch {}
+        }
+        if (sessionStorage.getItem(GATE_KEY) === '1') open();
+        else if (!window.crypto || !crypto.subtle) open();
+        else {
+            form.onsubmit = async event => {
+                event.preventDefault();
+                const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input.value));
+                if (Array.from(new Uint8Array(hashBuffer), b => b.toString(16).padStart(2, '0')).join('') === GATE_HASH) { open(); return; }
+                input.value = '';
+                msg.textContent = '密碼不正確，請再試一次。';
+                input.focus();
+            };
+            input.focus();
+        }
+    })();
+    </script>
     <div class="container">
         <div class="header">
             <h1>📋 預訂管理系統</h1>
