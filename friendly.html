@@ -262,10 +262,9 @@ footer p{margin:4px 0;font-size:.95em}
        district:'九龍', court:'已有場', venue:'九龍公園體育館', refs:'2 位', status:'open' }
      status：'open' = 招募中，'closed' = 已配對
      ⚠️ 只加入已經 WhatsApp 確認嘅約戰（可附 ref 約戰編號方便追蹤） */
-  var MATCHES = [];
-
-  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-  var board = document.getElementById('match-board');
+ var MATCHES = [
+  {"ref":"FM261116-EBPT","team":"WINGS YOUTH","level":"業餘/公司隊","date":"2026-11-30","time":"18:00–20:00","district":"新界西","court":"未有場，需協助","venue":"","refs":"2 位","status":"open"}
+];
   var fD = document.getElementById('f-district'), fL = document.getElementById('f-level'), fS = document.getElementById('f-status');
 
   function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
