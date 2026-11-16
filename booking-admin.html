@@ -1271,7 +1271,7 @@ LaLaRef 急單王 ⚡</textarea>
         <div id="friendly-tab" class="tab-content">
             <div class="form-box">
                 <h3 style="margin-bottom: 8px; color: #5a4a3a;">🏀 約戰板確認</h3>
-                <p class="fm-hint">流程：球隊經 WhatsApp 提交約戰 → 在此貼上訊息並解析 → 核對、與球隊確認 → 按「確認並加入約戰板」→ 複製約戰板資料碼，貼入友誼賽頁面的 <code>MATCHES</code> 並重新上載。聯絡人及電話只保存在此瀏覽器，不會輸出到公開頁面。</p>
+                <p class="fm-hint">流程：球隊經 WhatsApp 提交約戰 → 在此貼上訊息並解析 → 核對、與球隊確認 → 按「確認並加入約戰板」→ 複製約戰板資料碼，貼入友誼賽頁面的「約戰板資料」script 區塊並重新上載。聯絡人及電話只保存在此瀏覽器，不會輸出到公開頁面。</p>
                 <div class="message" id="fm-message"></div>
 
                 <div class="fm-sect">① 貼上球隊 WhatsApp 訊息</div>
@@ -1322,7 +1322,7 @@ LaLaRef 急單王 ⚡</textarea>
                 <div id="fm-list"></div>
 
                 <div class="fm-sect">④ 輸出到約戰板頁面</div>
-                <p class="fm-hint">只輸出尚未過期的約戰，且不含聯絡人及電話。複製後，到友誼賽頁面底部 script 內，取代原有的 <code>var MATCHES = [...];</code>，再重新上載頁面。</p>
+                <p class="fm-hint">只輸出尚未過期的約戰，且不含聯絡人及電話。複製後，到友誼賽頁面碼內找「約戰板資料」script 區塊，把區塊內原有內容整段換成資料碼（其他程式碼一概不用動），儲存後重新上載頁面。</p>
                 <div class="form-actions" style="justify-content:flex-start;margin-top:0;margin-bottom:12px;">
                     <button type="button" class="btn" id="fm-gen">📋 產生並複製資料碼</button>
                     <button type="button" class="btn btn-secondary" id="fm-backup">💾 複製備份 JSON</button>
@@ -4257,7 +4257,7 @@ LaLaRef 急單王
         var lines = list.map(function (m) {
             return '  ' + JSON.stringify({ ref: m.ref, team: m.team, level: m.level, date: m.date, time: timeText(m), district: m.district, court: m.court, venue: m.venue || '', refs: m.refs || '', status: m.status === 'closed' ? 'closed' : 'open' });
         });
-        return { count: list.length, code: 'var MATCHES = [' + (lines.length ? '\n' + lines.join(',\n') + '\n' : '') + '];' };
+        return { count: list.length, code: '/* 約戰板資料碼 — 貼入 friendly.html 的「約戰板資料」script 區塊內（取代原有全部內容），其他程式碼不用動 */\nvar MATCHES = [' + (lines.length ? '\n' + lines.join(',\n') + '\n' : '') + '];' };
     }
 
     window.fmInit = function () { render(); };
@@ -4303,7 +4303,7 @@ LaLaRef 急單王
     $('fm-gen').addEventListener('click', function () {
         var r = buildCode();
         $('fm-code').value = r.code;
-        copyText(r.code, '已複製 ' + r.count + ' 場約戰的資料碼，請貼入友誼賽頁面的 MATCHES 並重新上載。');
+        copyText(r.code, '已複製 ' + r.count + ' 場約戰的資料碼，請貼入友誼賽頁面「約戰板資料」script 區塊並重新上載。');
     });
     $('fm-backup').addEventListener('click', function () { copyText(JSON.stringify(loadList()), '備份 JSON 已複製。'); });
     $('fm-restore').addEventListener('click', function () {

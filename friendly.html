@@ -252,19 +252,22 @@ footer p{margin:4px 0;font-size:.95em}
 
 <a class="fab" href="https://wa.me/85284828484" target="_blank" rel="noopener" aria-label="WhatsApp 聯絡 LaLaRef">💬</a>
 
+<!-- ═══ 約戰板資料（由 booking-admin.html「約戰板」tab 產生）═══
+     更新約戰板：把下面 <script> 至 </script> 之間的全部內容，
+     換成 booking-admin「產生並複製資料碼」的內容即可，本檔案其他部分一概不用動。 -->
+<script>
+/* 約戰板資料碼 — 貼入 friendly.html 的「約戰板資料」script 區塊內（取代原有全部內容），其他程式碼不用動 */
+var MATCHES = [
+  {"ref":"FM261116-EBPT","team":"WINGS YOUTH","level":"業餘/公司隊","date":"2026-11-30","time":"18:00–20:00","district":"新界西","court":"未有場，需協助","venue":"","refs":"2 位","status":"open"}
+];
+</script>
 <script>
 (function () {
   var WA = '85284828484';
+  var MATCHES = (Array.isArray(window.MATCHES)) ? window.MATCHES : [];
 
-  /* ===== 約戰板資料 =====
-     核實後在此加入約戰，例如：
-     { team:'XX 籃球隊', level:'U16', date:'2026-12-05', time:'19:00–21:00',
-       district:'九龍', court:'已有場', venue:'九龍公園體育館', refs:'2 位', status:'open' }
-     status：'open' = 招募中，'closed' = 已配對
-     ⚠️ 只加入已經 WhatsApp 確認嘅約戰（可附 ref 約戰編號方便追蹤） */
- var MATCHES = [
-  {"ref":"FM261116-EBPT","team":"WINGS YOUTH","level":"業餘/公司隊","date":"2026-11-30","time":"18:00–20:00","district":"新界西","court":"未有場，需協助","venue":"","refs":"2 位","status":"open"}
-];
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  var board = document.getElementById('match-board');
   var fD = document.getElementById('f-district'), fL = document.getElementById('f-level'), fS = document.getElementById('f-status');
 
   function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
