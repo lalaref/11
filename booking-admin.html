@@ -371,6 +371,25 @@
         #ba-gate input:focus { outline: 2px solid #c89860; outline-offset: 1px; }
         #ba-gate button { width: 100%; margin-top: 14px; padding: 13px; font-size: 1em; font-weight: 700; color: #fff; background: linear-gradient(145deg, #d4a574, #b8863f); border: 0; border-radius: 11px; cursor: pointer; }
         #ba-gate-msg { min-height: 1.3em; margin: 12px 0 0 !important; color: #c94f4f !important; font-size: 0.88em !important; }
+
+        /* ===== 約戰板確認 ===== */
+        #friendly-tab .fm-hint { font-size: 0.88em; color: #7a6a5a; margin: 6px 0 14px; line-height: 1.6; }
+        #friendly-tab .fm-sect { margin: 24px 0 12px; font-weight: 900; color: #5a4a3a; border-left: 5px solid #d4a574; padding-left: 10px; }
+        #friendly-tab .fm-sect small { font-weight: 600; color: #8c7a68; margin-left: 6px; }
+        #friendly-tab .fm-raw { min-height: 180px; font-size: 0.9em; line-height: 1.5; }
+        #friendly-tab .fm-item { background: linear-gradient(145deg, #f5e6d3, #ede0cc); border-radius: 20px; padding: 18px 20px; margin-bottom: 14px; box-shadow: 8px 8px 16px rgba(0,0,0,0.08), -8px -8px 16px rgba(255,255,255,0.7); }
+        #friendly-tab .fm-item h4 { color: #5a4a3a; font-size: 1.1em; margin-bottom: 6px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        #friendly-tab .fm-tag { display: inline-block; padding: 2px 11px; border-radius: 12px; font-size: 0.78em; font-weight: 800; color: #fff; background: #d4a574; }
+        #friendly-tab .fm-tag.open { background: #25d366; }
+        #friendly-tab .fm-tag.closed { background: #999; }
+        #friendly-tab .fm-tag.old { background: #c94f4f; }
+        #friendly-tab .fm-meta { font-size: 0.88em; color: #6a5a4a; line-height: 1.7; }
+        #friendly-tab .fm-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        #friendly-tab .btn.sm { padding: 7px 14px; font-size: 0.82em; width: auto; border-radius: 14px; }
+        #friendly-tab .btn.del { background: linear-gradient(145deg, #e07a7a, #c94f4f); color: #fff; }
+        #friendly-tab .btn.wa { background: linear-gradient(145deg, #2fe074, #1fb457); }
+        #friendly-tab .fm-code { width: 100%; min-height: 220px; font-family: monospace; font-size: 0.82em; padding: 12px; border-radius: 12px; border: 1px solid #d4a574; background: #fffaf3; color: #5a4a3a; }
+        #friendly-tab .fm-empty { text-align: center; color: #8c7a68; padding: 26px 0; }
     </style>
 </head>
 <body>
@@ -444,6 +463,7 @@
             <button class="tab-btn" onclick="switchTab('receipt')">🧾 收據</button>
             <button class="tab-btn" onclick="switchTab('message')">📤 訊息</button>
             <button class="tab-btn" onclick="switchTab('certs')">🏅 球證證書</button>
+            <button class="tab-btn" onclick="switchTab('friendly')">🏀 約戰板</button>
             <button class="tab-btn" onclick="switchTab('config')">⚙️ 設定</button>
         </div>
 
@@ -1247,6 +1267,71 @@ LaLaRef 急單王 ⚡</textarea>
             </div>
         </div>
 
+        <!-- Friendly Match Board Tab -->
+        <div id="friendly-tab" class="tab-content">
+            <div class="form-box">
+                <h3 style="margin-bottom: 8px; color: #5a4a3a;">🏀 約戰板確認</h3>
+                <p class="fm-hint">流程：球隊經 WhatsApp 提交約戰 → 在此貼上訊息並解析 → 核對、與球隊確認 → 按「確認並加入約戰板」→ 複製約戰板資料碼，貼入友誼賽頁面的 <code>MATCHES</code> 並重新上載。聯絡人及電話只保存在此瀏覽器，不會輸出到公開頁面。</p>
+                <div class="message" id="fm-message"></div>
+
+                <div class="fm-sect">① 貼上球隊 WhatsApp 訊息</div>
+                <div class="form-group">
+                    <textarea id="fm-raw" class="fm-raw" placeholder="把球隊傳來的「友誼賽Friendly約戰 — 申請刊登」訊息整段貼在這裡"></textarea>
+                </div>
+                <div class="form-actions" style="justify-content:flex-start;margin-top:0;">
+                    <button type="button" class="btn" id="fm-parse">🔍 解析訊息</button>
+                    <button type="button" class="btn btn-secondary" id="fm-clear">🔄 清空表格</button>
+                </div>
+
+                <div class="fm-sect">② 核對約戰資料 <small id="fm-edit-state"></small></div>
+                <div class="fm-sect" style="font-size:0.95em;margin-top:6px;">會公開於約戰板</div>
+                <div class="form-grid">
+                    <div class="form-group"><label for="fm-team">球隊名稱 *</label><input type="text" id="fm-team" maxlength="40"></div>
+                    <div class="form-group"><label for="fm-level">組別 *</label>
+                        <select id="fm-level"><option value="">請選擇</option><option>甲組</option><option>乙組</option><option>丙組</option><option>U20</option><option>U16</option><option>U12</option><option>業餘/公司隊</option></select></div>
+                    <div class="form-group"><label for="fm-date">比賽日期 *</label><input type="date" id="fm-date"></div>
+                    <div class="form-group"><label for="fm-start">開始時間 *</label><input type="time" id="fm-start"></div>
+                    <div class="form-group"><label for="fm-end">結束時間 *</label><input type="time" id="fm-end"></div>
+                    <div class="form-group"><label for="fm-district">地區 *</label>
+                        <select id="fm-district"><option value="">請選擇</option><option>港島</option><option>九龍</option><option>新界東</option><option>新界西</option><option>不限</option></select></div>
+                    <div class="form-group"><label for="fm-court">場地安排 *</label>
+                        <select id="fm-court"><option value="">請選擇</option><option>已有場</option><option>希望對手提供場地</option><option>未有場，需協助</option></select></div>
+                    <div class="form-group"><label for="fm-venue">場地名稱</label><input type="text" id="fm-venue" maxlength="60"></div>
+                    <div class="form-group"><label for="fm-refs">球證/裁判</label><input type="text" id="fm-refs" maxlength="20" placeholder="例如: 2 位"></div>
+                    <div class="form-group"><label for="fm-status">約戰板狀態</label>
+                        <select id="fm-status"><option value="open">招募中</option><option value="closed">已配對</option></select></div>
+                </div>
+                <div class="fm-sect" style="font-size:0.95em;margin-top:6px;">內部資料（不公開）</div>
+                <div class="form-grid">
+                    <div class="form-group"><label for="fm-ref">約戰編號</label><input type="text" id="fm-ref" placeholder="自動生成或貼上訊息內編號"></div>
+                    <div class="form-group"><label for="fm-contact">聯絡人</label><input type="text" id="fm-contact"></div>
+                    <div class="form-group"><label for="fm-phone">電話 / WhatsApp</label><input type="tel" id="fm-phone"></div>
+                    <div class="form-group"><label for="fm-want">希望對手水平</label><input type="text" id="fm-want"></div>
+                    <div class="form-group"><label for="fm-format">賽制</label><input type="text" id="fm-format"></div>
+                    <div class="form-group"><label for="fm-fee">費用分攤</label><input type="text" id="fm-fee"></div>
+                    <div class="form-group"><label for="fm-scorer">計時計分員</label><input type="text" id="fm-scorer"></div>
+                    <div class="form-group"><label for="fm-photo">攝影 / 錄影</label><input type="text" id="fm-photo"></div>
+                </div>
+                <div class="form-group"><label for="fm-notes">備註</label><textarea id="fm-notes"></textarea></div>
+                <div class="form-actions" style="justify-content:flex-start;">
+                    <button type="button" class="btn" id="fm-confirm">✅ 確認並加入約戰板</button>
+                    <button type="button" class="btn wa" id="fm-wa-form" style="background:linear-gradient(145deg,#2fe074,#1fb457);">💬 WhatsApp 回覆球隊</button>
+                </div>
+
+                <div class="fm-sect">③ 已確認約戰 <small id="fm-count"></small></div>
+                <div id="fm-list"></div>
+
+                <div class="fm-sect">④ 輸出到約戰板頁面</div>
+                <p class="fm-hint">只輸出尚未過期的約戰，且不含聯絡人及電話。複製後，到友誼賽頁面底部 script 內，取代原有的 <code>var MATCHES = [...];</code>，再重新上載頁面。</p>
+                <div class="form-actions" style="justify-content:flex-start;margin-top:0;margin-bottom:12px;">
+                    <button type="button" class="btn" id="fm-gen">📋 產生並複製資料碼</button>
+                    <button type="button" class="btn btn-secondary" id="fm-backup">💾 複製備份 JSON</button>
+                    <button type="button" class="btn btn-secondary" id="fm-restore">📥 匯入備份</button>
+                </div>
+                <textarea id="fm-code" class="fm-code" readonly placeholder="按「產生並複製資料碼」後會顯示在這裡"></textarea>
+            </div>
+        </div>
+
         <!-- Config Tab -->
         <div id="config-tab" class="tab-content">
             <div class="form-box">
@@ -1461,8 +1546,12 @@ function doPost(e) {
                 document.querySelector('.tab-btn:nth-child(8)').classList.add('active');
                 document.getElementById('certs-tab').classList.add('active');
                 if (window.certTabInit) window.certTabInit();
-            } else if (tab === 'config') {
+            } else if (tab === 'friendly') {
                 document.querySelector('.tab-btn:nth-child(9)').classList.add('active');
+                document.getElementById('friendly-tab').classList.add('active');
+                if (window.fmInit) window.fmInit();
+            } else if (tab === 'config') {
+                document.querySelector('.tab-btn:nth-child(10)').classList.add('active');
                 document.getElementById('config-tab').classList.add('active');
             }
             if (['quotation','simple-quotation','invoice','receipt'].includes(tab)) loadDocumentProjects();
@@ -4032,5 +4121,208 @@ LaLaRef 急單王
     });
 })();
     </script>
+<script>
+/* ===== 約戰板確認（獨立模組，只公開 window.fmInit） ===== */
+(function () {
+    var KEY = 'friendlyMatchBoard';
+    var editing = '';
+    var FIELDS = ['team','level','date','start','end','district','court','venue','refs','status','ref','contact','phone','want','format','fee','scorer','photo','notes'];
+    function $(id) { return document.getElementById(id); }
+    function loadList() { try { var a = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+    function saveList(list) { localStorage.setItem(KEY, JSON.stringify(list)); }
+    function todayStr() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function say(t, type) { showMessage('fm-message', t, type || 'success'); }
+    function pad(t) { var m = /^(\d{1,2}):(\d{2})/.exec(t || ''); return m ? m[1].padStart(2, '0') + ':' + m[2] : ''; }
+    function setSel(id, v) {
+        var el = $(id); v = v || '';
+        if (v && !Array.prototype.some.call(el.options, function (o) { return o.value === v || o.text === v; })) el.add(new Option(v, v));
+        el.value = v;
+    }
+    function setVal(f, v) { var el = $('fm-' + f); if (el.tagName === 'SELECT') setSel('fm-' + f, v); else el.value = v || ''; }
+    function readForm() { var o = {}; FIELDS.forEach(function (f) { o[f] = $('fm-' + f).value.trim(); }); return o; }
+    function fillForm(o) { FIELDS.forEach(function (f) { setVal(f, o[f] == null ? (f === 'status' ? 'open' : '') : String(o[f])); }); }
+    function clearForm() { editing = ''; fillForm({status: 'open'}); $('fm-edit-state').textContent = ''; }
+    function genRef() { var d = new Date(); return 'FM' + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '-' + Math.random().toString(36).slice(2, 6).toUpperCase(); }
+    function timeText(m) { return m.start && m.end ? m.start + '–' + m.end + (m.end < m.start ? '（翌日）' : '') : (m.start || ''); }
+
+    /* 解析 WhatsApp 訊息 */
+    var KEYS = ['約戰編號','球隊','組別','日期','時間','地區','場地安排','賽制','費用分攤','球證/裁判','計時計分','攝影/錄影','聯絡人','電話','備註'];
+    function parseMessage(text) {
+        var out = {}, notes = [], noteMode = false;
+        String(text).replace(/\r/g, '').split('\n').forEach(function (line) {
+            var t = line.trim().replace(/[*`]/g, '');
+            if (!t) return;
+            if (/^請\s*LaLaRef/.test(t)) { noteMode = false; return; }
+            var i1 = t.indexOf('：'), i2 = t.indexOf(':');
+            var i = i1 < 0 ? i2 : (i2 < 0 ? i1 : Math.min(i1, i2));
+            var key = i > 0 ? t.slice(0, i).trim() : '';
+            if (KEYS.indexOf(key) >= 0) {
+                var v = t.slice(i + 1).trim();
+                noteMode = false;
+                if (key === '備註') { noteMode = true; if (v) notes.push(v); }
+                else out[key] = v;
+            } else if (noteMode) notes.push(t);
+        });
+        var r = {};
+        r.ref = out['約戰編號'] || '';
+        r.team = out['球隊'] || '';
+        var lv = /^([^（(]*)(?:[（(]\s*希望對手\s*[：:]\s*([^）)]*)[）)])?/.exec(out['組別'] || '') || [];
+        r.level = (lv[1] || '').trim(); r.want = (lv[2] || '').trim();
+        var dm = /\d{4}-\d{2}-\d{2}/.exec(out['日期'] || ''); r.date = dm ? dm[0] : '';
+        var tm = /(\d{1,2}:\d{2})\s*[-–~至]\s*(\d{1,2}:\d{2})/.exec(out['時間'] || '');
+        r.start = tm ? pad(tm[1]) : ''; r.end = tm ? pad(tm[2]) : '';
+        r.district = out['地區'] || '';
+        var ct = /^([^（(]*)(?:[（(]([^）)]*)[）)])?/.exec(out['場地安排'] || '') || [];
+        r.court = (ct[1] || '').trim(); r.venue = (ct[2] || '').trim();
+        r.format = out['賽制'] || ''; r.fee = out['費用分攤'] || '';
+        r.refs = (out['球證/裁判'] || '').replace(/[（(][^）)]*[）)]/g, '').trim();
+        r.scorer = out['計時計分'] || ''; r.photo = out['攝影/錄影'] || '';
+        r.contact = out['聯絡人'] || ''; r.phone = out['電話'] || '';
+        r.notes = notes.join('\n');
+        r.status = 'open';
+        return r;
+    }
+
+    function waNumber(p) { var d = String(p || '').replace(/\D/g, ''); if (d.length === 8) d = '852' + d; return d; }
+    function waMessage(m) {
+        var head = '你好' + (m.contact ? ' ' + m.contact : '') + '！';
+        if (m.status === 'closed') return head + '你嘅友誼賽Friendly約戰（編號：' + m.ref + '）已經配對成功 ✅\n📅 ' + m.date + ' ' + timeText(m) + '\n📍 ' + (m.venue || m.district) + '\n我哋會再跟進比賽安排及球證/裁判，謝謝！\nLaLaRef 急單王 ⚡';
+        return head + '你嘅友誼賽Friendly約戰（編號：' + m.ref + '）已經 LaLaRef 確認 ✅\n🏀 ' + m.team + '（' + m.level + '）\n📅 ' + m.date + ' ' + timeText(m) + '\n📍 ' + (m.venue || m.district) + '\n我哋會刊登於約戰板，有球隊應戰會即時通知你。\nhttps://www.lalaref.com/friendly.html\nLaLaRef 急單王 ⚡';
+    }
+    function openWa(m) {
+        var n = waNumber(m.phone);
+        if (n.length < 8) { say('此約戰沒有有效電話，無法開啟 WhatsApp。', 'error'); return; }
+        window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(waMessage(m)), '_blank', 'noopener');
+    }
+
+    function validate(m) {
+        var req = [['team','球隊名稱'],['level','組別'],['date','比賽日期'],['start','開始時間'],['end','結束時間'],['district','地區'],['court','場地安排']];
+        for (var i = 0; i < req.length; i++) if (!m[req[i][0]]) { say('請填寫：' + req[i][1], 'error'); $('fm-' + req[i][0]).focus(); return false; }
+        if (m.start === m.end) { say('開始及結束時間不可相同。', 'error'); return false; }
+        return true;
+    }
+
+    function confirmMatch() {
+        var m = readForm();
+        if (!validate(m)) return;
+        var list = loadList();
+        if (!m.ref) m.ref = genRef();
+        var idx = list.findIndex(function (x) { return x.ref === m.ref; });
+        if (idx >= 0 && editing !== m.ref && !confirm('約戰編號 ' + m.ref + ' 已存在，要覆寫嗎？')) return;
+        if (m.date < todayStr() && !confirm('比賽日期已過，確認後也不會輸出到約戰板。仍要儲存嗎？')) return;
+        m.confirmedAt = idx >= 0 && list[idx].confirmedAt ? list[idx].confirmedAt : new Date().toISOString();
+        if (idx >= 0) list[idx] = m; else list.push(m);
+        saveList(list);
+        editing = '';
+        $('fm-ref').value = m.ref;
+        $('fm-edit-state').textContent = '';
+        render();
+        say('已確認並加入約戰板：' + m.team + '（' + m.ref + '）。請按「產生並複製資料碼」更新公開頁面。');
+    }
+
+    function render() {
+        var list = loadList().slice().sort(function (a, b) { return String(a.date).localeCompare(String(b.date)) || String(a.start).localeCompare(String(b.start)); });
+        var t = todayStr();
+        $('fm-count').textContent = '共 ' + list.length + ' 場';
+        $('fm-list').innerHTML = list.length ? list.map(function (m) {
+            var old = m.date < t, open = m.status !== 'closed';
+            return '<div class="fm-item"><h4>' + esc(m.team) + ' <span class="fm-tag">' + esc(m.level) + '</span>' +
+                '<span class="fm-tag ' + (open ? 'open' : 'closed') + '">' + (open ? '招募中' : '已配對') + '</span>' +
+                (old ? '<span class="fm-tag old">已過期（不輸出）</span>' : '') + '</h4>' +
+                '<div class="fm-meta">📅 ' + esc(m.date) + '　🕐 ' + esc(timeText(m)) + '　📍 ' + esc(m.district) + (m.venue ? ' · ' + esc(m.venue) : '') + '<br>' +
+                '🏟️ ' + esc(m.court) + '　👨‍⚖️ ' + esc(m.refs || '待定') + '<br>' +
+                '🔖 ' + esc(m.ref) + (m.contact || m.phone ? '　👤 ' + esc(m.contact) + ' ' + esc(m.phone) : '') + '</div>' +
+                '<div class="fm-acts">' +
+                '<button type="button" class="btn sm" data-fm="edit" data-ref="' + esc(m.ref) + '">✏️ 編輯</button>' +
+                '<button type="button" class="btn sm btn-secondary" data-fm="toggle" data-ref="' + esc(m.ref) + '">' + (open ? '標記已配對' : '改回招募中') + '</button>' +
+                '<button type="button" class="btn sm wa" data-fm="wa" data-ref="' + esc(m.ref) + '">💬 WhatsApp 球隊</button>' +
+                '<button type="button" class="btn sm del" data-fm="del" data-ref="' + esc(m.ref) + '">🗑 刪除</button>' +
+                '</div></div>';
+        }).join('') : '<div class="fm-empty">尚未有已確認約戰</div>';
+    }
+
+    function copyText(text, ok) {
+        var done = function () { say(ok); };
+        var fallback = function () {
+            var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); done(); } catch (e) { say('無法自動複製，請手動複製下方內容。', 'error'); }
+            document.body.removeChild(ta);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+    }
+
+    function buildCode() {
+        var t = todayStr();
+        var list = loadList().filter(function (m) { return m.date >= t; }).sort(function (a, b) { return String(a.date).localeCompare(String(b.date)) || String(a.start).localeCompare(String(b.start)); });
+        var lines = list.map(function (m) {
+            return '  ' + JSON.stringify({ ref: m.ref, team: m.team, level: m.level, date: m.date, time: timeText(m), district: m.district, court: m.court, venue: m.venue || '', refs: m.refs || '', status: m.status === 'closed' ? 'closed' : 'open' });
+        });
+        return { count: list.length, code: 'var MATCHES = [' + (lines.length ? '\n' + lines.join(',\n') + '\n' : '') + '];' };
+    }
+
+    window.fmInit = function () { render(); };
+
+    $('fm-parse').addEventListener('click', function () {
+        var text = $('fm-raw').value.trim();
+        if (!text) { say('請先貼上球隊的 WhatsApp 訊息。', 'error'); return; }
+        var r = parseMessage(text);
+        if (!r.team && !r.date && !r.level) { clearForm(); say('未能辨識訊息內容（表格已清空），請確認貼上的是約戰申請訊息，或直接在下方手動填寫。', 'error'); return; }
+        editing = '';
+        fillForm(r);
+        $('fm-edit-state').textContent = '（已從訊息解析，請核對）';
+        var missing = ['team','level','date','start','end','district','court'].filter(function (f) { return !r[f]; });
+        say(missing.length ? '已解析，但有欄位未能辨識，請手動補齊。' : '已解析，請核對後按「確認並加入約戰板」。', missing.length ? 'error' : 'success');
+    });
+    $('fm-clear').addEventListener('click', function () { $('fm-raw').value = ''; clearForm(); });
+    $('fm-confirm').addEventListener('click', confirmMatch);
+    $('fm-wa-form').addEventListener('click', function () {
+        var m = readForm();
+        if (!m.ref) { m.ref = genRef(); $('fm-ref').value = m.ref; }
+        openWa(m);
+    });
+    $('fm-list').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-fm]');
+        if (!b) return;
+        var list = loadList(), i = list.findIndex(function (x) { return x.ref === b.dataset.ref; });
+        if (i < 0) return;
+        var m = list[i];
+        if (b.dataset.fm === 'edit') {
+            fillForm(m); editing = m.ref;
+            $('fm-edit-state').textContent = '（編輯中：' + m.ref + '）';
+            $('fm-team').scrollIntoView({behavior: 'smooth', block: 'center'});
+        } else if (b.dataset.fm === 'toggle') {
+            m.status = m.status === 'closed' ? 'open' : 'closed'; saveList(list); render();
+            say(m.team + ' 已標記為' + (m.status === 'closed' ? '已配對' : '招募中') + '，請重新產生資料碼。');
+        } else if (b.dataset.fm === 'wa') {
+            openWa(m);
+        } else if (b.dataset.fm === 'del') {
+            if (!confirm('確定刪除「' + m.team + '」（' + m.ref + '）？')) return;
+            list.splice(i, 1); saveList(list); render(); say('已刪除，請重新產生資料碼。');
+        }
+    });
+    $('fm-gen').addEventListener('click', function () {
+        var r = buildCode();
+        $('fm-code').value = r.code;
+        copyText(r.code, '已複製 ' + r.count + ' 場約戰的資料碼，請貼入友誼賽頁面的 MATCHES 並重新上載。');
+    });
+    $('fm-backup').addEventListener('click', function () { copyText(JSON.stringify(loadList()), '備份 JSON 已複製。'); });
+    $('fm-restore').addEventListener('click', function () {
+        var text = prompt('貼上備份 JSON（會與現有約戰合併，編號相同則覆蓋）：');
+        if (!text) return;
+        try {
+            var incoming = JSON.parse(text);
+            if (!Array.isArray(incoming)) throw new Error('格式錯誤');
+            var list = loadList();
+            incoming.forEach(function (m) {
+                if (!m || typeof m !== 'object' || !m.ref || !m.team) return;
+                var i = list.findIndex(function (x) { return x.ref === m.ref; });
+                if (i >= 0) list[i] = m; else list.push(m);
+            });
+            saveList(list); render(); say('已匯入備份，現共 ' + list.length + ' 場約戰。');
+        } catch (e) { say('匯入失敗：備份格式不正確。', 'error'); }
+    });
+    fillForm({status: 'open'});
+})();
+</script>
 </body>
 </html>
