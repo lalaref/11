@@ -140,7 +140,7 @@ footer p{margin:4px 0;font-size:.95em}
   <div class="steps">
    <div class="step"><div class="n">1</div><h3>WhatsApp 提交</h3><p>填寫表格，系統自動生成約戰編號並經 WhatsApp 傳送至 LaLaRef。</p></div>
    <div class="step"><div class="n">2</div><h3>LaLaRef 確認</h3><p>我們核實球隊、日期及場地資料，確認後才刊登於約戰板並協助配對。</p></div>
-   <div class="step"><div class="n">3</div><h3>確認細節</h3><p>雙方確認場地、賽制及費用分攤（AA 或主隊負責）。</p></div>
+   <div class="step"><div class="n">3</div><h3>確認細節</h3><p>雙方確認場地、時間、賽制及費用分攤（AA 或主隊負責）。</p></div>
    <div class="step"><div class="n">4</div><h3>球證到場開波</h3><p>持牌球證/裁判準時到場，可加配計時計分及攝影。</p></div>
   </div>
  </section>
@@ -175,8 +175,6 @@ footer p{margin:4px 0;font-size:.95em}
    <div class="sect">比賽安排</div>
    <div class="grid">
     <div class="fg"><label for="date">比賽日期 *</label><input type="date" id="date" required></div>
-    <div class="fg"><label for="start">開始時間 *</label><input type="time" id="start" required></div>
-    <div class="fg"><label for="end">結束時間 *</label><input type="time" id="end" required></div>
     <div class="fg"><label for="district">地區 *</label>
      <select id="district" required><option value="">請選擇</option><option>港島</option><option>九龍</option><option>新界東</option><option>新界西</option><option>不限</option></select></div>
     <div class="fg"><label for="court">場地安排 *</label>
@@ -287,11 +285,11 @@ var MATCHES = [
     }
     board.innerHTML = list.map(function (m) {
       var open = m.status !== 'closed';
-      var msg = '你好 LaLaRef，我想應戰（請代為確認及配對）：' + m.team + '（' + m.level + '）' + m.date + ' ' + m.time + ' ' + (m.venue || m.district);
+      var msg = '你好 LaLaRef，我想應戰（請代為確認及配對）：' + m.team + '（' + m.level + '）' + m.date + ' ' + (m.time || '雙方約定') + ' ' + (m.venue || m.district);
       return '<article class="match">' +
         '<div class="top"><span class="team">' + esc(m.team) + '</span><span class="tag ' + (open ? 'open' : 'closed') + '">' + (open ? '招募中' : '已配對') + '</span></div>' +
         '<div><span class="tag">' + esc(m.level) + '</span></div>' +
-        '<div class="row">📅 <b>' + esc(m.date) + '</b>　🕐 ' + esc(m.time) + '</div>' +
+        '<div class="row">📅 <b>' + esc(m.date) + '</b>　🕐 ' + esc(m.time || '雙方約定') + '</div>' +
         '<div class="row">📍 ' + esc(m.district) + (m.venue ? ' · ' + esc(m.venue) : '') + '</div>' +
         '<div class="row">🏟️ ' + esc(m.court) + '　👨‍⚖️ 球證 ' + esc(m.refs || '待定') + '</div>' +
         (open ? '<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/' + WA + '?text=' + encodeURIComponent(msg) + '">⚔️ 我要應戰</a>' : '') +
@@ -312,12 +310,11 @@ var MATCHES = [
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    var required = ['team', 'level', 'date', 'start', 'end', 'district', 'court', 'contact', 'phone'];
+    var required = ['team', 'level', 'date', 'district', 'court', 'contact', 'phone'];
     for (var i = 0; i < required.length; i++) {
       if (!v(required[i])) { say('請填寫所有必填項目（*）。'); document.getElementById(required[i]).focus(); return; }
     }
     if (v('date') < dateEl.min) { say('比賽日期不可早於今日。'); dateEl.focus(); return; }
-    if (v('start') === v('end')) { say('開始及結束時間不可相同。'); return; }
     if (!/^[\d\s+\-]{8,16}$/.test(v('phone'))) { say('請輸入有效電話號碼。'); document.getElementById('phone').focus(); return; }
     if (!document.getElementById('agree').checked) { say('請先同意約戰守則。'); return; }
 
@@ -329,7 +326,7 @@ var MATCHES = [
       '球隊：' + v('team'),
       '組別：' + v('level') + '（希望對手：' + v('want') + '）',
       '日期：' + v('date'),
-      '時間：' + v('start') + ' - ' + v('end') + (v('end') < v('start') ? '（翌日）' : ''),
+      '時間：雙方約定',
       '地區：' + v('district'),
       '場地安排：' + v('court') + (v('venue') ? '（' + v('venue') + '）' : ''),
       '賽制：' + v('format'),
