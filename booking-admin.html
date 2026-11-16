@@ -1289,7 +1289,8 @@ LaLaRef 急單王 ⚡</textarea>
                     <div class="form-group"><label for="fm-team">球隊名稱 *</label><input type="text" id="fm-team" maxlength="40"></div>
                     <div class="form-group"><label for="fm-level">組別 *</label>
                         <select id="fm-level"><option value="">請選擇</option><option>甲組</option><option>乙組</option><option>丙組</option><option>U20</option><option>U16</option><option>U12</option><option>業餘/公司隊</option></select></div>
-                    <div class="form-group"><label for="fm-date">比賽日期 *</label><input type="date" id="fm-date"></div>
+                    <div class="form-group"><label for="fm-want">希望對手水平</label><input type="text" id="fm-want" placeholder="例如: 相近水平 / 甲組 / 不限"></div>
+                    <div class="form-group"><label for="fm-date">比賽日期（可留空＝LaLaRef 按雙方約定安排）</label><input type="date" id="fm-date"></div>
                     <div class="form-group"><label for="fm-start">開始時間（可留空）</label><input type="time" id="fm-start"></div>
                     <div class="form-group"><label for="fm-end">結束時間（可留空）</label><input type="time" id="fm-end"></div>
                     <div class="form-group"><label for="fm-district">地區 *</label>
@@ -1306,7 +1307,6 @@ LaLaRef 急單王 ⚡</textarea>
                     <div class="form-group"><label for="fm-ref">約戰編號</label><input type="text" id="fm-ref" placeholder="自動生成或貼上訊息內編號"></div>
                     <div class="form-group"><label for="fm-contact">聯絡人</label><input type="text" id="fm-contact"></div>
                     <div class="form-group"><label for="fm-phone">電話 / WhatsApp</label><input type="tel" id="fm-phone"></div>
-                    <div class="form-group"><label for="fm-want">希望對手水平</label><input type="text" id="fm-want"></div>
                     <div class="form-group"><label for="fm-format">賽制</label><input type="text" id="fm-format"></div>
                     <div class="form-group"><label for="fm-fee">費用分攤</label><input type="text" id="fm-fee"></div>
                     <div class="form-group"><label for="fm-scorer">計時計分員</label><input type="text" id="fm-scorer"></div>
@@ -4186,8 +4186,8 @@ LaLaRef 急單王
     function waNumber(p) { var d = String(p || '').replace(/\D/g, ''); if (d.length === 8) d = '852' + d; return d; }
     function waMessage(m) {
         var head = '你好' + (m.contact ? ' ' + m.contact : '') + '！';
-        if (m.status === 'closed') return head + '你嘅友誼賽Friendly約戰（編號：' + m.ref + '）已經配對成功 ✅\n📅 ' + m.date + ' ' + timeText(m) + '\n📍 ' + (m.venue || m.district) + '\n我哋會再跟進比賽安排及球證/裁判，謝謝！\nLaLaRef 急單王 ⚡';
-        return head + '你嘅友誼賽Friendly約戰（編號：' + m.ref + '）已經 LaLaRef 確認 ✅\n🏀 ' + m.team + '（' + m.level + '）\n📅 ' + m.date + ' ' + timeText(m) + '\n📍 ' + (m.venue || m.district) + '\n我哋會刊登於約戰板，有球隊應戰會即時通知你。\nhttps://www.lalaref.com/friendly.html\nLaLaRef 急單王 ⚡';
+        if (m.status === 'closed') return head + '你嘅友誼賽Friendly約戰（編號：' + m.ref + '）已經配對成功 ✅\n📅 ' + (m.date ? m.date + ' ' + timeText(m) : '比賽日期及時間：LaLaRef 按雙方約定安排') + '\n📍 ' + (m.venue || m.district) + '\n我哋會再跟進比賽安排及球證/裁判，謝謝！\nLaLaRef 急單王 ⚡';
+        return head + '你嘅友誼賽Friendly約戰（編號：' + m.ref + '）已經 LaLaRef 確認 ✅\n🏀 ' + m.team + '（' + m.level + '）\n📅 ' + (m.date ? m.date + ' ' + timeText(m) : '比賽日期及時間：LaLaRef 按雙方約定安排') + '\n📍 ' + (m.venue || m.district) + '\n我哋會刊登於約戰板，有球隊應戰會即時通知你。\nhttps://www.lalaref.com/friendly.html\nLaLaRef 急單王 ⚡';
     }
     function openWa(m) {
         var n = waNumber(m.phone);
@@ -4196,7 +4196,7 @@ LaLaRef 急單王
     }
 
     function validate(m) {
-        var req = [['team','球隊名稱'],['level','組別'],['date','比賽日期'],['district','地區'],['court','場地安排']];
+        var req = [['team','球隊名稱'],['level','組別'],['district','地區'],['court','場地安排']];
         for (var i = 0; i < req.length; i++) if (!m[req[i][0]]) { say('請填寫：' + req[i][1], 'error'); $('fm-' + req[i][0]).focus(); return false; }
         if (m.start && m.end && m.start === m.end) { say('開始及結束時間不可相同。', 'error'); return false; }
         return true;
@@ -4209,7 +4209,7 @@ LaLaRef 急單王
         if (!m.ref) m.ref = genRef();
         var idx = list.findIndex(function (x) { return x.ref === m.ref; });
         if (idx >= 0 && editing !== m.ref && !confirm('約戰編號 ' + m.ref + ' 已存在，要覆寫嗎？')) return;
-        if (m.date < todayStr() && !confirm('比賽日期已過，確認後也不會輸出到約戰板。仍要儲存嗎？')) return;
+        if (m.date && m.date < todayStr() && !confirm('比賽日期已過，確認後也不會輸出到約戰板。仍要儲存嗎？')) return;
         m.confirmedAt = idx >= 0 && list[idx].confirmedAt ? list[idx].confirmedAt : new Date().toISOString();
         if (idx >= 0) list[idx] = m; else list.push(m);
         saveList(list);
@@ -4225,11 +4225,11 @@ LaLaRef 急單王
         var t = todayStr();
         $('fm-count').textContent = '共 ' + list.length + ' 場';
         $('fm-list').innerHTML = list.length ? list.map(function (m) {
-            var old = m.date < t, open = m.status !== 'closed';
+            var old = m.date && m.date < t, open = m.status !== 'closed';
             return '<div class="fm-item"><h4>' + esc(m.team) + ' <span class="fm-tag">' + esc(m.level) + '</span>' +
                 '<span class="fm-tag ' + (open ? 'open' : 'closed') + '">' + (open ? '招募中' : '已配對') + '</span>' +
                 (old ? '<span class="fm-tag old">已過期（不輸出）</span>' : '') + '</h4>' +
-                '<div class="fm-meta">📅 ' + esc(m.date) + '　🕐 ' + esc(timeText(m)) + '　📍 ' + esc(m.district) + (m.venue ? ' · ' + esc(m.venue) : '') + '<br>' +
+                '<div class="fm-meta">📅 ' + esc(m.date || 'LaLaRef 按雙方約定安排') + (m.date ? '　🕐 ' + esc(timeText(m)) : '') + '　🎯 希望對手：' + esc(m.want || '未填') + '　📍 ' + esc(m.district) + (m.venue ? ' · ' + esc(m.venue) : '') + '<br>' +
                 '🏟️ ' + esc(m.court) + '　👨‍⚖️ ' + esc(m.refs || '待定') + '<br>' +
                 '🔖 ' + esc(m.ref) + (m.contact || m.phone ? '　👤 ' + esc(m.contact) + ' ' + esc(m.phone) : '') + '</div>' +
                 '<div class="fm-acts">' +
@@ -4253,9 +4253,9 @@ LaLaRef 急單王
 
     function buildCode() {
         var t = todayStr();
-        var list = loadList().filter(function (m) { return m.date >= t; }).sort(function (a, b) { return String(a.date).localeCompare(String(b.date)) || String(a.start).localeCompare(String(b.start)); });
+        var list = loadList().filter(function (m) { return !m.date || m.date >= t; }).sort(function (a, b) { return String(a.date).localeCompare(String(b.date)) || String(a.start).localeCompare(String(b.start)); });
         var lines = list.map(function (m) {
-            return '  ' + JSON.stringify({ ref: m.ref, team: m.team, level: m.level, date: m.date, time: timeText(m), district: m.district, court: m.court, venue: m.venue || '', refs: m.refs || '', status: m.status === 'closed' ? 'closed' : 'open' });
+            return '  ' + JSON.stringify({ ref: m.ref, team: m.team, level: m.level, want: m.want || '', date: m.date || '', time: m.date ? timeText(m) : '', district: m.district, court: m.court, venue: m.venue || '', refs: m.refs || '', status: m.status === 'closed' ? 'closed' : 'open' });
         });
         return { count: list.length, code: '/* 約戰板資料碼 — 貼入 friendly.html 的「約戰板資料」script 區塊內（取代原有全部內容），其他程式碼不用動 */\nvar MATCHES = [' + (lines.length ? '\n' + lines.join(',\n') + '\n' : '') + '];' };
     }
@@ -4270,7 +4270,7 @@ LaLaRef 急單王
         editing = '';
         fillForm(r);
         $('fm-edit-state').textContent = '（已從訊息解析，請核對）';
-        var missing = ['team','level','date','district','court'].filter(function (f) { return !r[f]; });
+        var missing = ['team','level','district','court'].filter(function (f) { return !r[f]; });
         say(missing.length ? '已解析，但有欄位未能辨識，請手動補齊。' : '已解析，請核對後按「確認並加入約戰板」。', missing.length ? 'error' : 'success');
     });
     $('fm-clear').addEventListener('click', function () { $('fm-raw').value = ''; clearForm(); });
